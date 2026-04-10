@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mol* Linker Wiki</title>
+    <link>http://localhost:1313/Molstar_Linker/</link>
+    <description>Recent content on Mol* Linker Wiki</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 10 Apr 2026 19:51:39 +0200</lastBuildDate>
+    <atom:link href="http://localhost:1313/Molstar_Linker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Architecture</title>
+      <link>http://localhost:1313/Molstar_Linker/architecture/</link>
+      <pubDate>Fri, 10 Apr 2026 19:51:39 +0200</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/architecture/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

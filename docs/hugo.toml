@@ -1,0 +1,4 @@
+baseURL = 'https://martinbagar.github.io/Molstar_Linker/'
+languageCode = 'en-us'
+title = 'Mol* Linker Wiki'
+theme = 'hugo-book'
