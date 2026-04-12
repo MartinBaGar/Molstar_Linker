@@ -7,7 +7,7 @@ draft = false
 <iframe
   src="https://molstar.org/viewer/?snapshot-url=https://martinbagar.github.io/Molstar_Linker/models/welcome.molx&snapshot-url-type=molx&hide-controls=1"
   width="100%"
-  height="400px"
+  height="200px"
   style="border: none; border-radius: 8px; margin-top: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
 </iframe>
 
