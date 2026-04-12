@@ -37,7 +37,7 @@
 ### 1. The Quick Popup
 Click the extension icon in your browser toolbar to quickly swap between built-in presets (e.g., "Protein Surface + Spacefill Ligands") or your own custom templates.
 
-[Popup Menu](docs/static/popup.png)
+![Popup Menu](docs/static/popup.png)
 
 ### 2. The Studio (Advanced Options)
 Right-click the extension icon and select **Options** (or click "Open Advanced Studio" in the popup) to access the full rule builder.
