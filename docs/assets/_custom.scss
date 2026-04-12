@@ -1,0 +1,46 @@
+.hero-quote {
+  /* 1. Center the block on the page */
+  max-width: 75%;
+  margin: 2rem auto; 
+  
+  /* 2. Justify the text inside */
+  text-align: justify;
+  
+  /* 3. Give it the "Quote" aspect */
+  font-style: italic;
+  font-size: 1.1rem;
+  padding: 1.5rem 2rem;
+  border-left: 5px solid #000000; /* A nice blue accent line */
+  background: rgba(0, 0, 0, 0.03); /* A very subtle background color */
+  border-radius: 4px;
+}
+
+// aside {
+//   width: 40%;
+//   padding-left: 0.5rem;
+//   margin-left: 0.5rem;
+//   float: right;
+//   box-shadow: inset 5px 0 5px -5px #29627e;
+//   font-style: italic;
+//   color: #29627e;
+// }
+
+// aside > p {
+//   margin: 0.5rem;
+// }
+
+/* Emphasize the top-level collapsible section titles */
+.book-menu nav > ul > li > label,
+.book-menu nav > ul > li > a {
+  font-weight: bold;
+  // text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  margin-top: 0.5rem;
+}
+
+/* Fix the alignment of the little expand arrow */
+.book-menu nav > ul > li > label > a {
+  font-weight: bold;
+  color: #1a1a1a;
+}

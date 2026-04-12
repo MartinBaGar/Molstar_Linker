@@ -1,0 +1,38 @@
+#+title: Mol* Linker
+#+HUGO_SECTION: /
+#+draft: false
+
+#+begin_export html
+<iframe 
+  src="https://molstar.org/viewer/?structure-url=https://martinbagar.github.io/Molstar_Linker/welcome.pdb&structure-url-format=pdb" 
+  width="100%" 
+  height="600px" 
+  style="border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+</iframe>
+#+end_export
+
+Mol* Linker is a browser extension for Chrome and Firefox that automatically detects molecular structure file links on GitHub and GitLab, and injects a one-click badge to open them in the [[https://molstar.org/viewer/][Mol* web viewer]] — pre-configured with your preferred representation style.
+
+No downloads. No local software. Click a badge, see your structure in 3D.
+
+* Features
+
+- Badge injection on GitHub & GitLab file browsers and directory trees
+- Full scene builder: per-molecule representation, color, opacity controls
+- Custom highlighting rules for chains, residues, or any selection
+- Named template library — save, share, and import JSON configurations
+- Works on private / self-hosted GitLab instances
+- Handles SPA navigation (no page reload required)
+
+* Supported Formats
+
+=.pdb=, =.cif=, =.mmcif=, =.bcif=, =.gro=, =.mol=, =.mol2=, =.sdf=, =.xyz=, =.ent=
+
+* Install
+
+| Browser | Link                    |
+|---------+-------------------------|
+| Chrome  | Chrome Web Store (link) |
+| Firefox | Firefox Add-ons (link)  |
+
+Or clone [[https://github.com/MartinBaGar/molstar_linker][the repository]] and load it as an unpacked extension.

@@ -1,0 +1,59 @@
+#+TITLE: Mol* Linker Studio  
+#+DATE: 2026-04-10
+#+DRAFT: false
+#+HUGO_WEIGHT: 10
+#+TOTO: yeeeees
+
+#+begin_hero-quote
+"Good software architecture is like a well-built foundation. It requires patience, precision, and a deep understanding of the load it will bear. This text is justified to create clean, mathematical edges, while the entire block sits perfectly in the center of the screen."
+#+end_hero-quote
+
+This is the place where you are going to control the visual aspects of the viewport and work with templates .
+
+#+begin_aside
+Some content for the ~aside~ block.
+#+end_aside
+
+We can even make the ~aside~ block /aside-like/ with
+[[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside][this little CSS]].
+
+#+begin_export html
+<style>
+  .red {
+    color: red;
+  }
+</style>
+#+end_export
+#+attr_html: :class red
+#+begin_mark
+This marked text's foreground is red.
+#+end_mark
+
+#+begin_aside
+alors ?
+#+end_aside
+#+attr_html: :class red
+Hey Configure the background and camera perspective. Configure the background and camera perspective.
+
+* Global Scene Settings
+Configure the background and camera perspective.
+
+* Global Target Configurations
+Define the baseline visual representation for standard molecular classes.
+
+* Global Scene Settings :noexport:
+
+
+Saving 
+You can save the settings at any time
+All the setting
+
+#+begin_src sh :exports both :results output
+echo "Hello from the shell!"
+#+end_src
+
+#+begin_src python :exports both :results output
+a = 10
+b = 4
+print(f"Python computed: {a + b}")
+#+end_src

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/configuration/targets/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Molecular Targets">
+  <meta property="og:description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Molecular Targets">
+  <meta itemprop="description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:">
+  <meta itemprop="wordCount" content="224">
+
+<title>Molecular Targets | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/configuration/targets/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a>
+      Getting Started</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="active">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="">
+      Architecture</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      FAQ &amp; Troubleshooting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Molecular Targets</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#available-targets">Available Targets</a></li>
+    <li><a href="#representation-types">Representation Types</a></li>
+    <li><a href="#color">Color</a></li>
+    <li><a href="#size-and-opacity">Size &amp; Opacity</a></li>
+    <li><a href="#applying-changes">Applying Changes</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><p>The <strong>Global Target Configurations</strong> panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.</p>
+<h2 id="available-targets">Available Targets<a class="anchor" href="#available-targets">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Target</th>
+          <th>Selector</th>
+          <th>Default Representation</th>
+          <th>Default Color</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Proteins</td>
+          <td><code>protein</code></td>
+          <td>Cartoon</td>
+          <td>Chain ID</td>
+      </tr>
+      <tr>
+          <td>Nucleic Acids (DNA/RNA)</td>
+          <td><code>nucleic</code></td>
+          <td>Cartoon</td>
+          <td>Chain ID</td>
+      </tr>
+      <tr>
+          <td>Ligands &amp; Small Molecules</td>
+          <td><code>ligand</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Element symbol</td>
+      </tr>
+      <tr>
+          <td>Carbohydrates &amp; Glycans</td>
+          <td><code>branched</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Element symbol</td>
+      </tr>
+      <tr>
+          <td>Single Ions</td>
+          <td><code>ion</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Element symbol</td>
+      </tr>
+      <tr>
+          <td>Water / Solvent</td>
+          <td><code>water</code></td>
+          <td>Hidden (Off)</td>
+          <td>—</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="representation-types">Representation Types<a class="anchor" href="#representation-types">#</a></h2>
+<p>Each target can use any of the following representations:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Key</th>
+          <th>Label</th>
+          <th>Extra Options</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>cartoon</code></td>
+          <td>Cartoon</td>
+          <td>Tubular helices on/off</td>
+      </tr>
+      <tr>
+          <td><code>backbone</code></td>
+          <td>Backbone</td>
+          <td>—</td>
+      </tr>
+      <tr>
+          <td><code>ball_and_stick</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Ignore hydrogens on/off</td>
+      </tr>
+      <tr>
+          <td><code>line</code></td>
+          <td>Line</td>
+          <td>Ignore hydrogens on/off</td>
+      </tr>
+      <tr>
+          <td><code>spacefill</code></td>
+          <td>Spacefill</td>
+          <td>Ignore hydrogens on/off</td>
+      </tr>
+      <tr>
+          <td><code>carbohydrate</code></td>
+          <td>Carbohydrate</td>
+          <td>—</td>
+      </tr>
+      <tr>
+          <td><code>putty</code></td>
+          <td>Putty</td>
+          <td>Size theme: uniform / uncertainty</td>
+      </tr>
+      <tr>
+          <td><code>surface</code></td>
+          <td>Surface</td>
+          <td>Type: molecular / gaussian; ignore H</td>
+      </tr>
+      <tr>
+          <td><code>off</code></td>
+          <td>Hide</td>
+          <td>Omits this target from the scene</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="color">Color<a class="anchor" href="#color">#</a></h2>
+<p>Each target has a color mode toggle:</p>
+<ul>
+<li><strong>Theme</strong> — uses a Mol* built-in coloring scheme (e.g. <code>chain-id</code>, <code>element-symbol</code>, <code>secondary-structure</code>, <code>residue-index</code>, …)</li>
+<li><strong>Solid</strong> — a single flat hex color applied to the whole target</li>
+</ul>
+<h2 id="size-and-opacity">Size &amp; Opacity<a class="anchor" href="#size-and-opacity">#</a></h2>
+<ul>
+<li><strong>Size</strong> maps to the <code>size_factor</code> parameter in MolViewSpec, scaling atom/bond radius relative to the default</li>
+<li><strong>Opacity</strong> (0–1) adds a MolViewSpec <code>opacity</code> node; useful for making surfaces semi-transparent</li>
+</ul>
+<h2 id="applying-changes">Applying Changes<a class="anchor" href="#applying-changes">#</a></h2>
+<p>Click <strong>Apply to Mol*</strong> in the sidebar. Changes take effect on the next badge click.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/configuration/scene/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Scene Settings</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="flex align-center">
+        <span>Custom Rules</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#available-targets">Available Targets</a></li>
+    <li><a href="#representation-types">Representation Types</a></li>
+    <li><a href="#color">Color</a></li>
+    <li><a href="#size-and-opacity">Size &amp; Opacity</a></li>
+    <li><a href="#applying-changes">Applying Changes</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

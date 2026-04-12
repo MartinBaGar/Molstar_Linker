@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Getting Started on Mol* Linker Wiki</title>
+    <link>http://localhost:1313/Molstar_Linker/docs/getting-started/</link>
+    <description>Recent content in Getting Started on Mol* Linker Wiki</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Molstar_Linker/docs/getting-started/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Installation</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/getting-started/installation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/getting-started/installation/</guid>
+      <description>&lt;h2 id=&#34;chrome&#34;&gt;Chrome&lt;a class=&#34;anchor&#34; href=&#34;#chrome&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Go to the Chrome Web Store page (link TBD)&lt;/li&gt;&#xA;&lt;li&gt;Click &lt;strong&gt;Add to Chrome&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;Confirm the permissions dialog&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;h2 id=&#34;firefox&#34;&gt;Firefox&lt;a class=&#34;anchor&#34; href=&#34;#firefox&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Go to the Firefox Add-ons page (link TBD)&lt;/li&gt;&#xA;&lt;li&gt;Click &lt;strong&gt;Add to Firefox&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;Confirm the permissions dialog&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;h2 id=&#34;load-unpacked--development&#34;&gt;Load Unpacked (Development)&lt;a class=&#34;anchor&#34; href=&#34;#load-unpacked--development&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;Clone the repository and load it manually for local development or testing:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;git clone https://github.com/MartinBaGar/molstar_linker&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Chrome&lt;/strong&gt;: open &lt;code&gt;chrome://extensions&lt;/code&gt;, enable Developer Mode, click &lt;strong&gt;Load unpacked&lt;/strong&gt;, select the repo folder&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Firefox&lt;/strong&gt;: open &lt;code&gt;about:debugging&lt;/code&gt;, click &lt;strong&gt;This Firefox&lt;/strong&gt;, click &lt;strong&gt;Load Temporary Add-on&lt;/strong&gt;, select &lt;code&gt;manifest.json&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;permissions&#34;&gt;Permissions&lt;a class=&#34;anchor&#34; href=&#34;#permissions&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;The extension requests the following permissions on install:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Quickstart</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/getting-started/quickstart/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/getting-started/quickstart/</guid>
+      <description>&lt;p&gt;Once the extension is installed, no configuration is needed to get started.&lt;/p&gt;&#xA;&lt;h2 id=&#34;see-your-first-structure&#34;&gt;See Your First Structure&lt;a class=&#34;anchor&#34; href=&#34;#see-your-first-structure&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Navigate to any GitHub or GitLab repository that contains a &lt;code&gt;.pdb&lt;/code&gt;, &lt;code&gt;.cif&lt;/code&gt;, or other &lt;a href=&#34;../../#supported-formats&#34;&gt;supported file&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;Look for a green &lt;strong&gt;Mol&lt;/strong&gt; (MVS)* badge next to file names in the file browser, or next to links in README files&lt;/li&gt;&#xA;&lt;li&gt;Click the badge — the structure opens in the Mol* viewer in a new tab, rendered with your current settings&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;h2 id=&#34;change-the-active-preset&#34;&gt;Change the Active Preset&lt;a class=&#34;anchor&#34; href=&#34;#change-the-active-preset&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;Click the extension icon in your browser toolbar to open the popup:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,76 @@
++++
+title = "Custom Rules"
+author = ["Martin Bari Garnier"]
+draft = false
+weight = 203
++++
+
+Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
+
+Click **+ Add New Rule** at the bottom of the Custom Highlighting Rules panel to create one.
+
+
+## Rule Types {#rule-types}
+
+
+### Highlight (color overlay) {#highlight--color-overlay}
+
+Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.
+
+The color is injected as a per-selector color node inside the protein or nucleic representation — it does not create a separate component.
+
+
+### Representation {#representation}
+
+Creates an entirely separate component in the Mol\* scene with its own representation type, color, size, and opacity. Use this when you want a specific region to look different from the rest (e.g. a surface on chain A while everything else is cartoon).
+
+
+## Selector Syntax {#selector-syntax}
+
+The selector field accepts any MolViewSpec selector expression. Common examples:
+
+| Goal                         | Selector                                   |
+|------------------------------|--------------------------------------------|
+| Entire chain A               | `{ "chain_id": "A" }`                      |
+| Residues 10–50               | `{ "residue_index": [10, 50] }`            |
+| A single residue (by number) | `{ "residue_number": 42 }`                 |
+| Ligand by name               | `{ "residue_name": "HEM" }`                |
+| All ligands                  | `ligand` (plain string selectors work too) |
+
+Refer to the [MolViewSpec documentation](https://molstar.org/viewer-docs/extensions/mvs/) for the full selector schema.
+
+
+## Appearance Options {#appearance-options}
+
+| Field   | Description                                   |
+|---------|-----------------------------------------------|
+| Color   | Theme or solid color (same as global targets) |
+| Size    | `size_factor` for the representation          |
+| Opacity | 0–1; adds an MVS `opacity` node               |
+
+
+## Storytelling Options {#storytelling-options}
+
+These options add annotation nodes to the Mol\* scene — useful for guided presentations or publication figures.
+
+| Field   | Effect in Mol\*                                              |
+|---------|--------------------------------------------------------------|
+| Label   | Renders a 3D text label anchored to the selection centroid   |
+| Tooltip | Shows a text tooltip when the user hovers over the selection |
+| Focus   | Auto-zooms Mol\* to the selection when the viewer opens      |
+
+
+## Rule Order {#rule-order}
+
+Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.
+
+
+## Example: Highlight the Active Site {#example-highlight-the-active-site}
+
+Suppose you want to highlight residues 100–110 in chain A in orange, with a label:
+
+-   **Selector**: `{ "chain_id": "A", "residue_number": [100, 110] }`
+-   **Type**: Highlight
+-   **Color**: Solid → `#ff6600`
+-   **Label**: Active site
+-   **Focus**: on

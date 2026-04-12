@@ -2,13 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/Molstar_Linker/</loc>
-    <lastmod>2026-04-10T19:51:39+02:00</lastmod>
+    <loc>http://localhost:1313/Molstar_Linker/docs/getting-started/</loc>
   </url><url>
-    <loc>http://localhost:1313/Molstar_Linker/architecture/</loc>
-    <lastmod>2026-04-10T19:51:39+02:00</lastmod>
+    <loc>http://localhost:1313/Molstar_Linker/docs/getting-started/installation/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/getting-started/quickstart/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/configuration/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/configuration/scene/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/configuration/targets/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/configuration/custom-rules/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/templates/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/custom-domains/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/developer/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/developer/architecture/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/developer/module-reference/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/developer/contributing/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/faq/</loc>
   </url><url>
     <loc>http://localhost:1313/Molstar_Linker/categories/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/</loc>
+  </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/</loc>
   </url><url>
     <loc>http://localhost:1313/Molstar_Linker/tags/</loc>
   </url>

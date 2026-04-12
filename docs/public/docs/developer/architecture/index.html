@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="File Structure# File Responsibility manifest.json MV3 manifest — permissions, host grants, content script wiring config.js AppConfig — representation schemas, targets, built-in presets, defaults mvs-builder.js MvsBuilder — assembles the MVS JSON tree, encodes the Mol* viewer URL content.js Content script — link detection, badge injection, SPA observer permissions.js PermissionsManager — runtime host permission and script registration popup.html / popup.js Toolbar popup — preset picker, JSON import, options shortcut options.html / options.js Full settings studio Data Flow# When a supported page loads:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/architecture/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Architecture">
+  <meta property="og:description" content="File Structure# File Responsibility manifest.json MV3 manifest — permissions, host grants, content script wiring config.js AppConfig — representation schemas, targets, built-in presets, defaults mvs-builder.js MvsBuilder — assembles the MVS JSON tree, encodes the Mol* viewer URL content.js Content script — link detection, badge injection, SPA observer permissions.js PermissionsManager — runtime host permission and script registration popup.html / popup.js Toolbar popup — preset picker, JSON import, options shortcut options.html / options.js Full settings studio Data Flow# When a supported page loads:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Architecture">
+  <meta itemprop="description" content="File Structure# File Responsibility manifest.json MV3 manifest — permissions, host grants, content script wiring config.js AppConfig — representation schemas, targets, built-in presets, defaults mvs-builder.js MvsBuilder — assembles the MVS JSON tree, encodes the Mol* viewer URL content.js Content script — link detection, badge injection, SPA observer permissions.js PermissionsManager — runtime host permission and script registration popup.html / popup.js Toolbar popup — preset picker, JSON import, options shortcut options.html / options.js Full settings studio Data Flow# When a supported page loads:">
+  <meta itemprop="wordCount" content="338">
+
+<title>Architecture | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/developer/architecture/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a>
+      Getting Started</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="active">
+      Architecture</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      FAQ &amp; Troubleshooting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Architecture</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#file-structure">File Structure</a></li>
+    <li><a href="#data-flow">Data Flow</a></li>
+    <li><a href="#mvs-tree-structure">MVS Tree Structure</a></li>
+    <li><a href="#storage-schema">Storage Schema</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="file-structure">File Structure<a class="anchor" href="#file-structure">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>File</th>
+          <th>Responsibility</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>manifest.json</code></td>
+          <td>MV3 manifest — permissions, host grants, content script wiring</td>
+      </tr>
+      <tr>
+          <td><code>config.js</code></td>
+          <td><code>AppConfig</code> — representation schemas, targets, built-in presets, defaults</td>
+      </tr>
+      <tr>
+          <td><code>mvs-builder.js</code></td>
+          <td><code>MvsBuilder</code> — assembles the MVS JSON tree, encodes the Mol* viewer URL</td>
+      </tr>
+      <tr>
+          <td><code>content.js</code></td>
+          <td>Content script — link detection, badge injection, SPA observer</td>
+      </tr>
+      <tr>
+          <td><code>permissions.js</code></td>
+          <td><code>PermissionsManager</code> — runtime host permission and script registration</td>
+      </tr>
+      <tr>
+          <td><code>popup.html</code> / <code>popup.js</code></td>
+          <td>Toolbar popup — preset picker, JSON import, options shortcut</td>
+      </tr>
+      <tr>
+          <td><code>options.html</code> / <code>options.js</code></td>
+          <td>Full settings studio</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="data-flow">Data Flow<a class="anchor" href="#data-flow">#</a></h2>
+<p>When a supported page loads:</p>
+<ol>
+<li><code>config.js</code>, <code>mvs-builder.js</code>, and <code>content.js</code> are injected at <code>document_end</code></li>
+<li><code>injectMolstarLinker()</code> fetches current settings from <code>chrome.storage.sync</code></li>
+<li>All <code>&lt;a href&gt;</code> elements are scanned — <code>getMolstarUrl()</code> checks the extension, transforms GitHub/GitLab blob URLs to raw URLs, and calls <code>MvsBuilder.createViewerUrl()</code></li>
+<li><code>MvsBuilder</code> serialises the full MVS JSON tree and encodes it as a query parameter on <code>https://molstar.org/viewer/</code></li>
+<li>A filename→URL map is built; a TreeWalker finds matching filenames in text nodes and inserts badge anchors adjacent to them in the DOM</li>
+<li>A <code>MutationObserver</code> debounces DOM changes (500 ms) and re-runs <code>injectMolstarLinker()</code> to handle SPA navigation</li>
+</ol>
+<h2 id="mvs-tree-structure">MVS Tree Structure<a class="anchor" href="#mvs-tree-structure">#</a></h2>
+<p>The MolViewSpec document built for each structure link has this shape:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>root
+</span></span><span style="display:flex;"><span>  └─ download  { url }
+</span></span><span style="display:flex;"><span>       └─ parse  { format }
+</span></span><span style="display:flex;"><span>            └─ structure  { type: &#34;model&#34; }
+</span></span><span style="display:flex;"><span>                 └─ component  { selector: &#34;protein&#34; }
+</span></span><span style="display:flex;"><span>                      └─ representation  { type: &#34;cartoon&#34; }
+</span></span><span style="display:flex;"><span>                           └─ color  { ... }
+</span></span><span style="display:flex;"><span>                           └─ color  { ... }  ← custom highlight overlays
+</span></span><span style="display:flex;"><span>                 └─ component  { selector: &#34;ligand&#34; }
+</span></span><span style="display:flex;"><span>                      └─ representation  { type: &#34;ball_and_stick&#34; }
+</span></span><span style="display:flex;"><span>                           └─ color  { ... }
+</span></span><span style="display:flex;"><span>                 └─ [custom rule components]
+</span></span><span style="display:flex;"><span>  └─ canvas   { background_color }   (omitted if white)
+</span></span><span style="display:flex;"><span>  └─ camera   { ... }                (omitted if not set)</span></span></code></pre></div><h2 id="storage-schema">Storage Schema<a class="anchor" href="#storage-schema">#</a></h2>
+<p>Settings are persisted as flat key-value pairs in <code>chrome.storage.sync</code>:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Key</th>
+          <th>Type</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>{targetId}_rep</code></td>
+          <td>string</td>
+          <td>Representation type (<code>cartoon</code>, <code>ball_and_stick</code>, …)</td>
+      </tr>
+      <tr>
+          <td><code>{targetId}_colorType</code></td>
+          <td>string</td>
+          <td><code>theme</code> or <code>solid</code></td>
+      </tr>
+      <tr>
+          <td><code>{targetId}_colorVal</code></td>
+          <td>string</td>
+          <td>Theme name or hex color</td>
+      </tr>
+      <tr>
+          <td><code>{targetId}_size</code></td>
+          <td>number</td>
+          <td><code>size_factor</code> for the representation</td>
+      </tr>
+      <tr>
+          <td><code>{targetId}_opacity</code></td>
+          <td>number</td>
+          <td>Opacity 0–1</td>
+      </tr>
+      <tr>
+          <td><code>canvas_color</code></td>
+          <td>hex string</td>
+          <td>Viewer background color</td>
+      </tr>
+      <tr>
+          <td><code>camera_json</code></td>
+          <td>JSON string</td>
+          <td>MVS camera params object</td>
+      </tr>
+      <tr>
+          <td><code>customRules</code></td>
+          <td>Rule[]</td>
+          <td>Array of custom rule objects</td>
+      </tr>
+      <tr>
+          <td><code>customTemplates</code></td>
+          <td>object</td>
+          <td>Named templates saved by the user</td>
+      </tr>
+      <tr>
+          <td><code>customDomains</code></td>
+          <td>string[]</td>
+          <td>Authorized private hostnames</td>
+      </tr>
+  </tbody>
+</table>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Developer Docs</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/module-reference/" class="flex align-center">
+        <span>Module Reference</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#file-structure">File Structure</a></li>
+    <li><a href="#data-flow">Data Flow</a></li>
+    <li><a href="#mvs-tree-structure">MVS Tree Structure</a></li>
+    <li><a href="#storage-schema">Storage Schema</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Add a New Supported File Format# Add the extension string (with leading dot) to the SUPPORTED_EXT Set in content.js If Mol* uses a different parser name, add a mapping in getMolstarUrl() alongside the existing cif → mmcif case Add a New Platform# Add an entry to GITLAB_PATTERNS in content.js with: A regex capturing (domain, namespace, ref, filepath) groups A buildApiUrl function that constructs the raw file URL Update the badge color logic in makeBadge() if needed Add a New Built-in Preset# Add an entry to AppConfig.presets in config.js:
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/contributing/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Contributing">
+  <meta property="og:description" content="Add a New Supported File Format# Add the extension string (with leading dot) to the SUPPORTED_EXT Set in content.js If Mol* uses a different parser name, add a mapping in getMolstarUrl() alongside the existing cif → mmcif case Add a New Platform# Add an entry to GITLAB_PATTERNS in content.js with: A regex capturing (domain, namespace, ref, filepath) groups A buildApiUrl function that constructs the raw file URL Update the badge color logic in makeBadge() if needed Add a New Built-in Preset# Add an entry to AppConfig.presets in config.js:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Contributing">
+  <meta itemprop="description" content="Add a New Supported File Format# Add the extension string (with leading dot) to the SUPPORTED_EXT Set in content.js If Mol* uses a different parser name, add a mapping in getMolstarUrl() alongside the existing cif → mmcif case Add a New Platform# Add an entry to GITLAB_PATTERNS in content.js with: A regex capturing (domain, namespace, ref, filepath) groups A buildApiUrl function that constructs the raw file URL Update the badge color logic in makeBadge() if needed Add a New Built-in Preset# Add an entry to AppConfig.presets in config.js:">
+  <meta itemprop="wordCount" content="189">
+
+<title>Contributing | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/developer/contributing/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a>
+      Getting Started</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="">
+      Architecture</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="active">
+      Contributing</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      FAQ &amp; Troubleshooting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Contributing</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#add-a-new-supported-file-format">Add a New Supported File Format</a></li>
+    <li><a href="#add-a-new-platform">Add a New Platform</a></li>
+    <li><a href="#add-a-new-built-in-preset">Add a New Built-in Preset</a></li>
+    <li><a href="#add-a-new-representation-type">Add a New Representation Type</a></li>
+    <li><a href="#firefox-compatibility">Firefox Compatibility</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="add-a-new-supported-file-format">Add a New Supported File Format<a class="anchor" href="#add-a-new-supported-file-format">#</a></h2>
+<ol>
+<li>Add the extension string (with leading dot) to the <code>SUPPORTED_EXT</code> Set in <code>content.js</code></li>
+<li>If Mol* uses a different parser name, add a mapping in <code>getMolstarUrl()</code> alongside the existing <code>cif</code> → <code>mmcif</code> case</li>
+</ol>
+<h2 id="add-a-new-platform">Add a New Platform<a class="anchor" href="#add-a-new-platform">#</a></h2>
+<ol>
+<li>Add an entry to <code>GITLAB_PATTERNS</code> in <code>content.js</code> with:
+<ul>
+<li>A regex capturing <code>(domain, namespace, ref, filepath)</code> groups</li>
+<li>A <code>buildApiUrl</code> function that constructs the raw file URL</li>
+</ul>
+</li>
+<li>Update the badge color logic in <code>makeBadge()</code> if needed</li>
+</ol>
+<h2 id="add-a-new-built-in-preset">Add a New Built-in Preset<a class="anchor" href="#add-a-new-built-in-preset">#</a></h2>
+<p>Add an entry to <code>AppConfig.presets</code> in <code>config.js</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#e6db74">&#34;my_preset&#34;</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;My Preset Name&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">settings</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;protein_rep&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;surface&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;canvas_color&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;#1a1a2e&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Any key omitted from <code>settings</code> falls back to the value from <code>getDefaults()</code>.</p>
+<h2 id="add-a-new-representation-type">Add a New Representation Type<a class="anchor" href="#add-a-new-representation-type">#</a></h2>
+<ol>
+<li>Add the key to <code>AppConfig.RepSchema</code> with its <code>label</code> and <code>params</code> descriptor</li>
+<li>The options UI generates the representation select and parameter drawer automatically from <code>RepSchema</code> — no UI code changes needed</li>
+</ol>
+<h2 id="firefox-compatibility">Firefox Compatibility<a class="anchor" href="#firefox-compatibility">#</a></h2>
+<ul>
+<li>Use <code>typeof globalThis.browser !=</code> &lsquo;undefined&rsquo; ? globalThis.browser : chrome= for all extension API calls</li>
+<li>Never <code>await</code> anything before calling <code>permissions.request()</code> — Firefox&rsquo;s user-gesture context does not survive async gaps</li>
+<li>Test against the minimum version declared in <code>browser_specific_settings.gecko.strict_min_version</code> (currently 128.0)</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/module-reference/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Module Reference</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/faq/" class="flex align-center">
+        <span>FAQ &amp; Troubleshooting</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#add-a-new-supported-file-format">Add a New Supported File Format</a></li>
+    <li><a href="#add-a-new-platform">Add a New Platform</a></li>
+    <li><a href="#add-a-new-built-in-preset">Add a New Built-in Preset</a></li>
+    <li><a href="#add-a-new-representation-type">Add a New Representation Type</a></li>
+    <li><a href="#firefox-compatibility">Firefox Compatibility</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

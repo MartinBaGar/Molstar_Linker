@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docs on Mol* Linker Wiki</title>
+    <link>http://localhost:1313/Molstar_Linker/docs/</link>
+    <description>Recent content in Docs on Mol* Linker Wiki</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Molstar_Linker/docs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>FAQ &amp; Troubleshooting</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/faq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/faq/</guid>
+      <description>&lt;h2 id=&#34;no-badges-are-appearing&#34;&gt;No badges are appearing&lt;a class=&#34;anchor&#34; href=&#34;#no-badges-are-appearing&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Make sure you are on a &lt;a href=&#34;../getting-started/installation#permissions&#34;&gt;supported domain&lt;/a&gt; (GitHub, GitLab, RCSB, AlphaFold)&lt;/li&gt;&#xA;&lt;li&gt;Check that the file has a &lt;a href=&#34;../#supported-formats&#34;&gt;supported extension&lt;/a&gt; (&lt;code&gt;.pdb&lt;/code&gt;, &lt;code&gt;.cif&lt;/code&gt;, etc.)&lt;/li&gt;&#xA;&lt;li&gt;Try reloading the page — SPA navigation occasionally loads content after the initial scan&lt;/li&gt;&#xA;&lt;li&gt;On private domains, confirm the domain is authorized in the &lt;a href=&#34;../custom-domains&#34;&gt;Custom Domains&lt;/a&gt; panel&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;the-badge-appears-but-the-viewer-shows-an-error&#34;&gt;The badge appears but the viewer shows an error&lt;a class=&#34;anchor&#34; href=&#34;#the-badge-appears-but-the-viewer-shows-an-error&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from &lt;code&gt;molstar.org&lt;/code&gt;, or check with your sysadmin.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
+Click &#43; Add New Rule at the bottom of the Custom Highlighting Rules panel to create one.
+Rule Types# Highlight (color overlay)# Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/configuration/custom-rules/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Custom Rules">
+  <meta property="og:description" content="Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
+Click &#43; Add New Rule at the bottom of the Custom Highlighting Rules panel to create one.
+Rule Types# Highlight (color overlay)# Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Custom Rules">
+  <meta itemprop="description" content="Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
+Click &#43; Add New Rule at the bottom of the Custom Highlighting Rules panel to create one.
+Rule Types# Highlight (color overlay)# Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.">
+  <meta itemprop="wordCount" content="353">
+
+<title>Custom Rules | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/configuration/custom-rules/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a>
+      Getting Started</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="active">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="">
+      Architecture</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      FAQ &amp; Troubleshooting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Custom Rules</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#rule-types">Rule Types</a>
+      <ul>
+        <li><a href="#highlight--color-overlay">Highlight (color overlay)</a></li>
+        <li><a href="#representation">Representation</a></li>
+      </ul>
+    </li>
+    <li><a href="#selector-syntax">Selector Syntax</a></li>
+    <li><a href="#appearance-options">Appearance Options</a></li>
+    <li><a href="#storytelling-options">Storytelling Options</a></li>
+    <li><a href="#rule-order">Rule Order</a></li>
+    <li><a href="#example-highlight-the-active-site">Example: Highlight the Active Site</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><p>Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.</p>
+<p>Click <strong>+ Add New Rule</strong> at the bottom of the Custom Highlighting Rules panel to create one.</p>
+<h2 id="rule-types">Rule Types<a class="anchor" href="#rule-types">#</a></h2>
+<h3 id="highlight--color-overlay">Highlight (color overlay)<a class="anchor" href="#highlight--color-overlay">#</a></h3>
+<p>Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.</p>
+<p>The color is injected as a per-selector color node inside the protein or nucleic representation — it does not create a separate component.</p>
+<h3 id="representation">Representation<a class="anchor" href="#representation">#</a></h3>
+<p>Creates an entirely separate component in the Mol* scene with its own representation type, color, size, and opacity. Use this when you want a specific region to look different from the rest (e.g. a surface on chain A while everything else is cartoon).</p>
+<h2 id="selector-syntax">Selector Syntax<a class="anchor" href="#selector-syntax">#</a></h2>
+<p>The selector field accepts any MolViewSpec selector expression. Common examples:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Goal</th>
+          <th>Selector</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Entire chain A</td>
+          <td><code>{ &quot;chain_id&quot;: &quot;A&quot; }</code></td>
+      </tr>
+      <tr>
+          <td>Residues 10–50</td>
+          <td><code>{ &quot;residue_index&quot;: [10, 50] }</code></td>
+      </tr>
+      <tr>
+          <td>A single residue (by number)</td>
+          <td><code>{ &quot;residue_number&quot;: 42 }</code></td>
+      </tr>
+      <tr>
+          <td>Ligand by name</td>
+          <td><code>{ &quot;residue_name&quot;: &quot;HEM&quot; }</code></td>
+      </tr>
+      <tr>
+          <td>All ligands</td>
+          <td><code>ligand</code> (plain string selectors work too)</td>
+      </tr>
+  </tbody>
+</table>
+<p>Refer to the <a href="https://molstar.org/viewer-docs/extensions/mvs/">MolViewSpec documentation</a> for the full selector schema.</p>
+<h2 id="appearance-options">Appearance Options<a class="anchor" href="#appearance-options">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Color</td>
+          <td>Theme or solid color (same as global targets)</td>
+      </tr>
+      <tr>
+          <td>Size</td>
+          <td><code>size_factor</code> for the representation</td>
+      </tr>
+      <tr>
+          <td>Opacity</td>
+          <td>0–1; adds an MVS <code>opacity</code> node</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="storytelling-options">Storytelling Options<a class="anchor" href="#storytelling-options">#</a></h2>
+<p>These options add annotation nodes to the Mol* scene — useful for guided presentations or publication figures.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th>Effect in Mol*</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Label</td>
+          <td>Renders a 3D text label anchored to the selection centroid</td>
+      </tr>
+      <tr>
+          <td>Tooltip</td>
+          <td>Shows a text tooltip when the user hovers over the selection</td>
+      </tr>
+      <tr>
+          <td>Focus</td>
+          <td>Auto-zooms Mol* to the selection when the viewer opens</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="rule-order">Rule Order<a class="anchor" href="#rule-order">#</a></h2>
+<p>Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.</p>
+<h2 id="example-highlight-the-active-site">Example: Highlight the Active Site<a class="anchor" href="#example-highlight-the-active-site">#</a></h2>
+<p>Suppose you want to highlight residues 100–110 in chain A in orange, with a label:</p>
+<ul>
+<li><strong>Selector</strong>: <code>{ &quot;chain_id&quot;: &quot;A&quot;, &quot;residue_number&quot;: [100, 110] }</code></li>
+<li><strong>Type</strong>: Highlight</li>
+<li><strong>Color</strong>: Solid → <code>#ff6600</code></li>
+<li><strong>Label</strong>: Active site</li>
+<li><strong>Focus</strong>: on</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/configuration/targets/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Molecular Targets</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/templates/" class="flex align-center">
+        <span>Templates &amp; Presets</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#rule-types">Rule Types</a>
+      <ul>
+        <li><a href="#highlight--color-overlay">Highlight (color overlay)</a></li>
+        <li><a href="#representation">Representation</a></li>
+      </ul>
+    </li>
+    <li><a href="#selector-syntax">Selector Syntax</a></li>
+    <li><a href="#appearance-options">Appearance Options</a></li>
+    <li><a href="#storytelling-options">Storytelling Options</a></li>
+    <li><a href="#rule-order">Rule Order</a></li>
+    <li><a href="#example-highlight-the-active-site">Example: Highlight the Active Site</a></li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

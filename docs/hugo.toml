@@ -1,4 +1,26 @@
-baseURL = 'https://martinbagar.github.io/Molstar_Linker/'
+baseURL = 'https://MartinBaGar.github.io/Molstar_Linker/'
 languageCode = 'en-us'
 title = 'Mol* Linker Wiki'
 theme = 'hugo-book'
+
+# The block we added earlier for your custom HTML divs
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+# Configuration block
+[params]
+  # BookTheme = 'auto'
+  # BookToC = true
+  BookSection = 'docs'
+  BookLogo = "icon128.png"
+  # BookEditLink = 'https://github.com/MartinBaGar/Molstar_Linker/edit/main/org/{{ .Path }}'
+
+# Apply the flat section style to ALL folders automatically
+# [[cascade]]
+#   [cascade._target]
+#     kind = "section"
+#   [cascade.params]
+#     # bookFlatSection = true
+#     bookCollapseSection = true

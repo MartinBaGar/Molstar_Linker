@@ -1,0 +1,56 @@
++++
+title = "Molecular Targets"
+author = ["Martin Bari Garnier"]
+draft = false
+weight = 202
++++
+
+The **Global Target Configurations** panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
+
+
+## Available Targets {#available-targets}
+
+| Target                        | Selector   | Default Representation | Default Color  |
+|-------------------------------|------------|------------------------|----------------|
+| Proteins                      | `protein`  | Cartoon                | Chain ID       |
+| Nucleic Acids (DNA/RNA)       | `nucleic`  | Cartoon                | Chain ID       |
+| Ligands &amp; Small Molecules | `ligand`   | Ball &amp; Stick       | Element symbol |
+| Carbohydrates &amp; Glycans   | `branched` | Ball &amp; Stick       | Element symbol |
+| Single Ions                   | `ion`      | Ball &amp; Stick       | Element symbol |
+| Water / Solvent               | `water`    | Hidden (Off)           | —              |
+
+
+## Representation Types {#representation-types}
+
+Each target can use any of the following representations:
+
+| Key              | Label            | Extra Options                        |
+|------------------|------------------|--------------------------------------|
+| `cartoon`        | Cartoon          | Tubular helices on/off               |
+| `backbone`       | Backbone         | —                                    |
+| `ball_and_stick` | Ball &amp; Stick | Ignore hydrogens on/off              |
+| `line`           | Line             | Ignore hydrogens on/off              |
+| `spacefill`      | Spacefill        | Ignore hydrogens on/off              |
+| `carbohydrate`   | Carbohydrate     | —                                    |
+| `putty`          | Putty            | Size theme: uniform / uncertainty    |
+| `surface`        | Surface          | Type: molecular / gaussian; ignore H |
+| `off`            | Hide             | Omits this target from the scene     |
+
+
+## Color {#color}
+
+Each target has a color mode toggle:
+
+-   **Theme** — uses a Mol\* built-in coloring scheme (e.g. `chain-id`, `element-symbol`, `secondary-structure`, `residue-index`, …)
+-   **Solid** — a single flat hex color applied to the whole target
+
+
+## Size &amp; Opacity {#size-and-opacity}
+
+-   **Size** maps to the `size_factor` parameter in MolViewSpec, scaling atom/bond radius relative to the default
+-   **Opacity** (0–1) adds a MolViewSpec `opacity` node; useful for making surfaces semi-transparent
+
+
+## Applying Changes {#applying-changes}
+
+Click **Apply to Mol\*** in the sidebar. Changes take effect on the next badge click.

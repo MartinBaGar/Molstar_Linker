@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="config.js — AppConfig# Central configuration registry loaded by every other module.
+AppConfig.RepSchema# Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.
+AppConfig.targets# Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: id, selector, label, rep, color, size.
+AppConfig.presets# Named built-in presets. Each settings object is shallow-merged over getDefaults() at application time.
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/module-reference/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Module Reference">
+  <meta property="og:description" content="config.js — AppConfig# Central configuration registry loaded by every other module.
+AppConfig.RepSchema# Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.
+AppConfig.targets# Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: id, selector, label, rep, color, size.
+AppConfig.presets# Named built-in presets. Each settings object is shallow-merged over getDefaults() at application time.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Module Reference">
+  <meta itemprop="description" content="config.js — AppConfig# Central configuration registry loaded by every other module.
+AppConfig.RepSchema# Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.
+AppConfig.targets# Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: id, selector, label, rep, color, size.
+AppConfig.presets# Named built-in presets. Each settings object is shallow-merged over getDefaults() at application time.">
+  <meta itemprop="wordCount" content="390">
+
+<title>Module Reference | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/developer/module-reference/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a>
+      Getting Started</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="">
+      Architecture</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="active">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      FAQ &amp; Troubleshooting</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Module Reference</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#config-dot-js-appconfig">config.js — AppConfig</a>
+      <ul>
+        <li><a href="#appconfig-dot-repschema"><code>AppConfig.RepSchema</code></a></li>
+        <li><a href="#appconfig-dot-targets"><code>AppConfig.targets</code></a></li>
+        <li><a href="#appconfig-dot-presets"><code>AppConfig.presets</code></a></li>
+        <li><a href="#appconfig-dot-getdefaults"><code>AppConfig.getDefaults()</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#mvs-builder-dot-js-mvsbuilder">mvs-builder.js — MvsBuilder</a>
+      <ul>
+        <li><a href="#createviewerurl--rawstructureurl-format-settings"><code>createViewerUrl(rawStructureUrl, format, settings)</code></a></li>
+        <li><a href="#buildbasetemplate--url-format-settings"><code>_buildBaseTemplate(url, format, settings)</code></a></li>
+        <li><a href="#buildcomponentbranches--settings"><code>_buildComponentBranches(settings)</code></a></li>
+        <li><a href="#getcolornode--colortype-colorval"><code>_getColorNode(colorType, colorVal)</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#content-dot-js">content.js</a>
+      <ul>
+        <li><a href="#getmolstarurl--href-settings"><code>getMolstarUrl(href, settings)</code></a></li>
+        <li><a href="#makebadge--molstarurl"><code>makeBadge(molstarUrl)</code></a></li>
+        <li><a href="#injectmolstarlinker"><code>injectMolstarLinker()</code></a></li>
+        <li><a href="#mutationobserver-spa-handling">MutationObserver / SPA handling</a></li>
+      </ul>
+    </li>
+    <li><a href="#permissions-dot-js-permissionsmanager">permissions.js — PermissionsManager</a>
+      <ul>
+        <li><a href="#requestandregister--url"><code>requestAndRegister(url)</code></a></li>
+        <li><a href="#revokeandunregister--url"><code>revokeAndUnregister(url)</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="config-dot-js-appconfig">config.js — AppConfig<a class="anchor" href="#config-dot-js-appconfig">#</a></h2>
+<p>Central configuration registry loaded by every other module.</p>
+<h3 id="appconfig-dot-repschema"><code>AppConfig.RepSchema</code><a class="anchor" href="#appconfig-dot-repschema">#</a></h3>
+<p>Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.</p>
+<h3 id="appconfig-dot-targets"><code>AppConfig.targets</code><a class="anchor" href="#appconfig-dot-targets">#</a></h3>
+<p>Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: <code>id</code>, <code>selector</code>, <code>label</code>, <code>rep</code>, <code>color</code>, <code>size</code>.</p>
+<h3 id="appconfig-dot-presets"><code>AppConfig.presets</code><a class="anchor" href="#appconfig-dot-presets">#</a></h3>
+<p>Named built-in presets. Each <code>settings</code> object is shallow-merged over <code>getDefaults()</code> at application time.</p>
+<h3 id="appconfig-dot-getdefaults"><code>AppConfig.getDefaults()</code><a class="anchor" href="#appconfig-dot-getdefaults">#</a></h3>
+<p>Returns a fresh flat settings object by iterating <code>AppConfig.targets</code>. This is the authoritative schema source — all storage reads and preset merges start from here.</p>
+<hr>
+<h2 id="mvs-builder-dot-js-mvsbuilder">mvs-builder.js — MvsBuilder<a class="anchor" href="#mvs-builder-dot-js-mvsbuilder">#</a></h2>
+<p>Builds a complete MolViewSpec 1.0 JSON document and encodes it as a Mol* viewer URL.</p>
+<h3 id="createviewerurl--rawstructureurl-format-settings"><code>createViewerUrl(rawStructureUrl, format, settings)</code><a class="anchor" href="#createviewerurl--rawstructureurl-format-settings">#</a></h3>
+<p>Entry point. Converts <code>cif</code> → <code>mmcif</code> (MVS parser name), calls <code>_buildBaseTemplate()</code>, JSON-serialises the result, and returns the encoded viewer URL.</p>
+<h3 id="buildbasetemplate--url-format-settings"><code>_buildBaseTemplate(url, format, settings)</code><a class="anchor" href="#buildbasetemplate--url-format-settings">#</a></h3>
+<p>Assembles the root MVS node tree. Appends <code>canvas</code> and <code>camera</code> nodes when the relevant settings are non-default.</p>
+<h3 id="buildcomponentbranches--settings"><code>_buildComponentBranches(settings)</code><a class="anchor" href="#buildcomponentbranches--settings">#</a></h3>
+<p>Two-pass algorithm:</p>
+<ul>
+<li><strong>Pass 1 — Custom Rules</strong>: highlight-type rules append color override nodes to <code>polymerColorOverrides</code> (later injected into protein/nucleic representations); representation-type rules create full <code>component</code> → <code>representation</code> → <code>color</code> branches</li>
+<li><strong>Pass 2 — Global Targets</strong>: iterates <code>AppConfig.targets</code>, skipping <code>off</code> targets; for protein/nucleic, appends <code>polymerColorOverrides</code> as sibling color nodes inside the representation</li>
+</ul>
+<h3 id="getcolornode--colortype-colorval"><code>_getColorNode(colorType, colorVal)</code><a class="anchor" href="#getcolornode--colortype-colorval">#</a></h3>
+<p>Returns a theme color node (<code>molstar_color_theme_name</code> custom field) or a solid color node.</p>
+<hr>
+<h2 id="content-dot-js">content.js<a class="anchor" href="#content-dot-js">#</a></h2>
+<h3 id="getmolstarurl--href-settings"><code>getMolstarUrl(href, settings)</code><a class="anchor" href="#getmolstarurl--href-settings">#</a></h3>
+<p>Validates extension, then transforms platform URLs:</p>
+<ul>
+<li><strong>GitHub</strong>: replaces host with <code>raw.githubusercontent.com</code>, strips <code>/blob/</code> or <code>/raw/refs/heads/</code></li>
+<li><strong>GitLab</strong>: matches <code>GITLAB_PATTERNS</code>, constructs GitLab API v4 raw file URL with encoded namespace and filepath</li>
+</ul>
+<p>Returns <code>null</code> for unsupported extensions or unrecognised hosts.</p>
+<h3 id="makebadge--molstarurl"><code>makeBadge(molstarUrl)</code><a class="anchor" href="#makebadge--molstarurl">#</a></h3>
+<p>Creates a styled <code>&lt;a&gt;</code> element. Color is purple for GitLab URLs, green otherwise. Uses <code>data-ms-badge</code> as an idempotency marker.</p>
+<h3 id="injectmolstarlinker"><code>injectMolstarLinker()</code><a class="anchor" href="#injectmolstarlinker">#</a></h3>
+<p>Main orchestration function. Scans links, builds the filename→URL map, walks text nodes, and inserts badges. Uses <code>data-ms-processed</code> on anchor elements and physical sibling checks to prevent duplicate badges on SPA re-runs.</p>
+<h3 id="mutationobserver-spa-handling">MutationObserver / SPA handling<a class="anchor" href="#mutationobserver-spa-handling">#</a></h3>
+<p>Watches <code>document.body</code> with <code>childList: true, subtree: true</code>. Changes are debounced at 500 ms before re-running <code>injectMolstarLinker()</code>.</p>
+<hr>
+<h2 id="permissions-dot-js-permissionsmanager">permissions.js — PermissionsManager<a class="anchor" href="#permissions-dot-js-permissionsmanager">#</a></h2>
+<h3 id="requestandregister--url"><code>requestAndRegister(url)</code><a class="anchor" href="#requestandregister--url">#</a></h3>
+<p>Requests the host permission <strong>synchronously on user gesture</strong> (required by Firefox), then registers a dynamic content script via <code>chrome.scripting.registerContentScripts</code>, and persists the domain to <code>storage.sync</code>.</p>
+<h3 id="revokeandunregister--url"><code>revokeAndUnregister(url)</code><a class="anchor" href="#revokeandunregister--url">#</a></h3>
+<p>Unregisters the dynamic content script, removes the host permission, and removes the domain from storage.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/architecture/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Architecture</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/contributing/" class="flex align-center">
+        <span>Contributing</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#config-dot-js-appconfig">config.js — AppConfig</a>
+      <ul>
+        <li><a href="#appconfig-dot-repschema"><code>AppConfig.RepSchema</code></a></li>
+        <li><a href="#appconfig-dot-targets"><code>AppConfig.targets</code></a></li>
+        <li><a href="#appconfig-dot-presets"><code>AppConfig.presets</code></a></li>
+        <li><a href="#appconfig-dot-getdefaults"><code>AppConfig.getDefaults()</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#mvs-builder-dot-js-mvsbuilder">mvs-builder.js — MvsBuilder</a>
+      <ul>
+        <li><a href="#createviewerurl--rawstructureurl-format-settings"><code>createViewerUrl(rawStructureUrl, format, settings)</code></a></li>
+        <li><a href="#buildbasetemplate--url-format-settings"><code>_buildBaseTemplate(url, format, settings)</code></a></li>
+        <li><a href="#buildcomponentbranches--settings"><code>_buildComponentBranches(settings)</code></a></li>
+        <li><a href="#getcolornode--colortype-colorval"><code>_getColorNode(colorType, colorVal)</code></a></li>
+      </ul>
+    </li>
+    <li><a href="#content-dot-js">content.js</a>
+      <ul>
+        <li><a href="#getmolstarurl--href-settings"><code>getMolstarUrl(href, settings)</code></a></li>
+        <li><a href="#makebadge--molstarurl"><code>makeBadge(molstarUrl)</code></a></li>
+        <li><a href="#injectmolstarlinker"><code>injectMolstarLinker()</code></a></li>
+        <li><a href="#mutationobserver-spa-handling">MutationObserver / SPA handling</a></li>
+      </ul>
+    </li>
+    <li><a href="#permissions-dot-js-permissionsmanager">permissions.js — PermissionsManager</a>
+      <ul>
+        <li><a href="#requestandregister--url"><code>requestAndRegister(url)</code></a></li>
+        <li><a href="#revokeandunregister--url"><code>revokeAndUnregister(url)</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

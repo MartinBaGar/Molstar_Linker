@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Configuration on Mol* Linker Wiki</title>
+    <link>http://localhost:1313/Molstar_Linker/docs/configuration/</link>
+    <description>Recent content in Configuration on Mol* Linker Wiki</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Molstar_Linker/docs/configuration/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Scene Settings</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/configuration/scene/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/configuration/scene/</guid>
+      <description>&lt;p&gt;The &lt;strong&gt;Global Scene Settings&lt;/strong&gt; panel controls the overall look of the Mol* viewer, independent of any particular molecule.&lt;/p&gt;&#xA;&lt;h2 id=&#34;canvas-background-color&#34;&gt;Canvas Background Color&lt;a class=&#34;anchor&#34; href=&#34;#canvas-background-color&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;Sets the viewer background. Click the color swatch to open a color picker, or type a hex value directly (e.g. &lt;code&gt;#111111&lt;/code&gt; for dark mode).&lt;/p&gt;&#xA;&lt;p&gt;The default is white (&lt;code&gt;#ffffff&lt;/code&gt;). If you want a dark background without changing anything else, use the built-in &lt;strong&gt;Dark Mode Canvas&lt;/strong&gt; preset from the popup.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Molecular Targets</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/configuration/targets/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/configuration/targets/</guid>
+      <description>&lt;p&gt;The &lt;strong&gt;Global Target Configurations&lt;/strong&gt; panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.&lt;/p&gt;&#xA;&lt;h2 id=&#34;available-targets&#34;&gt;Available Targets&lt;a class=&#34;anchor&#34; href=&#34;#available-targets&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;  &lt;thead&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;th&gt;Target&lt;/th&gt;&#xA;          &lt;th&gt;Selector&lt;/th&gt;&#xA;          &lt;th&gt;Default Representation&lt;/th&gt;&#xA;          &lt;th&gt;Default Color&lt;/th&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/thead&gt;&#xA;  &lt;tbody&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Proteins&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;protein&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Cartoon&lt;/td&gt;&#xA;          &lt;td&gt;Chain ID&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Nucleic Acids (DNA/RNA)&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;nucleic&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Cartoon&lt;/td&gt;&#xA;          &lt;td&gt;Chain ID&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Ligands &amp;amp; Small Molecules&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;ligand&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Ball &amp;amp; Stick&lt;/td&gt;&#xA;          &lt;td&gt;Element symbol&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Carbohydrates &amp;amp; Glycans&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;branched&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Ball &amp;amp; Stick&lt;/td&gt;&#xA;          &lt;td&gt;Element symbol&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Single Ions&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;ion&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Ball &amp;amp; Stick&lt;/td&gt;&#xA;          &lt;td&gt;Element symbol&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;Water / Solvent&lt;/td&gt;&#xA;          &lt;td&gt;&lt;code&gt;water&lt;/code&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Hidden (Off)&lt;/td&gt;&#xA;          &lt;td&gt;—&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;h2 id=&#34;representation-types&#34;&gt;Representation Types&lt;a class=&#34;anchor&#34; href=&#34;#representation-types&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;p&gt;Each target can use any of the following representations:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Custom Rules</title>
+      <link>http://localhost:1313/Molstar_Linker/docs/configuration/custom-rules/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Molstar_Linker/docs/configuration/custom-rules/</guid>
+      <description>&lt;p&gt;Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.&lt;/p&gt;&#xA;&lt;p&gt;Click &lt;strong&gt;+ Add New Rule&lt;/strong&gt; at the bottom of the Custom Highlighting Rules panel to create one.&lt;/p&gt;&#xA;&lt;h2 id=&#34;rule-types&#34;&gt;Rule Types&lt;a class=&#34;anchor&#34; href=&#34;#rule-types&#34;&gt;#&lt;/a&gt;&lt;/h2&gt;&#xA;&lt;h3 id=&#34;highlight--color-overlay&#34;&gt;Highlight (color overlay)&lt;a class=&#34;anchor&#34; href=&#34;#highlight--color-overlay&#34;&gt;#&lt;/a&gt;&lt;/h3&gt;&#xA;&lt;p&gt;Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
