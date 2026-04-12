@@ -5,6 +5,7 @@ assets/*.mp4
 # Build Artifacts
 *.zip
 *.docx
+*assets
 
 # OS Generated Files (Mac/Windows junk)
 .DS_Store
