@@ -16,22 +16,22 @@ const GITLAB_PATTERNS = [
   }
 ];
 
-// Helper to intelligently find an extension even if hidden in query parameters (e.g. ?f=file.gro&name=...)
 function extractExtension(urlStr) {
   for (let ext of SUPPORTED_EXT) {
-    // Matches the extension followed by a ?, #, &, or the end of the string
     const regex = new RegExp(`\\${ext}(?:[?#&]|$)`, 'i');
     if (regex.test(urlStr)) return ext;
   }
   return null;
 }
 
-function getMolstarUrl(href, settings) {
+// UPDATE: Now it just returns { rawUrl, formatStr } instead of building the MVS JSON
+function getStructureInfo(href) {
   const ext = extractExtension(href);
   if (!ext) return null;
-  const formatStr = ext.slice(1);
+  
+  // Mol* uses 'mmcif' for .cif files
+  const formatStr = ext === '.cif' ? 'mmcif' : ext.slice(1);
 
-  // Parse the URL to ensure we handle it safely as an absolute link
   let parsedUrl;
   try {
     parsedUrl = new URL(href, window.location.origin);
@@ -40,7 +40,6 @@ function getMolstarUrl(href, settings) {
   }
   const urlStr = parsedUrl.href;
 
-  // 1. Handle GitHub URLs
   if (urlStr.includes('github.com')) {
     let rawUrl = null;
     if (urlStr.includes('/blob/')) {
@@ -48,72 +47,77 @@ function getMolstarUrl(href, settings) {
     } else if (urlStr.includes('/raw/refs/heads/')) {
       rawUrl = urlStr.replace('github.com', 'raw.githubusercontent.com').replace('/raw/refs/heads/', '/');
     }
-    if (rawUrl) return MvsBuilder.createViewerUrl(rawUrl, formatStr, settings);
+    if (rawUrl) return { rawUrl, formatStr };
   }
 
-  // 2. Handle GitLab URLs
   for (const p of GITLAB_PATTERNS) {
     const match = urlStr.match(p.regex);
     if (!match) continue;
     const rawUrl = p.buildApiUrl(match[1], match[2], match[3], match[4]);
-    return MvsBuilder.createViewerUrl(rawUrl, formatStr, settings);
+    return { rawUrl, formatStr };
   }
 
-  // 3. Universal Fallback (for RCSB, ElabFTW, and Custom Domains)
-  return MvsBuilder.createViewerUrl(urlStr, formatStr, settings);
+  // Universal Fallback
+  return { rawUrl: urlStr, formatStr };
 }
 
-function makeBadge(molstarUrl) {
+// UPDATE: Takes the rawUrl and formatStr directly
+function makeBadge(rawUrl, formatStr) {
   const badge = document.createElement('a');
-  badge.textContent = 'Mol* (MVS)';
-  badge.href = molstarUrl;
-  badge.target = '_blank';
+  badge.textContent = 'Mol* (Workspace)';
+  badge.href = "#"; 
   badge.setAttribute('data-ms-badge', 'true');
-  badge.onclick = (e) => e.stopPropagation();
+  
+  // THE FIX: Use chrome.runtime directly
+  badge.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Call the global chrome API directly instead of StorageAPI.core
+    chrome.runtime.sendMessage({
+      action: "open_viewer",
+      url: rawUrl,
+      format: formatStr
+    });
+  };
   
   Object.assign(badge.style, {
     marginLeft: '6px',
     fontSize: '10px',
-    backgroundColor: molstarUrl.includes('gitlab') ? '#6a1b9a' : '#2da44e',
+    backgroundColor: rawUrl.includes('gitlab') ? '#6a1b9a' : '#2da44e',
     color: 'white',
     padding: '1px 5px',
     borderRadius: '3px',
     textDecoration: 'none',
     fontWeight: 'bold',
     display: 'inline-block',
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
+    cursor: 'pointer' 
   });
   return badge;
 }
 
 function injectMolstarLinker() {
-  StorageAPI.get(AppConfig.getDefaults(), (settings) => {
-    try {
-      document.querySelectorAll('a[href]').forEach(a => {
-        // SPA FIX: Store the actual URL we processed to avoid infinite loops.
-        if (a.getAttribute('data-ms-processed') === a.href) return;
-        
-        const molstarUrl = getMolstarUrl(a.href, settings);
-        if (!molstarUrl) return;
-        
-        // Mark the link as processed
-        a.setAttribute('data-ms-processed', a.href);
-        
-        // Prevent stacking badges if one is already physically right next to this element
-        if (a.nextElementSibling && a.nextElementSibling.hasAttribute('data-ms-badge')) {
-          return;
-        }
+  try {
+    document.querySelectorAll('a[href]').forEach(a => {
+      if (a.getAttribute('data-ms-processed') === a.href) return;
+      
+      const structureInfo = getStructureInfo(a.href);
+      if (!structureInfo) return;
+      
+      a.setAttribute('data-ms-processed', a.href);
+      
+      if (a.nextElementSibling && a.nextElementSibling.hasAttribute('data-ms-badge')) {
+        return;
+      }
 
-        // Direct DOM Injection: Place the badge immediately after the <a> tag
-        a.insertAdjacentElement('afterend', makeBadge(molstarUrl));
-      });
-    } catch (e) { 
-      console.warn("Linker Error:", e); 
-    }
-  });
+      a.insertAdjacentElement('afterend', makeBadge(structureInfo.rawUrl, structureInfo.formatStr));
+    });
+  } catch (e) { 
+    console.warn("Linker Error:", e); 
+  }
 }
 
-// --- SPA NAVIGATION HANDLING ---
 let debounceTimer = null;
 const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
