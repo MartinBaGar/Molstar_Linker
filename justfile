@@ -2,6 +2,7 @@ src_dir := "src"
 manifests_dir := "manifests"
 dist_dir := "dist"
 releases_dir := "releases"
+docs_dir := "docs"
 
 # list all available commands
 default:
@@ -82,3 +83,12 @@ publish version:
 clean:
 	rm -rf {{dist_dir}} {{releases_dir}}
 	@echo "✅ Cleaned up dist/ and releases/ directories."
+
+# 7. Run the local development server
+serve:
+	@echo "Starting Hugo server in {{docs_dir}}..."
+	pixi run hugo server -s {{docs_dir}} -D --disableFastRender
+
+# 8. Build the static site for production
+build-site:
+	pixi run hugo --minify

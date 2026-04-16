@@ -1,6 +1,6 @@
 #+title: Installation
 #+draft: false
-#+HUGO_WEIGHT: 101
+#+WEIGHT: 102
 
 * Chrome
 

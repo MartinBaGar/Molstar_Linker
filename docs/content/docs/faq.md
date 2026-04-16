@@ -1,54 +1,36 @@
 +++
-title = "FAQ & Troubleshooting"
+title = "Frequently Asked Questions"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 600
 +++
 
-## No badges are appearing {#no-badges-are-appearing}
-
--   Make sure you are on a [supported domain](../getting-started/installation#permissions) (GitHub, GitLab, RCSB, AlphaFold)
--   Check that the file has a [supported extension](../#supported-formats) (`.pdb`, `.cif`, etc.)
--   Try reloading the page — SPA navigation occasionally loads content after the initial scan
--   On private domains, confirm the domain is authorized in the [Custom Domains](../custom-domains) panel
+## General Questions {#general-questions}
 
 
-## The badge appears but the viewer shows an error {#the-badge-appears-but-the-viewer-shows-an-error}
+### Where did my data go? Does this extension upload my proprietary files? {#where-did-my-data-go-does-this-extension-upload-my-proprietary-files}
 
-The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from `molstar.org`, or check with your sysadmin.
+**Absolutely not.** This is one of the biggest upgrades in Mol\* Linker v2.0.
+Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol\* Linker now opens a **dedicated, local workspace** directly inside your browser.
 
-
-## My private GitLab domain is not being detected {#my-private-gitlab-domain-is-not-being-detected}
-
-The extension matches self-hosted GitLab URLs using a pattern that expects the standard GitLab URL structure:
-
-```text
-https://<domain>/<namespace>/-/blob/<ref>/<filepath>
-```
-
-If your instance uses a custom URL layout, the pattern will not match. Please open an issue on [GitHub](https://github.com/MartinBaGar/molstar_linker/issues).
+When you click a badge, the extension securely downloads the file straight into your browser's active, temporary memory (RAM). It never touches your hard drive, and it is **never** uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.
 
 
-## I authorized a domain but nothing happens {#i-authorized-a-domain-but-nothing-happens}
+### Why is the Mol\* badge not appearing next to a "Download" button? {#why-is-the-mol-badge-not-appearing-next-to-a-download-button}
 
-After authorizing a new domain, reload the page. Dynamic content script registration takes effect on the next page load.
+To keep your Git repositories clean and uncluttered, Mol\* Linker v2.0 uses a "Smart Visual Filter."
 
+On sites like GitHub and GitLab, the badge will **only** appear if the visible text of the link contains the actual file extension (for example, a link that explicitly says `SITO.pdb`). It will intentionally ignore generic "Download", "Raw", or "History" buttons.
 
-## Settings are not persisting {#settings-are-not-persisting}
-
-Mol\* Linker uses `chrome.storage.sync`. If you are signed out of your browser account, storage may not sync across devices — but it should still persist locally. Try clicking **Apply to Mol\*** again and reloading the page.
-
-
-## How do I reset to defaults? {#how-do-i-reset-to-defaults}
-
-Open the Studio, load the **Standard Mol** (Smart Guess)\* built-in preset, and click **Apply to Mol\***. This resets all target representations to defaults without deleting your saved templates.
+_Note: On dedicated structure databases like RCSB or AlphaFold, this filter is disabled, and badges will appear on standard format buttons._
 
 
-## What is MolViewSpec? {#what-is-molviewspec}
+### Why did my browser show an "Extension Context Invalidated" error? {#why-did-my-browser-show-an-extension-context-invalidated-error}
 
-[MolViewSpec (MVS)](https://molstar.org/viewer-docs/extensions/mvs/) is a declarative JSON schema for describing 3D molecular scenes. Instead of relying on Mol\*'s auto-guess, Mol\* Linker builds an MVS document from your settings and encodes it in the viewer URL — giving you full control over what the viewer shows on first load.
+If you recently updated Mol\* Linker via your browser's extension manager, any tabs that were already open prior to the update lose their connection to the extension's background router. Simply refresh the page (F5 or Ctrl/Cmd+R), and the badges will work perfectly again!
 
 
-## Can I use this for structures not hosted on GitHub or GitLab ? {#can-i-use-this-for-structures-not-hosted-on-github-or-gitlab}
+### Why do my molecules appear blank when the workspace first loads? {#why-do-my-molecules-appear-blank-when-the-workspace-first-loads}
 
-Not directly — the extension only injects badges for links it finds on supported pages. If you want to open an arbitrary URL in Mol\* with MVS settings, you would need to construct the viewer URL manually using the MolViewSpec schema.
+Mol\* Linker relies entirely on the Custom Rules and Presets you define in the extension's Options page. If your structure contains a highly complex lipid or non-standard ligand (like `PIPC` in a `.gro` file), the default rules might not know how to draw it, resulting in an invisible molecule.
+
+To fix this, simply click the extension icon, open the **Studio / Options**, and add a **Custom Rule** specifically targeting that molecule's residue name. Refresh the page, and it will render perfectly every time!

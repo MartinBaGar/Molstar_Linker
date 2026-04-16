@@ -1,42 +1,45 @@
-#+title: Contributing
-#+draft: false
-#+HUGO_WEIGHT: 503
+#+TITLE: Contributing & Build System
+#+WEIGHT: 10
 
-* Add a New Supported File Format
+* Development Workflow
 
-1. Add the extension string (with leading dot) to the =SUPPORTED_EXT= Set in =content.js=
-2. If Mol* uses a different parser name, add a mapping in =getMolstarUrl()= alongside the existing =cif= → =mmcif= case
+The Mol* Linker extension utilizes a *Single Source of Truth* architecture managed by a =Justfile=. 
 
-* Add a New Platform
+Because Chrome and Firefox require fundamentally different =manifest.json= configurations, *you must never place a manifest directly in the =src/= directory.*
 
-1. Add an entry to =GITLAB_PATTERNS= in =content.js= with:
-   - A regex capturing =(domain, namespace, ref, filepath)= groups
-   - A =buildApiUrl= function that constructs the raw file URL
-2. Update the badge color logic in =makeBadge()= if needed
+** Directory Structure
+- =src/= : Contains all universal JavaScript, HTML, and CSS.
+- =manifests/= : Contains =chrome.json= and =firefox.json=.
+- =dist/= : (Git-ignored) The generated build folders for local testing.
+- =releases/= : (Git-ignored) The generated =.zip= packages for Web Store deployment.
 
-* Add a New Built-in Preset
+* Build Commands (via Just)
 
-Add an entry to =AppConfig.presets= in =config.js=:
+Ensure you have [[https://github.com/casey/just][Just]] installed on your system.
 
-#+begin_src javascript
-"my_preset": {
-  name: "My Preset Name",
-  settings: {
-    "protein_rep": "surface",
-    "canvas_color": "#1a1a2e"
-  }
-}
-#+end_src
+** 1. Local Testing
+To compile the source code and manifests into loadable directories:
+#+BEGIN_SRC bash
+just build
+#+END_SRC
+- Load =dist/chrome= as an "Unpacked Extension" in Chrome.
+- Load =dist/firefox= as a "Temporary Add-on" in Firefox.
 
-Any key omitted from =settings= falls back to the value from =getDefaults()=.
+** 2. Version Bumping
+To safely update the version number across all manifest files simultaneously:
+#+BEGIN_SRC bash
+just bump 2.1.0
+#+END_SRC
 
-* Add a New Representation Type
+** 3. Packaging Releases
+To generate clean, production-ready =.zip= files for both browsers:
+#+BEGIN_SRC bash
+just zip 2.1.0
+#+END_SRC
+The outputs will be placed in the =releases/= directory.
 
-1. Add the key to =AppConfig.RepSchema= with its =label= and =params= descriptor
-2. The options UI generates the representation select and parameter drawer automatically from =RepSchema= — no UI code changes needed
-
-* Firefox Compatibility
-
-- Use =typeof globalThis.browser !== 'undefined' ? globalThis.browser : chrome= for all extension API calls
-- Never =await= anything before calling =permissions.request()= — Firefox's user-gesture context does not survive async gaps
-- Test against the minimum version declared in =browser_specific_settings.gecko.strict_min_version= (currently 128.0)
+** 4. Automated CI/CD Publishing
+If you have the GitHub CLI (=gh=) installed, you can bump, commit, tag, build, and publish a release directly to the GitHub repository in a single command:
+#+BEGIN_SRC bash
+just publish 2.1.0
+#+END_SRC

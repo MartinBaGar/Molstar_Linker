@@ -1,6 +1,6 @@
 #+title: Quickstart
 #+draft: false
-#+HUGO_WEIGHT: 102
+#+WEIGHT: 101
 
 Once the extension is installed, no configuration is needed to get started.
 

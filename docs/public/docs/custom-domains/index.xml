@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Custom Domains on Mol* Linker Wiki</title>
+    <title>Custom Domains (Self-Hosted Instances) on Mol* Linker Wiki</title>
     <link>http://localhost:1313/Molstar_Linker/docs/custom-domains/</link>
-    <description>Recent content in Custom Domains on Mol* Linker Wiki</description>
+    <description>Recent content in Custom Domains (Self-Hosted Instances) on Mol* Linker Wiki</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Molstar_Linker/docs/custom-domains/index.xml" rel="self" type="application/rss+xml" />

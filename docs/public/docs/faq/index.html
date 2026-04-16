@@ -8,24 +8,27 @@ https://github.com/alex-shpak/hugo-book
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="No badges are appearing# Make sure you are on a supported domain (GitHub, GitLab, RCSB, AlphaFold) Check that the file has a supported extension (.pdb, .cif, etc.) Try reloading the page — SPA navigation occasionally loads content after the initial scan On private domains, confirm the domain is authorized in the Custom Domains panel The badge appears but the viewer shows an error# The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from molstar.org, or check with your sysadmin.
+<meta name="description" content="General Questions# Where did my data go? Does this extension upload my proprietary files?# Absolutely not. This is one of the biggest upgrades in Mol* Linker v2.0. Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a dedicated, local workspace directly inside your browser.
+When you click a badge, the extension securely downloads the file straight into your browser’s active, temporary memory (RAM). It never touches your hard drive, and it is never uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/faq/">
   <meta property="og:site_name" content="Mol* Linker Wiki">
-  <meta property="og:title" content="FAQ & Troubleshooting">
-  <meta property="og:description" content="No badges are appearing# Make sure you are on a supported domain (GitHub, GitLab, RCSB, AlphaFold) Check that the file has a supported extension (.pdb, .cif, etc.) Try reloading the page — SPA navigation occasionally loads content after the initial scan On private domains, confirm the domain is authorized in the Custom Domains panel The badge appears but the viewer shows an error# The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from molstar.org, or check with your sysadmin.">
+  <meta property="og:title" content="Frequently Asked Questions">
+  <meta property="og:description" content="General Questions# Where did my data go? Does this extension upload my proprietary files?# Absolutely not. This is one of the biggest upgrades in Mol* Linker v2.0. Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a dedicated, local workspace directly inside your browser.
+When you click a badge, the extension securely downloads the file straight into your browser’s active, temporary memory (RAM). It never touches your hard drive, and it is never uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
 
 
-  <meta itemprop="name" content="FAQ & Troubleshooting">
-  <meta itemprop="description" content="No badges are appearing# Make sure you are on a supported domain (GitHub, GitLab, RCSB, AlphaFold) Check that the file has a supported extension (.pdb, .cif, etc.) Try reloading the page — SPA navigation occasionally loads content after the initial scan On private domains, confirm the domain is authorized in the Custom Domains panel The badge appears but the viewer shows an error# The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from molstar.org, or check with your sysadmin.">
-  <meta itemprop="wordCount" content="350">
+  <meta itemprop="name" content="Frequently Asked Questions">
+  <meta itemprop="description" content="General Questions# Where did my data go? Does this extension upload my proprietary files?# Absolutely not. This is one of the biggest upgrades in Mol* Linker v2.0. Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a dedicated, local workspace directly inside your browser.
+When you click a badge, the extension securely downloads the file straight into your browser’s active, temporary memory (RAM). It never touches your hard drive, and it is never uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.">
+  <meta itemprop="wordCount" content="344">
 
-<title>FAQ &amp; Troubleshooting | Mol* Linker Wiki</title>
+<title>Frequently Asked Questions | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
 <link rel="manifest" href="/Molstar_Linker/manifest.json">
 <link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/faq/">
@@ -33,7 +36,7 @@ https://github.com/alex-shpak/hugo-book
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.0205bf9aa662132b1c71e55d6713cfced8e7bafc4e8978b3c10b467aee72e80f.js" integrity="sha256-AgW/mqZiEyscceVdZxPPztjnuvxOiXizwQtGeu5y6A8=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.711ddc6133c4b5c11e6218fecf87c628b74ade62c1475a07d8d6399c3be48114.js" integrity="sha256-cR3cYTPEtcEeYhj&#43;z4fGKLdK3mLBR1oH2NY5nDvkgRQ=" crossorigin="anonymous"></script>
 
 
 
@@ -86,8 +89,8 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a>
-      Getting Started</a>
+    <a href="/Molstar_Linker/docs/getting-started/" class="">
+      Mol* Linker Documentation</a>
   
 
           
@@ -134,7 +137,7 @@ https://github.com/alex-shpak/hugo-book
 
   
     <a href="/Molstar_Linker/docs/configuration/" class="">
-      Configuration</a>
+      Configuration &amp; Studio</a>
   
 
           
@@ -214,7 +217,7 @@ https://github.com/alex-shpak/hugo-book
 
   
     <a href="/Molstar_Linker/docs/custom-domains/" class="">
-      Custom Domains</a>
+      Custom Domains (Self-Hosted Instances)</a>
   
 
           
@@ -247,7 +250,21 @@ https://github.com/alex-shpak/hugo-book
 
   
     <a href="/Molstar_Linker/docs/developer/architecture/" class="">
-      Architecture</a>
+      Architecture &amp; Execution Flow</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing &amp; Build System</a>
   
 
         </li>
@@ -267,20 +284,6 @@ https://github.com/alex-shpak/hugo-book
         </li>
       
     
-      
-        <li>
-          
-  
-  
-
-  
-    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
-      Contributing</a>
-  
-
-        </li>
-      
-    
   </ul>
 
         </li>
@@ -294,7 +297,7 @@ https://github.com/alex-shpak/hugo-book
 
   
     <a href="/Molstar_Linker/docs/faq/" class="active">
-      FAQ &amp; Troubleshooting</a>
+      Frequently Asked Questions</a>
   
 
         </li>
@@ -335,7 +338,7 @@ https://github.com/alex-shpak/hugo-book
     <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
   </label>
 
-  <h3>FAQ &amp; Troubleshooting</h3>
+  <h3>Frequently Asked Questions</h3>
 
   <label for="toc-control">
     
@@ -351,14 +354,14 @@ https://github.com/alex-shpak/hugo-book
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#no-badges-are-appearing">No badges are appearing</a></li>
-    <li><a href="#the-badge-appears-but-the-viewer-shows-an-error">The badge appears but the viewer shows an error</a></li>
-    <li><a href="#my-private-gitlab-domain-is-not-being-detected">My private GitLab domain is not being detected</a></li>
-    <li><a href="#i-authorized-a-domain-but-nothing-happens">I authorized a domain but nothing happens</a></li>
-    <li><a href="#settings-are-not-persisting">Settings are not persisting</a></li>
-    <li><a href="#how-do-i-reset-to-defaults">How do I reset to defaults?</a></li>
-    <li><a href="#what-is-molviewspec">What is MolViewSpec?</a></li>
-    <li><a href="#can-i-use-this-for-structures-not-hosted-on-github-or-gitlab">Can I use this for structures not hosted on GitHub or GitLab ?</a></li>
+    <li><a href="#general-questions">General Questions</a>
+      <ul>
+        <li><a href="#where-did-my-data-go-does-this-extension-upload-my-proprietary-files">Where did my data go? Does this extension upload my proprietary files?</a></li>
+        <li><a href="#why-is-the-mol-badge-not-appearing-next-to-a-download-button">Why is the Mol* badge not appearing next to a &ldquo;Download&rdquo; button?</a></li>
+        <li><a href="#why-did-my-browser-show-an-extension-context-invalidated-error">Why did my browser show an &ldquo;Extension Context Invalidated&rdquo; error?</a></li>
+        <li><a href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 
@@ -371,28 +374,20 @@ https://github.com/alex-shpak/hugo-book
 
       
       
-  <article class="markdown book-article"><h2 id="no-badges-are-appearing">No badges are appearing<a class="anchor" href="#no-badges-are-appearing">#</a></h2>
-<ul>
-<li>Make sure you are on a <a href="../getting-started/installation#permissions">supported domain</a> (GitHub, GitLab, RCSB, AlphaFold)</li>
-<li>Check that the file has a <a href="../#supported-formats">supported extension</a> (<code>.pdb</code>, <code>.cif</code>, etc.)</li>
-<li>Try reloading the page — SPA navigation occasionally loads content after the initial scan</li>
-<li>On private domains, confirm the domain is authorized in the <a href="../custom-domains">Custom Domains</a> panel</li>
-</ul>
-<h2 id="the-badge-appears-but-the-viewer-shows-an-error">The badge appears but the viewer shows an error<a class="anchor" href="#the-badge-appears-but-the-viewer-shows-an-error">#</a></h2>
-<p>The most common cause is a CORS restriction on the raw file URL. GitHub and public GitLab work out of the box. For private GitLab instances, make sure the server allows cross-origin requests from <code>molstar.org</code>, or check with your sysadmin.</p>
-<h2 id="my-private-gitlab-domain-is-not-being-detected">My private GitLab domain is not being detected<a class="anchor" href="#my-private-gitlab-domain-is-not-being-detected">#</a></h2>
-<p>The extension matches self-hosted GitLab URLs using a pattern that expects the standard GitLab URL structure:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>https://&lt;domain&gt;/&lt;namespace&gt;/-/blob/&lt;ref&gt;/&lt;filepath&gt;</span></span></code></pre></div><p>If your instance uses a custom URL layout, the pattern will not match. Please open an issue on <a href="https://github.com/MartinBaGar/molstar_linker/issues">GitHub</a>.</p>
-<h2 id="i-authorized-a-domain-but-nothing-happens">I authorized a domain but nothing happens<a class="anchor" href="#i-authorized-a-domain-but-nothing-happens">#</a></h2>
-<p>After authorizing a new domain, reload the page. Dynamic content script registration takes effect on the next page load.</p>
-<h2 id="settings-are-not-persisting">Settings are not persisting<a class="anchor" href="#settings-are-not-persisting">#</a></h2>
-<p>Mol* Linker uses <code>chrome.storage.sync</code>. If you are signed out of your browser account, storage may not sync across devices — but it should still persist locally. Try clicking <strong>Apply to Mol*</strong> again and reloading the page.</p>
-<h2 id="how-do-i-reset-to-defaults">How do I reset to defaults?<a class="anchor" href="#how-do-i-reset-to-defaults">#</a></h2>
-<p>Open the Studio, load the <strong>Standard Mol</strong> (Smart Guess)* built-in preset, and click <strong>Apply to Mol*</strong>. This resets all target representations to defaults without deleting your saved templates.</p>
-<h2 id="what-is-molviewspec">What is MolViewSpec?<a class="anchor" href="#what-is-molviewspec">#</a></h2>
-<p><a href="https://molstar.org/viewer-docs/extensions/mvs/">MolViewSpec (MVS)</a> is a declarative JSON schema for describing 3D molecular scenes. Instead of relying on Mol*&rsquo;s auto-guess, Mol* Linker builds an MVS document from your settings and encodes it in the viewer URL — giving you full control over what the viewer shows on first load.</p>
-<h2 id="can-i-use-this-for-structures-not-hosted-on-github-or-gitlab">Can I use this for structures not hosted on GitHub or GitLab ?<a class="anchor" href="#can-i-use-this-for-structures-not-hosted-on-github-or-gitlab">#</a></h2>
-<p>Not directly — the extension only injects badges for links it finds on supported pages. If you want to open an arbitrary URL in Mol* with MVS settings, you would need to construct the viewer URL manually using the MolViewSpec schema.</p>
+  <article class="markdown book-article"><h2 id="general-questions">General Questions<a class="anchor" href="#general-questions">#</a></h2>
+<h3 id="where-did-my-data-go-does-this-extension-upload-my-proprietary-files">Where did my data go? Does this extension upload my proprietary files?<a class="anchor" href="#where-did-my-data-go-does-this-extension-upload-my-proprietary-files">#</a></h3>
+<p><strong>Absolutely not.</strong> This is one of the biggest upgrades in Mol* Linker v2.0.
+Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a <strong>dedicated, local workspace</strong> directly inside your browser.</p>
+<p>When you click a badge, the extension securely downloads the file straight into your browser&rsquo;s active, temporary memory (RAM). It never touches your hard drive, and it is <strong>never</strong> uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.</p>
+<h3 id="why-is-the-mol-badge-not-appearing-next-to-a-download-button">Why is the Mol* badge not appearing next to a &ldquo;Download&rdquo; button?<a class="anchor" href="#why-is-the-mol-badge-not-appearing-next-to-a-download-button">#</a></h3>
+<p>To keep your Git repositories clean and uncluttered, Mol* Linker v2.0 uses a &ldquo;Smart Visual Filter.&rdquo;</p>
+<p>On sites like GitHub and GitLab, the badge will <strong>only</strong> appear if the visible text of the link contains the actual file extension (for example, a link that explicitly says <code>SITO.pdb</code>). It will intentionally ignore generic &ldquo;Download&rdquo;, &ldquo;Raw&rdquo;, or &ldquo;History&rdquo; buttons.</p>
+<p><em>Note: On dedicated structure databases like RCSB or AlphaFold, this filter is disabled, and badges will appear on standard format buttons.</em></p>
+<h3 id="why-did-my-browser-show-an-extension-context-invalidated-error">Why did my browser show an &ldquo;Extension Context Invalidated&rdquo; error?<a class="anchor" href="#why-did-my-browser-show-an-extension-context-invalidated-error">#</a></h3>
+<p>If you recently updated Mol* Linker via your browser&rsquo;s extension manager, any tabs that were already open prior to the update lose their connection to the extension&rsquo;s background router. Simply refresh the page (F5 or Ctrl/Cmd+R), and the badges will work perfectly again!</p>
+<h3 id="why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?<a class="anchor" href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">#</a></h3>
+<p>Mol* Linker relies entirely on the Custom Rules and Presets you define in the extension&rsquo;s Options page. If your structure contains a highly complex lipid or non-standard ligand (like <code>PIPC</code> in a <code>.gro</code> file), the default rules might not know how to draw it, resulting in an invisible molecule.</p>
+<p>To fix this, simply click the extension icon, open the <strong>Studio / Options</strong>, and add a <strong>Custom Rule</strong> specifically targeting that molecule&rsquo;s residue name. Refresh the page, and it will render perfectly every time!</p>
 </article>
  
       
@@ -421,9 +416,9 @@ https://github.com/alex-shpak/hugo-book
   <div class="flex flex-wrap justify-between">
     <span>
     
-      <a href="/Molstar_Linker/docs/developer/contributing/" class="flex align-center">
+      <a href="/Molstar_Linker/docs/developer/module-reference/" class="flex align-center">
         <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
-        <span>Contributing</span>
+        <span>Module Reference</span>
       </a>
     
     </span>
@@ -465,14 +460,14 @@ https://github.com/alex-shpak/hugo-book
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#no-badges-are-appearing">No badges are appearing</a></li>
-    <li><a href="#the-badge-appears-but-the-viewer-shows-an-error">The badge appears but the viewer shows an error</a></li>
-    <li><a href="#my-private-gitlab-domain-is-not-being-detected">My private GitLab domain is not being detected</a></li>
-    <li><a href="#i-authorized-a-domain-but-nothing-happens">I authorized a domain but nothing happens</a></li>
-    <li><a href="#settings-are-not-persisting">Settings are not persisting</a></li>
-    <li><a href="#how-do-i-reset-to-defaults">How do I reset to defaults?</a></li>
-    <li><a href="#what-is-molviewspec">What is MolViewSpec?</a></li>
-    <li><a href="#can-i-use-this-for-structures-not-hosted-on-github-or-gitlab">Can I use this for structures not hosted on GitHub or GitLab ?</a></li>
+    <li><a href="#general-questions">General Questions</a>
+      <ul>
+        <li><a href="#where-did-my-data-go-does-this-extension-upload-my-proprietary-files">Where did my data go? Does this extension upload my proprietary files?</a></li>
+        <li><a href="#why-is-the-mol-badge-not-appearing-next-to-a-download-button">Why is the Mol* badge not appearing next to a &ldquo;Download&rdquo; button?</a></li>
+        <li><a href="#why-did-my-browser-show-an-extension-context-invalidated-error">Why did my browser show an &ldquo;Extension Context Invalidated&rdquo; error?</a></li>
+        <li><a href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 

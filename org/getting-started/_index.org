@@ -1,3 +1,21 @@
-#+title: Getting Started
-#+draft: false
-#+HUGO_WEIGHT: 100
+#+TITLE: Mol* Linker Documentation
+#+HUGO_WEIGHT: 10
+
+Welcome to the official documentation for the *Mol* Linker* extension!
+
+* Overview
+Mol* Linker is a powerful browser extension that bridges the gap between raw structural biology files and high-performance 3D visualization. 
+
+By directly integrating with GitHub, GitLab, RCSB, and AlphaFold, it allows researchers to instantly view =.pdb=, =.cif=, and molecular dynamics files (=.gro=, =.xyz=) in a fully customized, sandboxed environment powered by Mol* and MolViewSpec.
+
+* Key Features
+- *Zero-Click Integration:* Automatically detects structural files and injects native launch buttons.
+- *Advanced CORS Bypass:* Securely fetches data directly from private, self-hosted Git repositories and ElabFTW instances without triggering cross-origin network errors.
+- *Privacy First:* Renders your data entirely in local memory via a Sandboxed architecture. Your proprietary files are never sent to external visualization servers.
+- *Global Presets:* Define your preferred coloring, representation (Cartoon, Ball & Stick), and selection logic once, and apply it automatically to every structure you open.
+
+* Navigating this Documentation
+- [[file:getting-started/][Getting Started]]: Installation and basic usage.
+- [[file:configuration/][Configuration]]: How to define powerful Custom Rules and Presets.
+- [[file:custom-domains/][Custom Domains]]: How to authorize your private Git instances.
+- [[file:developer/][Developer]]: Architecture, security flows, and build pipelines.

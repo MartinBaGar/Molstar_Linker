@@ -1,49 +1,65 @@
 +++
-title = "Contributing"
+title = "Contributing & Build System"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 503
 +++
 
-## Add a New Supported File Format {#add-a-new-supported-file-format}
+## Development Workflow {#development-workflow}
 
-1.  Add the extension string (with leading dot) to the `SUPPORTED_EXT` Set in `content.js`
-2.  If Mol\* uses a different parser name, add a mapping in `getMolstarUrl()` alongside the existing `cif` → `mmcif` case
+The Mol\* Linker extension utilizes a **Single Source of Truth** architecture managed by a `Justfile`.
 
-
-## Add a New Platform {#add-a-new-platform}
-
-1.  Add an entry to `GITLAB_PATTERNS` in `content.js` with:
-    -   A regex capturing `(domain, namespace, ref, filepath)` groups
-    -   A `buildApiUrl` function that constructs the raw file URL
-2.  Update the badge color logic in `makeBadge()` if needed
+Because Chrome and Firefox require fundamentally different `manifest.json` configurations, **you must never place a manifest directly in the `src/` directory.**
 
 
-## Add a New Built-in Preset {#add-a-new-built-in-preset}
+### Directory Structure {#directory-structure}
 
-Add an entry to `AppConfig.presets` in `config.js`:
+-   `src/` : Contains all universal JavaScript, HTML, and CSS.
+-   `manifests/` : Contains `chrome.json` and `firefox.json`.
+-   `dist/` : (Git-ignored) The generated build folders for local testing.
+-   `releases/` : (Git-ignored) The generated `.zip` packages for Web Store deployment.
 
-```javascript
-"my_preset": {
-  name: "My Preset Name",
-  settings: {
-    "protein_rep": "surface",
-    "canvas_color": "#1a1a2e"
-  }
-}
+
+## Build Commands (via Just) {#build-commands--via-just}
+
+Ensure you have [Just](https://github.com/casey/just) installed on your system.
+
+
+### 1. Local Testing {#1-dot-local-testing}
+
+To compile the source code and manifests into loadable directories:
+
+```bash
+just build
 ```
 
-Any key omitted from `settings` falls back to the value from `getDefaults()`.
+-   Load `dist/chrome` as an "Unpacked Extension" in Chrome.
+-   Load `dist/firefox` as a "Temporary Add-on" in Firefox.
 
 
-## Add a New Representation Type {#add-a-new-representation-type}
+### 2. Version Bumping {#2-dot-version-bumping}
 
-1.  Add the key to `AppConfig.RepSchema` with its `label` and `params` descriptor
-2.  The options UI generates the representation select and parameter drawer automatically from `RepSchema` — no UI code changes needed
+To safely update the version number across all manifest files simultaneously:
+
+```bash
+just bump 2.1.0
+```
 
 
-## Firefox Compatibility {#firefox-compatibility}
+### 3. Packaging Releases {#3-dot-packaging-releases}
 
--   Use `typeof globalThis.browser !=` 'undefined' ? globalThis.browser : chrome= for all extension API calls
--   Never `await` anything before calling `permissions.request()` — Firefox's user-gesture context does not survive async gaps
--   Test against the minimum version declared in `browser_specific_settings.gecko.strict_min_version` (currently 128.0)
+To generate clean, production-ready `.zip` files for both browsers:
+
+```bash
+just zip 2.1.0
+```
+
+The outputs will be placed in the `releases/` directory.
+
+
+### 4. Automated CI/CD Publishing {#4-dot-automated-ci-cd-publishing}
+
+If you have the GitHub CLI (`gh`) installed, you can bump, commit, tag, build, and publish a release directly to the GitHub repository in a single command:
+
+```bash
+just publish 2.1.0
+```

@@ -2,7 +2,6 @@
 title = "Installation"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 101
 +++
 
 ## Chrome {#chrome}

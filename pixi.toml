@@ -1,0 +1,11 @@
+[workspace]
+authors = ["Martin Bari Garnier <martbari.g@gmail.com>"]
+channels = ["conda-forge"]
+name = "Molstar_Linker"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+hugo = ">=0.160.1,<0.161"

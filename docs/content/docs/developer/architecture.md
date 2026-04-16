@@ -1,70 +1,60 @@
 +++
-title = "Architecture"
+title = "Architecture & Execution Flow"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 501
 +++
 
-## File Structure {#file-structure}
+## Core Philosophy {#core-philosophy}
 
-| File                          | Responsibility                                                            |
-|-------------------------------|---------------------------------------------------------------------------|
-| `manifest.json`               | MV3 manifest — permissions, host grants, content script wiring            |
-| `config.js`                   | `AppConfig` — representation schemas, targets, built-in presets, defaults |
-| `mvs-builder.js`              | `MvsBuilder` — assembles the MVS JSON tree, encodes the Mol\* viewer URL  |
-| `content.js`                  | Content script — link detection, badge injection, SPA observer            |
-| `permissions.js`              | `PermissionsManager` — runtime host permission and script registration    |
-| `popup.html` / `popup.js`     | Toolbar popup — preset picker, JSON import, options shortcut              |
-| `options.html` / `options.js` | Full settings studio                                                      |
+The Mol\* Linker extension operates across complex security boundaries. Modern browsers enforce strict Content Security Policies (CSP), specifically blocking `unsafe-eval` in Manifest V3 (Chrome) and restricting cross-origin requests (CORS).
+
+To seamlessly load multi-megabyte structural files from dynamic Single Page Applications (SPAs) like GitLab/GitHub into a high-performance WebGL visualizer (Mol\*), the extension utilizes a robust **4-Layer Architecture**.
 
 
-## Data Flow {#data-flow}
-
-When a supported page loads:
-
-1.  `config.js`, `mvs-builder.js`, and `content.js` are injected at `document_end`
-2.  `injectMolstarLinker()` fetches current settings from `chrome.storage.sync`
-3.  All `<a href>` elements are scanned — `getMolstarUrl()` checks the extension, transforms GitHub/GitLab blob URLs to raw URLs, and calls `MvsBuilder.createViewerUrl()`
-4.  `MvsBuilder` serialises the full MVS JSON tree and encodes it as a query parameter on `https://molstar.org/viewer/`
-5.  A filename→URL map is built; a TreeWalker finds matching filenames in text nodes and inserts badge anchors adjacent to them in the DOM
-6.  A `MutationObserver` debounces DOM changes (500 ms) and re-runs `injectMolstarLinker()` to handle SPA navigation
+## The 4-Layer Architecture {#the-4-layer-architecture}
 
 
-## MVS Tree Structure {#mvs-tree-structure}
+### 1. Reconnaissance (The Content Script) {#1-dot-reconnaissance--the-content-script}
 
-The MolViewSpec document built for each structure link has this shape:
-
-```text
-root
-  └─ download  { url }
-       └─ parse  { format }
-            └─ structure  { type: "model" }
-                 └─ component  { selector: "protein" }
-                      └─ representation  { type: "cartoon" }
-                           └─ color  { ... }
-                           └─ color  { ... }  ← custom highlight overlays
-                 └─ component  { selector: "ligand" }
-                      └─ representation  { type: "ball_and_stick" }
-                           └─ color  { ... }
-                 └─ [custom rule components]
-  └─ canvas   { background_color }   (omitted if white)
-  └─ camera   { ... }                (omitted if not set)
-```
+-   **File:** `src/content.js`
+-   **Environment:** Host Webpage (e.g., GitHub, GitLab, RCSB)
+-   **Role:** Scans the DOM for supported structural file extensions (`.pdb`, `.cif`, `.gro`, etc.). It uses smart heuristics to ignore Git UI elements (like `/blame/` or `/commits/`) and anchor jumps (`#L10`).
+-   **Action:** Injects a native HTML `<button>` next to valid links. Clicking this button stops event propagation (preventing SPA routers from navigating away) and sends a message to the background router.
 
 
-## Storage Schema {#storage-schema}
+### 2. The Router (The Background Script) {#2-dot-the-router--the-background-script}
 
-Settings are persisted as flat key-value pairs in `chrome.storage.sync`:
+-   **File:** `src/background.js`
+-   **Environment:** Extension Service Worker (Chrome) / Event Page (Firefox)
+-   **Role:** Acts as a traffic cop. It listens for the `open_viewer` message from the Content Script.
+-   **Action:** Opens a new, isolated extension tab pointing to `viewer.html`, passing the target file URL and format via URL search parameters.
 
-| Key                    | Type        | Description                                          |
-|------------------------|-------------|------------------------------------------------------|
-| `{targetId}_rep`       | string      | Representation type (`cartoon`, `ball_and_stick`, …) |
-| `{targetId}_colorType` | string      | `theme` or `solid`                                   |
-| `{targetId}_colorVal`  | string      | Theme name or hex color                              |
-| `{targetId}_size`      | number      | `size_factor` for the representation                 |
-| `{targetId}_opacity`   | number      | Opacity 0–1                                          |
-| `canvas_color`         | hex string  | Viewer background color                              |
-| `camera_json`          | JSON string | MVS camera params object                             |
-| `customRules`          | Rule[]      | Array of custom rule objects                         |
-| `customTemplates`      | object      | Named templates saved by the user                    |
-| `customDomains`        | string[]    | Authorized private hostnames                         |
+
+### 3. The Privileged Shell (The Viewer) {#3-dot-the-privileged-shell--the-viewer}
+
+-   **Files:** `src/viewer.html`, `src/viewer.js`
+-   **Environment:** Extension Context (`chrome-extension://...`)
+-   **Role:** This is the layer with elevated extension privileges. It executes the critical **CORS Bypass**.
+-   **Action:**
+    1.  Uses the extension's `host_permissions` to execute a native `fetch()` on the target URL, perfectly bypassing standard browser CORS restrictions.
+    2.  Translates the downloaded Blob into a Base64 Data URI directly in the user's RAM.
+    3.  Reads the user's custom settings from `chrome.storage`.
+    4.  Dynamically spawns an `<iframe>` pointing to the Sandbox, and passes the Base64 data and user settings through the iframe wall via `postMessage()`.
+
+
+### 4. The Engine (The Sandbox) {#4-dot-the-engine--the-sandbox}
+
+-   **Files:** `src/sandbox.html`, `src/sandbox.js`, `src/mvs-builder.js`
+-   **Environment:** Isolated Sandbox (`Origin: null`)
+-   **Role:** Mol\* relies heavily on `new Function()` and `eval()` to compile dynamic WebGL shaders. Standard Manifest V3 extension pages block this. The Sandbox is explicitly declared in the manifest to allow `unsafe-eval`.
+-   **Action:** Receives the Base64 data, translates the user settings into a MolViewSpec (MVS) JSON tree via `MvsBuilder`, and renders the 3D scene securely.
+
+
+## Cross-Browser Compatibility (Manifest Split) {#cross-browser-compatibility--manifest-split}
+
+Google Chrome (Manifest V3) and Mozilla Firefox (Manifest V2) have fundamentally incompatible security standards regarding background workers and sandboxing.
+
+To maintain a single, universal JavaScript codebase, the architecture utilizes a dual-manifest build system:
+
+-   **Chrome (\*=manifests/chrome.json=**):\* Utilizes `service_worker` and strictly relies on the `sandbox` manifest key to escape the V3 `unsafe-eval` ban.
+-   **Firefox (\*=manifests/firefox.json=**):\* Utilizes V2 `scripts` (Event Pages) and relies on a permissive `content_security_policy` to allow `unsafe-eval`, as Firefox natively strips sandbox permissions.

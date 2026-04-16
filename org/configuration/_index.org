@@ -1,12 +1,19 @@
-#+title: Configuration
-#+draft: false
-#+HUGO_WEIGHT: 200
+#+TITLE: Configuration & Studio
+#+HUGO_WEIGHT: 20
 
-The *Mol* Linker Studio* is the full settings page. Open it via the popup or your browser's extension options.
+* The Mol* Linker Studio
 
-It has four panels:
+The true power of Mol* Linker is the ability to dictate exactly how your molecules look *before* you even open them. 
 
-- [[./scene][Scene Settings]] — background color and camera
-- [[./targets][Molecular Targets]] — representations per molecule type
-- [[./custom-rules][Custom Rules]] — per-chain, per-residue highlights and overlays
-- [[../custom-domains][Custom Domains]] — authorize private GitLab instances
+Instead of manually clicking through complex menus every time you view a structure, you can configure your ideal scientific visualizer in the *Mol* Linker Studio*. 
+
+* Instant Application
+When you click a badge on a website, the extension instantly beams your saved configurations directly into the isolated 3D workspace tab. It parses your rules and applies the styling dynamically, ensuring your structures look perfect the millisecond they finish downloading.
+
+* Core Configuration Concepts
+
+To master the Studio, you should understand how the extension builds the 3D scene. Explore the sections below:
+
+- [[file:targets/][Targets]]: Understand the default categories (Protein, Nucleic, Water, Ion, etc.) the extension uses to group your atoms.
+- [[file:scene/][Scene & Styles]]: Learn how to map representations (Cartoon, Spacefill, Ball & Stick) to your targets.
+- [[file:custom-rules/][Custom Rules]]: The most powerful feature. Learn how to override the defaults and build highly specific visual rules for your unique ligands, active sites, or mutation ranges.

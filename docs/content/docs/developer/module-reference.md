@@ -2,104 +2,67 @@
 title = "Module Reference"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 502
 +++
 
-## config.js — AppConfig {#config-dot-js-appconfig}
-
-Central configuration registry loaded by every other module.
+## Core Application Modules {#core-application-modules}
 
 
-### `AppConfig.RepSchema` {#appconfig-dot-repschema}
+### `content.js` {#content-dot-js}
 
-Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.
+The entry point on external websites.
 
-
-### `AppConfig.targets` {#appconfig-dot-targets}
-
-Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: `id`, `selector`, `label`, `rep`, `color`, `size`.
-
-
-### `AppConfig.presets` {#appconfig-dot-presets}
-
-Named built-in presets. Each `settings` object is shallow-merged over `getDefaults()` at application time.
+-   `getStructureInfo(href)`: Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab.
+-   `makeBadge(rawUrl, formatStr, originalHref)`: Generates the UI button. Crucially uses `<button>` instead of `<a>` to prevent recursive DOM cloning by the MutationObserver.
+-   `injectMolstarLinker()`: The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders.
 
 
-### `AppConfig.getDefaults()` {#appconfig-dot-getdefaults}
+### `background.js` {#background-dot-js}
 
-Returns a fresh flat settings object by iterating `AppConfig.targets`. This is the authoritative schema source — all storage reads and preset merges start from here.
+The routing layer.
 
----
-
-
-## mvs-builder.js — MvsBuilder {#mvs-builder-dot-js-mvsbuilder}
-
-Builds a complete MolViewSpec 1.0 JSON document and encodes it as a Mol\* viewer URL.
+-   Listens to `chrome.runtime.onMessage`.
+-   Safely encodes URIs using `encodeURIComponent` and fires `chrome.tabs.create`.
 
 
-### `createViewerUrl(rawStructureUrl, format, settings)` {#createviewerurl--rawstructureurl-format-settings}
+### `viewer.js` {#viewer-dot-js}
 
-Entry point. Converts `cif` → `mmcif` (MVS parser name), calls `_buildBaseTemplate()`, JSON-serialises the result, and returns the encoded viewer URL.
+The data acquisition and privilege layer.
 
-
-### `_buildBaseTemplate(url, format, settings)` {#buildbasetemplate--url-format-settings}
-
-Assembles the root MVS node tree. Appends `canvas` and `camera` nodes when the relevant settings are non-default.
-
-
-### `_buildComponentBranches(settings)` {#buildcomponentbranches--settings}
-
-Two-pass algorithm:
-
--   **Pass 1 — Custom Rules**: highlight-type rules append color override nodes to `polymerColorOverrides` (later injected into protein/nucleic representations); representation-type rules create full `component` → `representation` → `color` branches
--   **Pass 2 — Global Targets**: iterates `AppConfig.targets`, skipping `off` targets; for protein/nucleic, appends `polymerColorOverrides` as sibling color nodes inside the representation
+-   Executes `fetch()` to download structure files.
+-   Utilizes `FileReader.readAsDataURL()` to convert binary blobs into Base64 strings. This is a deliberate architectural requirement to pass structural data securely into the sandbox, which operates on an isolated `null` origin.
+-   Merges `chrome.storage` data with `AppConfig.getDefaults()` to ensure the downstream engine always has fallback rendering rules.
 
 
-### `_getColorNode(colorType, colorVal)` {#getcolornode--colortype-colorval}
+### `sandbox.js` {#sandbox-dot-js}
 
-Returns a theme color node (`molstar_color_theme_name` custom field) or a solid color node.
+The rendering execution layer.
 
----
-
-
-## content.js {#content-dot-js}
-
-
-### `getMolstarUrl(href, settings)` {#getmolstarurl--href-settings}
-
-Validates extension, then transforms platform URLs:
-
--   **GitHub**: replaces host with `raw.githubusercontent.com`, strips `/blob/` or `/raw/refs/heads/`
--   **GitLab**: matches `GITLAB_PATTERNS`, constructs GitLab API v4 raw file URL with encoded namespace and filepath
-
-Returns `null` for unsupported extensions or unrecognised hosts.
+-   Operates entirely via `window.addEventListener('message')`.
+-   Initializes `molstar.Viewer.create()`.
+-   Translates received settings into an MVS Template via `MvsBuilder._buildBaseTemplate()`.
+-   Safely invokes `viewerInstance.loadMvsData()`.
 
 
-### `makeBadge(molstarUrl)` {#makebadge--molstarurl}
+### `mvs-builder.js` {#mvs-builder-dot-js}
 
-Creates a styled `<a>` element. Color is purple for GitLab URLs, green otherwise. Uses `data-ms-badge` as an idempotency marker.
+The JSON translation engine.
 
-
-### `injectMolstarLinker()` {#injectmolstarlinker}
-
-Main orchestration function. Scans links, builds the filename→URL map, walks text nodes, and inserts badges. Uses `data-ms-processed` on anchor elements and physical sibling checks to prevent duplicate badges on SPA re-runs.
+-   Contains the deterministic logic to map extension UI settings (Targets, Styles, Colors) into the strict, hierarchical JSON format required by MolViewSpec.
 
 
-### MutationObserver / SPA handling {#mutationobserver-spa-handling}
-
-Watches `document.body` with `childList: true, subtree: true`. Changes are debounced at 500 ms before re-running `injectMolstarLinker()`.
-
----
+## Configuration &amp; Settings {#configuration-and-settings}
 
 
-## permissions.js — PermissionsManager {#permissions-dot-js-permissionsmanager}
+### `config.js` {#config-dot-js}
+
+Contains the static `AppConfig` object. Defines the foundational default rules for standard molecule categories (protein, nucleic, water, lipids, etc.).
 
 
-### `requestAndRegister(url)` {#requestandregister--url}
+### `options.js` &amp; `popup.js` {#options-dot-js-and-popup-dot-js}
 
-Requests the host permission **synchronously on user gesture** (required by Firefox), then registers a dynamic content script via `chrome.scripting.registerContentScripts`, and persists the domain to `storage.sync`.
+The user interface controllers for saving settings into `chrome.storage.sync`. Uses the custom `StorageAPI` wrapper to ensure seamless promise/callback compatibility between Chrome (V3) and Firefox (V2).
 
 
-### `revokeAndUnregister(url)` {#revokeandunregister--url}
+### `permissions.js` {#permissions-dot-js}
 
-Unregisters the dynamic content script, removes the host permission, and removes the domain from storage.
+Handles dynamic host permission requests. Ensures users can authorize self-hosted GitLab or ElabFTW instances securely via the extension's Options page.

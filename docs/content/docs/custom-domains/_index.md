@@ -1,58 +1,40 @@
 +++
-title = "Custom Domains"
+title = "Custom Domains (Self-Hosted Instances)"
 author = ["Martin Bari Garnier"]
 draft = false
 weight = 400
 +++
 
-By default, Mol\* Linker runs on `github.com`, `gitlab.com`, `rcsb.org`, and `alphafold.ebi.ac.uk`. You can authorize it to run on private or self-hosted GitLab instances too.
+## Authorizing Private Instances {#authorizing-private-instances}
+
+Many research institutions and universities use self-hosted versions of GitLab, GitHub Enterprise, or Electronic Lab Notebooks (like ElabFTW) behind secure firewalls.
+
+By default, Mol\* Linker only runs on public websites like `github.com` or `rcsb.org`. To use the extension on your private, internal network, you must authorize your custom domain.
 
 
-## Authorize a New Domain {#authorize-a-new-domain}
+## The CORS Advantage {#the-cors-advantage}
+
+In the past, viewing 3D structures from private servers was incredibly difficult due to strict browser security rules known as CORS (Cross-Origin Resource Sharing).
+
+**Mol** Linker v2.0 completely bypasses this limitation.\* When you authorize a custom domain, you grant the extension elevated network privileges for that specific site. The extension can natively securely fetch the structural files from your private server and render them in the local workspace without requiring your IT department to alter server-side CORS headers!
 
 
-### From the Popup {#from-the-popup}
+## How to Add a Custom Domain {#how-to-add-a-custom-domain}
 
-When you visit a page on an unauthorized domain, the popup shows an **Authorize in Studio** button. Clicking it opens the Studio with the domain pre-filled.
+1.  Navigate to your self-hosted instance (e.g., `https://gitlab.my-university.edu`).
+2.  Click the **Mol** Linker\* puzzle-piece icon in your browser's extension toolbar.
+3.  In the popup menu, the extension will automatically detect your current domain.
+4.  Click the **Authorize in Studio** button.
+5.  Your browser will prompt you to grant permissions for this specific site. Click **Allow**.
 
-
-### From the Studio {#from-the-studio}
-
-In the **Managed Custom Domains** panel at the bottom of the Studio:
-
-1.  Type the hostname in the input field (e.g. `gitlab.my-lab.org`)
-2.  Click **+ Add Domain**
-3.  Your browser will show a permission dialog — accept it
-
-The extension then:
-
--   Registers a dynamic content script for that domain
--   Saves the hostname to your synced storage
--   Starts injecting badges immediately on matching pages
+Once authorized, the page will refresh, and Mol\* (Workspace) badges will instantly appear next to all supported structural files!
 
 
-## Revoke a Domain {#revoke-a-domain}
+## Managing Authorized Domains {#managing-authorized-domains}
 
-In the **Managed Custom Domains** panel, click **Revoke** next to any domain. This:
+You can view, manage, and revoke access to your custom domains at any time.
 
--   Unregisters the content script
--   Removes the host permission
--   Removes the domain from your saved list
-
-
-## Firefox Note {#firefox-note}
-
-Firefox requires that permission requests happen directly in response to a user click — with no asynchronous operations in between. Mol\* Linker handles this correctly: the permission dialog is triggered immediately when you click **Add Domain**, before any other work is done.
-
-
-## GitLab URL Pattern {#gitlab-url-pattern}
-
-For self-hosted GitLab instances, the extension uses the GitLab API v4 to fetch raw file content. The URL transformation follows this pattern:
-
-```text
-https://<domain>/<namespace>/-/blob/<ref>/<filepath>
-  →
-https://<domain>/api/v4/projects/<encoded-namespace>/repository/files/<encoded-filepath>/raw?ref=<ref>
-```
-
-This works for any GitLab instance version that supports API v4 (GitLab 9.0+).
+1.  Open the extension popup and click **Open Studio (Settings)**.
+2.  Navigate to the **Custom Domains** tab on the left sidebar.
+3.  Here, you will see a list of all currently authorized domains.
+4.  Click **Remove** next to any domain to instantly revoke the extension's access to that site.

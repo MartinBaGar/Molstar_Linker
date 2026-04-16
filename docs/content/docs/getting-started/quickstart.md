@@ -2,7 +2,6 @@
 title = "Quickstart"
 author = ["Martin Bari Garnier"]
 draft = false
-weight = 102
 +++
 
 Once the extension is installed, no configuration is needed to get started.

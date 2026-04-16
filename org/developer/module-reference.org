@@ -1,84 +1,43 @@
-#+title: Module Reference
-#+draft: false
-#+HUGO_WEIGHT: 502
+#+TITLE: Module Reference
+#+WEIGHT: 30
 
-* config.js — AppConfig
+* Core Application Modules
 
-Central configuration registry loaded by every other module.
+** =content.js=
+The entry point on external websites.
+- =getStructureInfo(href)=: Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab.
+- =makeBadge(rawUrl, formatStr, originalHref)=: Generates the UI button. Crucially uses =<button>= instead of =<a>= to prevent recursive DOM cloning by the MutationObserver.
+- =injectMolstarLinker()=: The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders.
 
-** =AppConfig.RepSchema=
+** =background.js=
+The routing layer.
+- Listens to =chrome.runtime.onMessage=.
+- Safely encodes URIs using =encodeURIComponent= and fires =chrome.tabs.create=.
 
-Maps representation keys to their UI label and parameter descriptor. The options UI uses this to render dynamic parameter drawers automatically.
+** =viewer.js=
+The data acquisition and privilege layer.
+- Executes =fetch()= to download structure files.
+- Utilizes =FileReader.readAsDataURL()= to convert binary blobs into Base64 strings. This is a deliberate architectural requirement to pass structural data securely into the sandbox, which operates on an isolated =null= origin.
+- Merges =chrome.storage= data with =AppConfig.getDefaults()= to ensure the downstream engine always has fallback rendering rules.
 
-** =AppConfig.targets=
+** =sandbox.js=
+The rendering execution layer.
+- Operates entirely via =window.addEventListener('message')=.
+- Initializes =molstar.Viewer.create()=.
+- Translates received settings into an MVS Template via =MvsBuilder._buildBaseTemplate()=.
+- Safely invokes =viewerInstance.loadMvsData()=.
 
-Ordered array of molecular target descriptors. Each entry produces one collapsible card in the Studio and one component branch in the MVS tree. Fields: =id=, =selector=, =label=, =rep=, =color=, =size=.
+** =mvs-builder.js=
+The JSON translation engine. 
+- Contains the deterministic logic to map extension UI settings (Targets, Styles, Colors) into the strict, hierarchical JSON format required by MolViewSpec.
 
-** =AppConfig.presets=
+* Configuration & Settings
 
-Named built-in presets. Each =settings= object is shallow-merged over =getDefaults()= at application time.
+** =config.js=
+Contains the static =AppConfig= object. Defines the foundational default rules for standard molecule categories (protein, nucleic, water, lipids, etc.).
 
-** =AppConfig.getDefaults()=
+** =options.js= & =popup.js=
+The user interface controllers for saving settings into =chrome.storage.sync=. Uses the custom =StorageAPI= wrapper to ensure seamless promise/callback compatibility between Chrome (V3) and Firefox (V2).
 
-Returns a fresh flat settings object by iterating =AppConfig.targets=. This is the authoritative schema source — all storage reads and preset merges start from here.
-
------
-
-* mvs-builder.js — MvsBuilder
-
-Builds a complete MolViewSpec 1.0 JSON document and encodes it as a Mol* viewer URL.
-
-** =createViewerUrl(rawStructureUrl, format, settings)=
-
-Entry point. Converts =cif= → =mmcif= (MVS parser name), calls =_buildBaseTemplate()=, JSON-serialises the result, and returns the encoded viewer URL.
-
-** =_buildBaseTemplate(url, format, settings)=
-
-Assembles the root MVS node tree. Appends =canvas= and =camera= nodes when the relevant settings are non-default.
-
-** =_buildComponentBranches(settings)=
-
-Two-pass algorithm:
-
-- *Pass 1 — Custom Rules*: highlight-type rules append color override nodes to =polymerColorOverrides= (later injected into protein/nucleic representations); representation-type rules create full =component= → =representation= → =color= branches
-- *Pass 2 — Global Targets*: iterates =AppConfig.targets=, skipping =off= targets; for protein/nucleic, appends =polymerColorOverrides= as sibling color nodes inside the representation
-
-** =_getColorNode(colorType, colorVal)=
-
-Returns a theme color node (=molstar_color_theme_name= custom field) or a solid color node.
-
------
-
-* content.js
-
-** =getMolstarUrl(href, settings)=
-
-Validates extension, then transforms platform URLs:
-- *GitHub*: replaces host with =raw.githubusercontent.com=, strips =/blob/= or =/raw/refs/heads/=
-- *GitLab*: matches =GITLAB_PATTERNS=, constructs GitLab API v4 raw file URL with encoded namespace and filepath
-
-Returns =null= for unsupported extensions or unrecognised hosts.
-
-** =makeBadge(molstarUrl)=
-
-Creates a styled =<a>= element. Color is purple for GitLab URLs, green otherwise. Uses =data-ms-badge= as an idempotency marker.
-
-** =injectMolstarLinker()=
-
-Main orchestration function. Scans links, builds the filename→URL map, walks text nodes, and inserts badges. Uses =data-ms-processed= on anchor elements and physical sibling checks to prevent duplicate badges on SPA re-runs.
-
-** MutationObserver / SPA handling
-
-Watches =document.body= with =childList: true, subtree: true=. Changes are debounced at 500 ms before re-running =injectMolstarLinker()=.
-
------
-
-* permissions.js — PermissionsManager
-
-** =requestAndRegister(url)=
-
-Requests the host permission *synchronously on user gesture* (required by Firefox), then registers a dynamic content script via =chrome.scripting.registerContentScripts=, and persists the domain to =storage.sync=.
-
-** =revokeAndUnregister(url)=
-
-Unregisters the dynamic content script, removes the host permission, and removes the domain from storage.
+** =permissions.js=
+Handles dynamic host permission requests. Ensures users can authorize self-hosted GitLab or ElabFTW instances securely via the extension's Options page.
