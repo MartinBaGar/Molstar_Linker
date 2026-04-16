@@ -1,5 +1,4 @@
 // viewer.js
-
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const rawUrl = urlParams.get('fileUrl');
@@ -12,22 +11,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // 1. Fetch file using Extension Privileges (Bypasses CORS natively)
         const response = await fetch(rawUrl);
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
         const blob = await response.blob();
 
-        // 2. Convert Blob to Base64 Data URI to pass safely through the sandbox wall
         const dataUri = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result);
             reader.readAsDataURL(blob);
         });
 
-        // 3. Retrieve settings and inject the Sandbox
         chrome.storage.sync.get(null, (storedSettings) => {
             const finalSettings = { ...AppConfig.getDefaults(), ...storedSettings };
-            
             loadingDiv.remove();
             
             const iframe = document.createElement('iframe');
@@ -40,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     action: 'INIT_MOLSTAR',
                     url: dataUri, 
                     format: format,
-                    settings: finalSettings 
+                    settings: finalSettings
                 }, '*');
             };
             
@@ -49,6 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error("Workspace Fetch Error:", error);
-        loadingDiv.innerText = `Failed to download file: ${error.message}`;
+        loadingDiv.innerText = `Failed to download file. Possible CORS restriction on unauthorized domain, or invalid link. (${error.message})`;
     }
 });

@@ -16,9 +16,9 @@ const AppConfig = {
   targets: [
     { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", size: null },
     { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", size: null },
-    { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 2.5 },
-    { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "ball_and_stick", color: "element-symbol", size: 2.5 },
-    { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 3.0 },
+      { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1.0 },
+    { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "ball_and_stick", color: "element-symbol", size: 1.0 },
+      { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
     { id: "water", selector: "water", label: "Water / Solvent", rep: "off", color: "red", size: null }
   ],
 
