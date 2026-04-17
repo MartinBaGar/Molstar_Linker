@@ -8,28 +8,25 @@ https://github.com/alex-shpak/hugo-book
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Chrome# Go to the Chrome Web Store page (link TBD) Click Add to Chrome Confirm the permissions dialog Firefox# Go to the Firefox Add-ons page (link TBD) Click Add to Firefox Confirm the permissions dialog Load Unpacked (Development)# Clone the repository and load it manually for local development or testing:
-git clone https://github.com/MartinBaGar/molstar_linkerThen:
-Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, select the repo folder Firefox: open about:debugging, click This Firefox, click Load Temporary Add-on, select manifest.json Permissions# The extension requests the following permissions on install:
+<meta name="description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/getting-started/installation/">
   <meta property="og:site_name" content="Mol* Linker Wiki">
   <meta property="og:title" content="Installation">
-  <meta property="og:description" content="Chrome# Go to the Chrome Web Store page (link TBD) Click Add to Chrome Confirm the permissions dialog Firefox# Go to the Firefox Add-ons page (link TBD) Click Add to Firefox Confirm the permissions dialog Load Unpacked (Development)# Clone the repository and load it manually for local development or testing:
-git clone https://github.com/MartinBaGar/molstar_linkerThen:
-Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, select the repo folder Firefox: open about:debugging, click This Firefox, click Load Temporary Add-on, select manifest.json Permissions# The extension requests the following permissions on install:">
+  <meta property="og:description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
 
 
   <meta itemprop="name" content="Installation">
-  <meta itemprop="description" content="Chrome# Go to the Chrome Web Store page (link TBD) Click Add to Chrome Confirm the permissions dialog Firefox# Go to the Firefox Add-ons page (link TBD) Click Add to Firefox Confirm the permissions dialog Load Unpacked (Development)# Clone the repository and load it manually for local development or testing:
-git clone https://github.com/MartinBaGar/molstar_linkerThen:
-Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, select the repo folder Firefox: open about:debugging, click This Firefox, click Load Temporary Add-on, select manifest.json Permissions# The extension requests the following permissions on install:">
-  <meta itemprop="wordCount" content="138">
+  <meta itemprop="description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
+  <meta itemprop="wordCount" content="243">
 
 <title>Installation | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -39,7 +36,7 @@ Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, se
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.711ddc6133c4b5c11e6218fecf87c628b74ade62c1475a07d8d6399c3be48114.js" integrity="sha256-cR3cYTPEtcEeYhj&#43;z4fGKLdK3mLBR1oH2NY5nDvkgRQ=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.9739a2f0b535cce9402d0496f91d1588f9293d5495c7836d957ed4d02176ea10.js" integrity="sha256-lzmi8LU1zOlALQSW&#43;R0ViPkpPVSVx4NtlX7U0CF26hA=" crossorigin="anonymous"></script>
 
 
 
@@ -287,6 +284,20 @@ Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, se
         </li>
       
     
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/security/" class="">
+      Security</a>
+  
+
+        </li>
+      
+    
   </ul>
 
         </li>
@@ -357,10 +368,13 @@ Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, se
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#chrome">Chrome</a></li>
-    <li><a href="#firefox">Firefox</a></li>
-    <li><a href="#load-unpacked--development">Load Unpacked (Development)</a></li>
-    <li><a href="#permissions">Permissions</a></li>
+    <li><a href="#official-web-stores">Official Web Stores</a></li>
+    <li><a href="#manual-installation--developers-and-advanced-users">Manual Installation (Developers &amp; Advanced Users)</a>
+      <ul>
+        <li><a href="#step-1-download-or-build-the-extension">Step 1: Download or Build the Extension</a></li>
+        <li><a href="#step-2-load-into-your-browser">Step 2: Load into your Browser</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 
@@ -373,50 +387,42 @@ Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, se
 
       
       
-  <article class="markdown book-article"><h2 id="chrome">Chrome<a class="anchor" href="#chrome">#</a></h2>
-<ol>
-<li>Go to the Chrome Web Store page (link TBD)</li>
-<li>Click <strong>Add to Chrome</strong></li>
-<li>Confirm the permissions dialog</li>
-</ol>
-<h2 id="firefox">Firefox<a class="anchor" href="#firefox">#</a></h2>
-<ol>
-<li>Go to the Firefox Add-ons page (link TBD)</li>
-<li>Click <strong>Add to Firefox</strong></li>
-<li>Confirm the permissions dialog</li>
-</ol>
-<h2 id="load-unpacked--development">Load Unpacked (Development)<a class="anchor" href="#load-unpacked--development">#</a></h2>
-<p>Clone the repository and load it manually for local development or testing:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://github.com/MartinBaGar/molstar_linker</span></span></code></pre></div><p>Then:</p>
+  <article class="markdown book-article"><h2 id="official-web-stores">Official Web Stores<a class="anchor" href="#official-web-stores">#</a></h2>
+<p>The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.</p>
 <ul>
-<li><strong>Chrome</strong>: open <code>chrome://extensions</code>, enable Developer Mode, click <strong>Load unpacked</strong>, select the repo folder</li>
-<li><strong>Firefox</strong>: open <code>about:debugging</code>, click <strong>This Firefox</strong>, click <strong>Load Temporary Add-on</strong>, select <code>manifest.json</code></li>
+<li><a href="https://chrome.google.com/webstore">Install for Google Chrome / Edge / Brave</a> (Coming Soon)</li>
+<li><a href="https://addons.mozilla.org/">Install for Mozilla Firefox</a> (Coming Soon)</li>
 </ul>
-<h2 id="permissions">Permissions<a class="anchor" href="#permissions">#</a></h2>
-<p>The extension requests the following permissions on install:</p>
-<table>
-  <thead>
-      <tr>
-          <th>Permission</th>
-          <th>Why</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>activeTab</code></td>
-          <td>Detect the current tab&rsquo;s hostname in the popup</td>
-      </tr>
-      <tr>
-          <td><code>storage</code></td>
-          <td>Persist your settings and templates across sessions</td>
-      </tr>
-      <tr>
-          <td><code>scripting</code></td>
-          <td>Dynamically enable the extension on custom / private domains</td>
-      </tr>
-  </tbody>
-</table>
-<p>Host access is granted by default for <code>github.com</code>, <code>gitlab.com</code>, <code>rcsb.org</code>, and <code>alphafold.ebi.ac.uk</code>. Private domains can be added later — see <a href="../custom-domains">Custom Domains</a>.</p>
+<h2 id="manual-installation--developers-and-advanced-users">Manual Installation (Developers &amp; Advanced Users)<a class="anchor" href="#manual-installation--developers-and-advanced-users">#</a></h2>
+<p>If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.</p>
+<p>Because Mol* Linker uses a modern build system to support both Chrome and Firefox from a single codebase, you cannot simply load the raw source folder.</p>
+<h3 id="step-1-download-or-build-the-extension">Step 1: Download or Build the Extension<a class="anchor" href="#step-1-download-or-build-the-extension">#</a></h3>
+<p><strong>Option A: Download a Release Zip (Easiest)</strong></p>
+<ol>
+<li>Go to the <a href="https://github.com/YourRepo/Molstar_Linker/releases">GitHub Releases page</a>.</li>
+<li>Download the latest <code>molstar_linker_chrome.zip</code> or <code>molstar_linker_firefox.zip</code>.</li>
+<li>Extract the zip file into a folder on your computer.</li>
+</ol>
+<p><strong>Option B: Build from Source (For Developers)</strong></p>
+<ol>
+<li>Clone the repository and install <a href="https://github.com/casey/just">Just</a>.</li>
+<li>Open your terminal in the project root and run: <code>just build</code></li>
+<li>This will generate clean, ready-to-load extension files inside the <code>dist/chrome</code> and <code>dist/firefox</code> folders.</li>
+</ol>
+<h3 id="step-2-load-into-your-browser">Step 2: Load into your Browser<a class="anchor" href="#step-2-load-into-your-browser">#</a></h3>
+<p><strong>For Chrome / Edge / Brave:</strong></p>
+<ol>
+<li>Navigate to <code>chrome://extensions/</code>.</li>
+<li>Toggle <strong>Developer mode</strong> ON in the top right corner.</li>
+<li>Click <strong>Load unpacked</strong>.</li>
+<li>Select the extracted folder from Option A, or the <code>dist/chrome</code> folder from Option B.</li>
+</ol>
+<p><strong>For Firefox:</strong></p>
+<ol>
+<li>Navigate to <code>about:debugging#/runtime/this-firefox</code>.</li>
+<li>Click <strong>Load Temporary Add-on</strong>.</li>
+<li>Select the <code>manifest.json</code> file located inside your extracted folder or the <code>dist/firefox</code> folder.</li>
+</ol>
 </article>
  
       
@@ -494,10 +500,13 @@ Chrome: open chrome://extensions, enable Developer Mode, click Load unpacked, se
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#chrome">Chrome</a></li>
-    <li><a href="#firefox">Firefox</a></li>
-    <li><a href="#load-unpacked--development">Load Unpacked (Development)</a></li>
-    <li><a href="#permissions">Permissions</a></li>
+    <li><a href="#official-web-stores">Official Web Stores</a></li>
+    <li><a href="#manual-installation--developers-and-advanced-users">Manual Installation (Developers &amp; Advanced Users)</a>
+      <ul>
+        <li><a href="#step-1-download-or-build-the-extension">Step 1: Download or Build the Extension</a></li>
+        <li><a href="#step-2-load-into-your-browser">Step 2: Load into your Browser</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 

@@ -23,3 +23,10 @@ If you recently updated Mol* Linker via your browser's extension manager, any ta
 Mol* Linker relies entirely on the Custom Rules and Presets you define in the extension's Options page. If your structure contains a highly complex lipid or non-standard ligand (like =PIPC= in a =.gro= file), the default rules might not know how to draw it, resulting in an invisible molecule.
 
 To fix this, simply click the extension icon, open the *Studio / Options*, and add a *Custom Rule* specifically targeting that molecule's residue name. Refresh the page, and it will render perfectly every time!
+
+** Why did my massive molecule (or MD trajectory) fail to load?
+Mol* Linker is engineered with strict security and memory safeguards. Because the extension downloads the structural file directly into your browser's active RAM (to ensure your data is never uploaded to a third-party server), there is a hard-coded file size limit of *25 Megabytes*. 
+
+If you attempt to open an incredibly massive viral capsid =.cif= file or a multi-frame molecular dynamics =.gro= trajectory that exceeds 25 MB, the extension will intentionally block the download to prevent your web browser from freezing or crashing. 
+
+For files larger than 25 MB, we recommend downloading the file to your computer manually and opening it in the desktop version of Mol* or PyMOL.

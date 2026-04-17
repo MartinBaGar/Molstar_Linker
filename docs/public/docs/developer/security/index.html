@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head><script src="/Molstar_Linker/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Molstar_Linker/livereload" data-no-instant defer></script>
+  <!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Security &amp; Threat Mitigation# Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol* Linker employs a strict Defense-in-Depth strategy to protect user privacy, prevent malicious payload execution, and secure local networks.
+Here is a breakdown of the active security layers within the extension.
+1. Zero-Upload Data Privacy# The most significant security feature of Mol* Linker is its local-only architecture. When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, the file is never uploaded to an external server. - Data is fetched directly from the authenticated host server into the browser’s volatile memory (RAM).
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/security/">
+  <meta property="og:site_name" content="Mol* Linker Wiki">
+  <meta property="og:title" content="Security">
+  <meta property="og:description" content="Security &amp; Threat Mitigation# Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol* Linker employs a strict Defense-in-Depth strategy to protect user privacy, prevent malicious payload execution, and secure local networks.
+Here is a breakdown of the active security layers within the extension.
+1. Zero-Upload Data Privacy# The most significant security feature of Mol* Linker is its local-only architecture. When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, the file is never uploaded to an external server. - Data is fetched directly from the authenticated host server into the browser’s volatile memory (RAM).">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+
+  <meta itemprop="name" content="Security">
+  <meta itemprop="description" content="Security &amp; Threat Mitigation# Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol* Linker employs a strict Defense-in-Depth strategy to protect user privacy, prevent malicious payload execution, and secure local networks.
+Here is a breakdown of the active security layers within the extension.
+1. Zero-Upload Data Privacy# The most significant security feature of Mol* Linker is its local-only architecture. When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, the file is never uploaded to an external server. - Data is fetched directly from the authenticated host server into the browser’s volatile memory (RAM).">
+  <meta itemprop="wordCount" content="535">
+
+<title>Security | Mol* Linker Wiki</title>
+<link rel="icon" href="/Molstar_Linker/favicon.png" >
+<link rel="manifest" href="/Molstar_Linker/manifest.json">
+<link rel="canonical" href="http://localhost:1313/Molstar_Linker/docs/developer/security/">
+<link rel="stylesheet" href="/Molstar_Linker/book.min.57755a13c63c9f6341330e7768adf8d5e20c5bd50f862e8c9dbbec05f1c39a64.css" integrity="sha256-V3VaE8Y8n2NBMw53aK341eIMW9UPhi6MnbvsBfHDmmQ=" crossorigin="anonymous">
+
+
+  <script defer src="/Molstar_Linker/fuse.min.js"></script>
+  <script defer src="/Molstar_Linker/en.search.min.9739a2f0b535cce9402d0496f91d1588f9293d5495c7836d957ed4d02176ea10.js" integrity="sha256-lzmi8LU1zOlALQSW&#43;R0ViPkpPVSVx4NtlX7U0CF26hA=" crossorigin="anonymous"></script>
+
+
+
+  
+</head>
+<body dir="ltr" class="book-kind-page book-type-docs">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    
+<aside class="book-menu">
+  <div class="book-menu-content">
+    
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/Molstar_Linker/"><img src="/Molstar_Linker/icon128.png" alt="Logo" /><span>Mol* Linker Wiki</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input id="book-search-input" type="text" 
+    placeholder="Search"
+    aria-label="Search"
+    maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/" class="">
+      Mol* Linker Documentation</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/installation/" class="">
+      Installation</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/getting-started/quickstart/" class="">
+      Quickstart</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/" class="">
+      Configuration &amp; Studio</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/scene/" class="">
+      Scene Settings</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/targets/" class="">
+      Molecular Targets</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/configuration/custom-rules/" class="">
+      Custom Rules</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/templates/" class="">
+      Templates &amp; Presets</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/custom-domains/" class="">
+      Custom Domains (Self-Hosted Instances)</a>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/" class="">
+      Developer Docs</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/architecture/" class="">
+      Architecture &amp; Execution Flow</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/contributing/" class="">
+      Contributing &amp; Build System</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/module-reference/" class="">
+      Module Reference</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/security/" class="active">
+      Security</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/faq/" class="">
+      Frequently Asked Questions</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+
+  </div>
+</aside>
+ 
+
+    <div class="book-page">
+      <header class="book-header hidden">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/Molstar_Linker/icons/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Security</h3>
+
+  <label for="toc-control">
+    
+    <img src="/Molstar_Linker/icons/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#security-and-threat-mitigation">Security &amp; Threat Mitigation</a>
+      <ul>
+        <li><a href="#1-dot-zero-upload-data-privacy">1. Zero-Upload Data Privacy</a></li>
+        <li><a href="#2-dot-sandbox-containment--exploit-isolation">2. Sandbox Containment (Exploit Isolation)</a></li>
+        <li><a href="#3-dot-ssrf--server-side-request-forgery--mitigation">3. SSRF (Server-Side Request Forgery) Mitigation</a></li>
+        <li><a href="#4-dot-secure-message-passing--cross-extension-protection">4. Secure Message Passing (Cross-Extension Protection)</a></li>
+        <li><a href="#5-dot-memory-and-payload-exhaustion-limits">5. Memory &amp; Payload Exhaustion Limits</a></li>
+        <li><a href="#6-dot-strict-content-security-policy--csp">6. Strict Content Security Policy (CSP)</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="security-and-threat-mitigation">Security &amp; Threat Mitigation<a class="anchor" href="#security-and-threat-mitigation">#</a></h2>
+<p>Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol* Linker employs a strict <strong>Defense-in-Depth</strong> strategy to protect user privacy, prevent malicious payload execution, and secure local networks.</p>
+<p>Here is a breakdown of the active security layers within the extension.</p>
+<h3 id="1-dot-zero-upload-data-privacy">1. Zero-Upload Data Privacy<a class="anchor" href="#1-dot-zero-upload-data-privacy">#</a></h3>
+<p>The most significant security feature of Mol* Linker is its local-only architecture.
+When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, <strong>the file is never uploaded to an external server.</strong> - Data is fetched directly from the authenticated host server into the browser&rsquo;s volatile memory (RAM).</p>
+<ul>
+<li>The rendering happens 100% locally on the user&rsquo;s machine.</li>
+<li>Once the workspace tab is closed, the data is permanently erased by the browser&rsquo;s garbage collector.</li>
+</ul>
+<h3 id="2-dot-sandbox-containment--exploit-isolation">2. Sandbox Containment (Exploit Isolation)<a class="anchor" href="#2-dot-sandbox-containment--exploit-isolation">#</a></h3>
+<p>The Mol* rendering engine requires <code>eval()</code> and <code>new Function()</code> to dynamically compile WebGL shaders. To support this securely without exposing the browser to Cross-Site Scripting (XSS):</p>
+<ul>
+<li>Mol* is executed exclusively inside <code>sandbox.html</code>, which is loaded as an <code>&lt;iframe&gt;</code>.</li>
+<li>The Sandbox operates on a strict <code>null</code> origin. It has absolutely <strong>zero access</strong> to Chrome Extension APIs, background scripts, user cookies, or the parent webpage.</li>
+<li>Even if a theoretical &ldquo;Zero-Day&rdquo; exploit were embedded inside a malicious <code>.pdb</code> file, the payload would execute inside this locked-down container and die the moment the tab is closed.</li>
+</ul>
+<h3 id="3-dot-ssrf--server-side-request-forgery--mitigation">3. SSRF (Server-Side Request Forgery) Mitigation<a class="anchor" href="#3-dot-ssrf--server-side-request-forgery--mitigation">#</a></h3>
+<p>Because Mol* Linker requests broad host permissions (<code>*://*/*</code>) to bypass CORS for custom domains, it acts as a highly privileged network agent. To prevent malicious websites from tricking the extension into scanning the user&rsquo;s internal network:</p>
+<ul>
+<li>The <code>isSafeUrl()</code> filter actively blocks any non-<code>https://</code> requests.</li>
+<li>It strictly drops requests to <code>localhost</code>, <code>127.0.0.1</code>, and all private IPv4 ranges (e.g., <code>192.168.x.x</code>, <code>10.x.x.x</code>).</li>
+<li>This ensures the extension can never be used as a proxy to attack a user&rsquo;s local router or internal microservices.</li>
+</ul>
+<h3 id="4-dot-secure-message-passing--cross-extension-protection">4. Secure Message Passing (Cross-Extension Protection)<a class="anchor" href="#4-dot-secure-message-passing--cross-extension-protection">#</a></h3>
+<p>Data is passed from the privileged <code>viewer.js</code> to the unprivileged <code>sandbox.js</code> via <code>postMessage</code>.</p>
+<ul>
+<li><strong>Input Validation:</strong> The background router and the sandbox strictly validate that incoming formats belong to a hardcoded allowlist (e.g., <code>pdb</code>, <code>mmcif</code>, <code>gro</code>).</li>
+<li><strong>Origin Locking:</strong> The sandbox actively inspects <code>event.origin</code>. It will instantly reject any initialization command that does not originate from the extension&rsquo;s own <code>chrome-extension://</code> or <code>moz-extension://</code> URL, preventing malicious third-party websites from injecting iframes and beaming payloads into the visualizer.</li>
+</ul>
+<h3 id="5-dot-memory-and-payload-exhaustion-limits">5. Memory &amp; Payload Exhaustion Limits<a class="anchor" href="#5-dot-memory-and-payload-exhaustion-limits">#</a></h3>
+<p>To prevent Denial of Service (DoS) attacks or browser crashes via memory exhaustion:</p>
+<ul>
+<li><strong>URL Cap:</strong> Content scripts reject parsing any URLs longer than 2,048 characters.</li>
+<li><strong>Size Cap:</strong> The fetcher strictly enforces a 25 MB file limit. It checks the <code>Content-Length</code> header before downloading, and re-verifies the resulting <code>Blob</code> size after downloading, instantly aborting if the file is too large.</li>
+<li><strong>Rule Cap:</strong> The MVS JSON builder caps custom user rules at 50 to prevent infinite loops or absurdly large rendering trees.</li>
+</ul>
+<h3 id="6-dot-strict-content-security-policy--csp">6. Strict Content Security Policy (CSP)<a class="anchor" href="#6-dot-strict-content-security-policy--csp">#</a></h3>
+<p>The extension implements a dual-layered CSP in the manifest:</p>
+<ul>
+<li>Extension pages (like the Popup and Options menus) are strictly locked to <code>script-src 'self'</code> and <code>object-src 'none'</code>, making unauthorized script execution virtually impossible.</li>
+<li>Only the specific <code>sandbox</code> directive is granted <code>unsafe-eval</code>, isolating the risk to the mathematically necessary components..</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+<div>
+
+</div>
+
+<div>
+
+</div>
+
+</div>
+
+
+
+
+
+  
+  
+  
+  <div class="flex flex-wrap justify-between">
+    <span>
+    
+      <a href="/Molstar_Linker/docs/developer/module-reference/" class="flex align-center">
+        <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
+        <span>Module Reference</span>
+      </a>
+    
+    </span>
+    <span>
+    
+      <a href="/Molstar_Linker/docs/faq/" class="flex align-center">
+        <span>Frequently Asked Questions</span>
+        <img src="/Molstar_Linker/icons/forward.svg" class="book-icon" alt="Forward" />
+      </a>
+    
+    </span>
+  </div>
+  
+
+
+ 
+        
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+        
+        
+  
+ 
+        
+  
+  
+    <script>(function(){document.querySelectorAll("pre:has(code)").forEach(e=>{e.addEventListener("click",e.focus),e.addEventListener("copy",function(t){if(t.preventDefault(),navigator.clipboard){const t=window.getSelection().toString()||e.textContent;navigator.clipboard.writeText(t)}})})})()</script>
+  
+
+      </footer>
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+  
+  <aside class="book-toc">
+    <div class="book-toc-content">
+      
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#security-and-threat-mitigation">Security &amp; Threat Mitigation</a>
+      <ul>
+        <li><a href="#1-dot-zero-upload-data-privacy">1. Zero-Upload Data Privacy</a></li>
+        <li><a href="#2-dot-sandbox-containment--exploit-isolation">2. Sandbox Containment (Exploit Isolation)</a></li>
+        <li><a href="#3-dot-ssrf--server-side-request-forgery--mitigation">3. SSRF (Server-Side Request Forgery) Mitigation</a></li>
+        <li><a href="#4-dot-secure-message-passing--cross-extension-protection">4. Secure Message Passing (Cross-Extension Protection)</a></li>
+        <li><a href="#5-dot-memory-and-payload-exhaustion-limits">5. Memory &amp; Payload Exhaustion Limits</a></li>
+        <li><a href="#6-dot-strict-content-security-policy--csp">6. Strict Content Security Policy (CSP)</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+    </div>
+  </aside>
+  
+ 
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

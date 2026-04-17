@@ -29,7 +29,7 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
   <meta itemprop="description" content="Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
 Click &#43; Add New Rule at the bottom of the Custom Highlighting Rules panel to create one.
 Rule Types# Highlight (color overlay)# Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.">
-  <meta itemprop="wordCount" content="353">
+  <meta itemprop="wordCount" content="470">
 
 <title>Custom Rules | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -39,7 +39,7 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.711ddc6133c4b5c11e6218fecf87c628b74ade62c1475a07d8d6399c3be48114.js" integrity="sha256-cR3cYTPEtcEeYhj&#43;z4fGKLdK3mLBR1oH2NY5nDvkgRQ=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.9739a2f0b535cce9402d0496f91d1588f9293d5495c7836d957ed4d02176ea10.js" integrity="sha256-lzmi8LU1zOlALQSW&#43;R0ViPkpPVSVx4NtlX7U0CF26hA=" crossorigin="anonymous"></script>
 
 
 
@@ -287,6 +287,20 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
         </li>
       
     
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/security/" class="">
+      Security</a>
+  
+
+        </li>
+      
+    
   </ul>
 
         </li>
@@ -367,6 +381,7 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
     <li><a href="#appearance-options">Appearance Options</a></li>
     <li><a href="#storytelling-options">Storytelling Options</a></li>
     <li><a href="#rule-order">Rule Order</a></li>
+    <li><a href="#performance-and-security-limits">Performance &amp; Security Limits</a></li>
     <li><a href="#example-highlight-the-active-site">Example: Highlight the Active Site</a></li>
   </ul>
 </nav>
@@ -470,14 +485,32 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
 </table>
 <h2 id="rule-order">Rule Order<a class="anchor" href="#rule-order">#</a></h2>
 <p>Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.</p>
+<h2 id="performance-and-security-limits">Performance &amp; Security Limits<a class="anchor" href="#performance-and-security-limits">#</a></h2>
+<p>To ensure the Mol* rendering engine remains blazing fast and to protect your browser from memory-exhaustion crashes, the extension enforces a few strict limits on Custom Rules:</p>
+<ul>
+<li><strong>Rule Cap:</strong> You can define a maximum of <strong>50 Custom Rules</strong> at one time. If you define more than 50, the extension will safely prioritize the first 50 and ignore the rest.</li>
+<li><strong>Text Limits:</strong> For security against buffer bloat, <code>Label</code> text is truncated at 256 characters, and <code>Tooltip</code> text is truncated at 512 characters.</li>
+<li><strong>Sanitization:</strong> The extension automatically strips invisible control characters and null bytes from your selectors. Ensure you are using standard MolQL/MVS syntax (e.g., <code>label_comp_id</code>, <code>label_asym_id</code>) to guarantee your rules are parsed correctly.</li>
+</ul>
 <h2 id="example-highlight-the-active-site">Example: Highlight the Active Site<a class="anchor" href="#example-highlight-the-active-site">#</a></h2>
 <p>Suppose you want to highlight residues 100–110 in chain A in orange, with a label:</p>
 <ul>
-<li><strong>Selector</strong>: <code>{ &quot;chain_id&quot;: &quot;A&quot;, &quot;residue_number&quot;: [100, 110] }</code></li>
-<li><strong>Type</strong>: Highlight</li>
-<li><strong>Color</strong>: Solid → <code>#ff6600</code></li>
-<li><strong>Label</strong>: Active site</li>
-<li><strong>Focus</strong>: on</li>
+<li>
+<p><strong>Selector</strong>: <code>{ &quot;chain_id&quot;: &quot;A&quot;, &quot;residue_number&quot;: [100, 110] }</code></p>
+</li>
+<li>
+<p><strong>Type</strong>: Highlight</p>
+</li>
+<li>
+<p><strong>Color</strong>: Solid → <code>#ff6600</code></p>
+</li>
+<li>
+<p><strong>Label</strong>: Active site</p>
+</li>
+<li>
+<p><strong>Focus</strong>: on</p>
+<p>k</p>
+</li>
 </ul>
 </article>
  
@@ -566,6 +599,7 @@ Rule Types# Highlight (color overlay)# Overlays a color on the existing represen
     <li><a href="#appearance-options">Appearance Options</a></li>
     <li><a href="#storytelling-options">Storytelling Options</a></li>
     <li><a href="#rule-order">Rule Order</a></li>
+    <li><a href="#performance-and-security-limits">Performance &amp; Security Limits</a></li>
     <li><a href="#example-highlight-the-active-site">Example: Highlight the Active Site</a></li>
   </ul>
 </nav>

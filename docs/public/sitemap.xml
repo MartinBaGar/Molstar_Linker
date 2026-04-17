@@ -36,6 +36,8 @@
   </url><url>
     <loc>http://localhost:1313/Molstar_Linker/docs/getting-started/quickstart/</loc>
   </url><url>
+    <loc>http://localhost:1313/Molstar_Linker/docs/developer/security/</loc>
+  </url><url>
     <loc>http://localhost:1313/Molstar_Linker/tags/</loc>
   </url>
 </urlset>

@@ -4,42 +4,47 @@ author = ["Martin Bari Garnier"]
 draft = false
 +++
 
-## Chrome {#chrome}
+## Official Web Stores {#official-web-stores}
 
-1.  Go to the Chrome Web Store page (link TBD)
-2.  Click **Add to Chrome**
-3.  Confirm the permissions dialog
+The easiest and safest way to install Mol\* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
 
-
-## Firefox {#firefox}
-
-1.  Go to the Firefox Add-ons page (link TBD)
-2.  Click **Add to Firefox**
-3.  Confirm the permissions dialog
+-   [Install for Google Chrome / Edge / Brave](https://chrome.google.com/webstore) (Coming Soon)
+-   [Install for Mozilla Firefox](https://addons.mozilla.org/) (Coming Soon)
 
 
-## Load Unpacked (Development) {#load-unpacked--development}
+## Manual Installation (Developers &amp; Advanced Users) {#manual-installation--developers-and-advanced-users}
 
-Clone the repository and load it manually for local development or testing:
+If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.
 
-```bash
-git clone https://github.com/MartinBaGar/molstar_linker
-```
-
-Then:
-
--   **Chrome**: open `chrome://extensions`, enable Developer Mode, click **Load unpacked**, select the repo folder
--   **Firefox**: open `about:debugging`, click **This Firefox**, click **Load Temporary Add-on**, select `manifest.json`
+Because Mol\* Linker uses a modern build system to support both Chrome and Firefox from a single codebase, you cannot simply load the raw source folder.
 
 
-## Permissions {#permissions}
+### Step 1: Download or Build the Extension {#step-1-download-or-build-the-extension}
 
-The extension requests the following permissions on install:
+**Option A: Download a Release Zip (Easiest)**
 
-| Permission  | Why                                                          |
-|-------------|--------------------------------------------------------------|
-| `activeTab` | Detect the current tab's hostname in the popup               |
-| `storage`   | Persist your settings and templates across sessions          |
-| `scripting` | Dynamically enable the extension on custom / private domains |
+1.  Go to the [GitHub Releases page](https://github.com/YourRepo/Molstar_Linker/releases).
+2.  Download the latest `molstar_linker_chrome.zip` or `molstar_linker_firefox.zip`.
+3.  Extract the zip file into a folder on your computer.
 
-Host access is granted by default for `github.com`, `gitlab.com`, `rcsb.org`, and `alphafold.ebi.ac.uk`. Private domains can be added later — see [Custom Domains](../custom-domains).
+**Option B: Build from Source (For Developers)**
+
+1.  Clone the repository and install [Just](https://github.com/casey/just).
+2.  Open your terminal in the project root and run: `just build`
+3.  This will generate clean, ready-to-load extension files inside the `dist/chrome` and `dist/firefox` folders.
+
+
+### Step 2: Load into your Browser {#step-2-load-into-your-browser}
+
+**For Chrome / Edge / Brave:**
+
+1.  Navigate to `chrome://extensions/`.
+2.  Toggle **Developer mode** ON in the top right corner.
+3.  Click **Load unpacked**.
+4.  Select the extracted folder from Option A, or the `dist/chrome` folder from Option B.
+
+**For Firefox:**
+
+1.  Navigate to `about:debugging#/runtime/this-firefox`.
+2.  Click **Load Temporary Add-on**.
+3.  Select the `manifest.json` file located inside your extracted folder or the `dist/firefox` folder.

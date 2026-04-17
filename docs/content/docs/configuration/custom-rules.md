@@ -65,6 +65,15 @@ These options add annotation nodes to the Mol\* scene — useful for guided pres
 Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.
 
 
+## Performance &amp; Security Limits {#performance-and-security-limits}
+
+To ensure the Mol\* rendering engine remains blazing fast and to protect your browser from memory-exhaustion crashes, the extension enforces a few strict limits on Custom Rules:
+
+-   **Rule Cap:** You can define a maximum of **50 Custom Rules** at one time. If you define more than 50, the extension will safely prioritize the first 50 and ignore the rest.
+-   **Text Limits:** For security against buffer bloat, `Label` text is truncated at 256 characters, and `Tooltip` text is truncated at 512 characters.
+-   **Sanitization:** The extension automatically strips invisible control characters and null bytes from your selectors. Ensure you are using standard MolQL/MVS syntax (e.g., `label_comp_id`, `label_asym_id`) to guarantee your rules are parsed correctly.
+
+
 ## Example: Highlight the Active Site {#example-highlight-the-active-site}
 
 Suppose you want to highlight residues 100–110 in chain A in orange, with a label:
@@ -74,3 +83,5 @@ Suppose you want to highlight residues 100–110 in chain A in orange, with a la
 -   **Color**: Solid → `#ff6600`
 -   **Label**: Active site
 -   **Focus**: on
+
+    k

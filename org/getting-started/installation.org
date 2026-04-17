@@ -2,39 +2,36 @@
 #+draft: false
 #+WEIGHT: 102
 
-* Chrome
+* Official Web Stores
+The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
 
-1. Go to the Chrome Web Store page (link TBD)
-2. Click *Add to Chrome*
-3. Confirm the permissions dialog
+- [[https://chrome.google.com/webstore][Install for Google Chrome / Edge / Brave]] (Coming Soon)
+- [[https://addons.mozilla.org/][Install for Mozilla Firefox]] (Coming Soon)
 
-* Firefox
+* Manual Installation (Developers & Advanced Users)
+If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually. 
 
-1. Go to the Firefox Add-ons page (link TBD)
-2. Click *Add to Firefox*
-3. Confirm the permissions dialog
+Because Mol* Linker uses a modern build system to support both Chrome and Firefox from a single codebase, you cannot simply load the raw source folder.
 
-* Load Unpacked (Development)
+** Step 1: Download or Build the Extension
+*Option A: Download a Release Zip (Easiest)*
+1. Go to the [[https://github.com/YourRepo/Molstar_Linker/releases][GitHub Releases page]].
+2. Download the latest =molstar_linker_chrome.zip= or =molstar_linker_firefox.zip=.
+3. Extract the zip file into a folder on your computer.
 
-Clone the repository and load it manually for local development or testing:
+*Option B: Build from Source (For Developers)*
+1. Clone the repository and install [[https://github.com/casey/just][Just]].
+2. Open your terminal in the project root and run: =just build=
+3. This will generate clean, ready-to-load extension files inside the =dist/chrome= and =dist/firefox= folders.
 
-#+begin_src bash
-git clone https://github.com/MartinBaGar/molstar_linker
-#+end_src
+** Step 2: Load into your Browser
+*For Chrome / Edge / Brave:*
+1. Navigate to =chrome://extensions/=.
+2. Toggle *Developer mode* ON in the top right corner.
+3. Click *Load unpacked*.
+4. Select the extracted folder from Option A, or the =dist/chrome= folder from Option B.
 
-Then:
-
-- *Chrome*: open =chrome://extensions=, enable Developer Mode, click *Load unpacked*, select the repo folder
-- *Firefox*: open =about:debugging=, click *This Firefox*, click *Load Temporary Add-on*, select =manifest.json=
-
-* Permissions
-
-The extension requests the following permissions on install:
-
-| Permission | Why                                                          |
-|------------+--------------------------------------------------------------|
-| =activeTab=  | Detect the current tab's hostname in the popup               |
-| =storage=    | Persist your settings and templates across sessions          |
-| =scripting=  | Dynamically enable the extension on custom / private domains |
-
-Host access is granted by default for =github.com=, =gitlab.com=, =rcsb.org=, and =alphafold.ebi.ac.uk=. Private domains can be added later — see [[../custom-domains][Custom Domains]].
+*For Firefox:*
+1. Navigate to =about:debugging#/runtime/this-firefox=.
+2. Click *Load Temporary Add-on*.
+3. Select the =manifest.json= file located inside your extracted folder or the =dist/firefox= folder.

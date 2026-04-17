@@ -26,7 +26,7 @@ When you click a badge, the extension securely downloads the file straight into 
   <meta itemprop="name" content="Frequently Asked Questions">
   <meta itemprop="description" content="General Questions# Where did my data go? Does this extension upload my proprietary files?# Absolutely not. This is one of the biggest upgrades in Mol* Linker v2.0. Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a dedicated, local workspace directly inside your browser.
 When you click a badge, the extension securely downloads the file straight into your browser’s active, temporary memory (RAM). It never touches your hard drive, and it is never uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.">
-  <meta itemprop="wordCount" content="344">
+  <meta itemprop="wordCount" content="464">
 
 <title>Frequently Asked Questions | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -36,7 +36,7 @@ When you click a badge, the extension securely downloads the file straight into 
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.711ddc6133c4b5c11e6218fecf87c628b74ade62c1475a07d8d6399c3be48114.js" integrity="sha256-cR3cYTPEtcEeYhj&#43;z4fGKLdK3mLBR1oH2NY5nDvkgRQ=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.9739a2f0b535cce9402d0496f91d1588f9293d5495c7836d957ed4d02176ea10.js" integrity="sha256-lzmi8LU1zOlALQSW&#43;R0ViPkpPVSVx4NtlX7U0CF26hA=" crossorigin="anonymous"></script>
 
 
 
@@ -284,6 +284,20 @@ When you click a badge, the extension securely downloads the file straight into 
         </li>
       
     
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/Molstar_Linker/docs/developer/security/" class="">
+      Security</a>
+  
+
+        </li>
+      
+    
   </ul>
 
         </li>
@@ -360,6 +374,7 @@ When you click a badge, the extension securely downloads the file straight into 
         <li><a href="#why-is-the-mol-badge-not-appearing-next-to-a-download-button">Why is the Mol* badge not appearing next to a &ldquo;Download&rdquo; button?</a></li>
         <li><a href="#why-did-my-browser-show-an-extension-context-invalidated-error">Why did my browser show an &ldquo;Extension Context Invalidated&rdquo; error?</a></li>
         <li><a href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?</a></li>
+        <li><a href="#why-did-my-massive-molecule--or-md-trajectory--fail-to-load">Why did my massive molecule (or MD trajectory) fail to load?</a></li>
       </ul>
     </li>
   </ul>
@@ -388,6 +403,10 @@ Older versions of this tool (and many other visualizers) had to redirect you to 
 <h3 id="why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?<a class="anchor" href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">#</a></h3>
 <p>Mol* Linker relies entirely on the Custom Rules and Presets you define in the extension&rsquo;s Options page. If your structure contains a highly complex lipid or non-standard ligand (like <code>PIPC</code> in a <code>.gro</code> file), the default rules might not know how to draw it, resulting in an invisible molecule.</p>
 <p>To fix this, simply click the extension icon, open the <strong>Studio / Options</strong>, and add a <strong>Custom Rule</strong> specifically targeting that molecule&rsquo;s residue name. Refresh the page, and it will render perfectly every time!</p>
+<h3 id="why-did-my-massive-molecule--or-md-trajectory--fail-to-load">Why did my massive molecule (or MD trajectory) fail to load?<a class="anchor" href="#why-did-my-massive-molecule--or-md-trajectory--fail-to-load">#</a></h3>
+<p>Mol* Linker is engineered with strict security and memory safeguards. Because the extension downloads the structural file directly into your browser&rsquo;s active RAM (to ensure your data is never uploaded to a third-party server), there is a hard-coded file size limit of <strong>25 Megabytes</strong>.</p>
+<p>If you attempt to open an incredibly massive viral capsid <code>.cif</code> file or a multi-frame molecular dynamics <code>.gro</code> trajectory that exceeds 25 MB, the extension will intentionally block the download to prevent your web browser from freezing or crashing.</p>
+<p>For files larger than 25 MB, we recommend downloading the file to your computer manually and opening it in the desktop version of Mol* or PyMOL.</p>
 </article>
  
       
@@ -416,9 +435,9 @@ Older versions of this tool (and many other visualizers) had to redirect you to 
   <div class="flex flex-wrap justify-between">
     <span>
     
-      <a href="/Molstar_Linker/docs/developer/module-reference/" class="flex align-center">
+      <a href="/Molstar_Linker/docs/developer/security/" class="flex align-center">
         <img src="/Molstar_Linker/icons/backward.svg" class="book-icon" alt="Backward" />
-        <span>Module Reference</span>
+        <span>Security</span>
       </a>
     
     </span>
@@ -466,6 +485,7 @@ Older versions of this tool (and many other visualizers) had to redirect you to 
         <li><a href="#why-is-the-mol-badge-not-appearing-next-to-a-download-button">Why is the Mol* badge not appearing next to a &ldquo;Download&rdquo; button?</a></li>
         <li><a href="#why-did-my-browser-show-an-extension-context-invalidated-error">Why did my browser show an &ldquo;Extension Context Invalidated&rdquo; error?</a></li>
         <li><a href="#why-do-my-molecules-appear-blank-when-the-workspace-first-loads">Why do my molecules appear blank when the workspace first loads?</a></li>
+        <li><a href="#why-did-my-massive-molecule--or-md-trajectory--fail-to-load">Why did my massive molecule (or MD trajectory) fail to load?</a></li>
       </ul>
     </li>
   </ul>
