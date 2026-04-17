@@ -19,7 +19,8 @@ const AppConfig = {
       { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1.0 },
     { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "ball_and_stick", color: "element-symbol", size: 1.0 },
       { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
-    { id: "water", selector: "water", label: "Water / Solvent", rep: "off", color: "red", size: null }
+    { id: "water", selector: "water", label: "Water / Solvent", rep: "off", color: "red", size: null },
+    { id: "all", selector: "all", label: "All", rep: "ball_and_stick", color: "element-symbol", size: 1.0 }
   ],
 
   presets: {
@@ -37,7 +38,13 @@ const AppConfig = {
     "dark_mode": {
       name: "Dark Mode Canvas",
       settings: { "canvas_color": "#111111" }
-    }
+    },
+    "all": {
+      name: "Uniform display",
+      settings: { "protein_rep": "surface", "protein_colorType": "theme", "protein_colorVal": "chain-id",
+ }
+    },
+
   },
 
   getDefaults: function() {

@@ -43,3 +43,14 @@ Mol\* Linker is engineered with strict security and memory safeguards. Because t
 If you attempt to open an incredibly massive viral capsid `.cif` file or a multi-frame molecular dynamics `.gro` trajectory that exceeds 25 MB, the extension will intentionally block the download to prevent your web browser from freezing or crashing.
 
 For files larger than 25 MB, we recommend downloading the file to your computer manually and opening it in the desktop version of Mol\* or PyMOL.
+
+
+### Why did the badge not appear next to my download link? {#why-did-the-badge-not-appear-next-to-my-download-link}
+
+Mol\* Linker's Smart Scanner looks at the URL, the HTML attributes, and the surrounding text to find a valid extension (like `.pdb` or `.cif`). If a database completely hides this information (e.g., a button that just says "Download File" with an opaque URL like `/file/1234`), the scanner will ignore it to avoid injecting badges onto standard PDFs or images.
+**Solution:** Simply Right-Click the download link and select "Open in Mol\* Workspace".
+
+
+### Why did the extension prompt me to select a format? {#why-did-the-extension-prompt-me-to-select-a-format}
+
+When you use the Right-Click menu on an opaque link (a link that does not explicitly end in `.pdb`, `.cif`, etc.), the extension securely passes the file to the viewer but flags the format as "unknown". To prevent the Mol\* engine from crashing while trying to parse a PDB as a Gromacs trajectory, it safely pauses and asks you to confirm the format before rendering.

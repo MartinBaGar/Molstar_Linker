@@ -26,3 +26,17 @@ Click the extension icon in your browser toolbar to open the popup:
 ## Open the Full Settings Studio {#open-the-full-settings-studio}
 
 Click **Open Advanced Studio** in the popup, or right-click the extension icon and choose **Options**. The studio lets you configure representations, colors, custom highlight rules, and templates in detail — see [Configuration](../configuration).
+
+
+## Working with Unknown Databases {#working-with-unknown-databases}
+
+Mol\* Linker is equipped with a Universal "Smart Scanner" that can automatically detect structural files on almost any database (like Figshare, Zenodo, or university servers). If the extension detects a valid structure nearby, the Mol\* Workspace badge will appear automatically.
+
+
+### The Right-Click Fallback {#the-right-click-fallback}
+
+If you are on a highly customized or obscure database where the green badge does not automatically appear next to a download link, you can still use the extension!
+
+1.  ****Right-Click**** the download button or link.
+2.  Select **\*"Open in Mol** Workspace"\*\* from the browser's context menu.
+3.  If the extension cannot automatically guess the file type from the website's code, it will present a clean dropdown asking you if it is a PDB, mmCIF, GRO, etc. Select the format, and your workspace will launch instantly!

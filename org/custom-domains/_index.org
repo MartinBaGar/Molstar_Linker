@@ -29,3 +29,10 @@ You can view, manage, and revoke access to your custom domains at any time.
 2. Navigate to the *Custom Domains* tab on the left sidebar.
 3. Here, you will see a list of all currently authorized domains.
 4. Click *Remove* next to any domain to instantly revoke the extension's access to that site.
+   
+* How it Works: Dynamic Injection
+When you authorize a Custom Domain (e.g., =gitlab.my-university.edu= or =elabftw.my-company.com=) via the extension's popup menu, Mol* Linker does two things simultaneously:
+1. It safely grants the viewer the necessary network privileges to bypass strict CORS policies on that specific domain.
+2. It **dynamically registers** the Mol* Linker scanner to run on your private network.
+
+This means you do not need to edit the manifest or manually refresh your extension. The moment you click "Allow" in the browser prompt, the green Mol* Workspace badges will automatically begin appearing next to structural files on your private internal network!
