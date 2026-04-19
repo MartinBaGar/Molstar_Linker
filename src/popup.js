@@ -61,6 +61,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     extApi.runtime.openOptionsPage();
   });
 
+const openViewerBtn = document.getElementById('open-empty-viewer');
+  if (openViewerBtn) {
+    openViewerBtn.addEventListener('click', () => {
+      // Get the absolute extension URL (chrome-extension://[id]/viewer.html)
+      const viewerUrl = extApi.runtime.getURL("viewer.html");
+      extApi.tabs.create({ url: viewerUrl });
+      window.close();
+    });
+  }
+
 // --- 5. CUSTOM DOMAIN DETECTION LOGIC ---
   try {
     const tabs = await new Promise(resolve => extApi.tabs.query({ active: true, currentWindow: true }, resolve));

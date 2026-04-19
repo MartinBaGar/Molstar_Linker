@@ -423,7 +423,50 @@ document.getElementById('add-manual-domain').onclick = async () => {
   }
 };
 
-// --- 6. INITIALIZATION ---
+// --- 6. FULL-PAGE DRAG & DROP (Send to Viewer) ---
+function setupOptionsDragAndDrop() {
+  const overlay = document.createElement('div');
+  overlay.id = 'dnd-overlay';
+  // Use a nice blue dashed border to differentiate it from the green viewer overlay
+  overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; display: none; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; font-family: sans-serif; z-index: 9999; border: 4px dashed var(--primary, #0969da); box-sizing: border-box; flex-direction: column; gap: 15px;';
+  overlay.innerHTML = `<span>🚀 Drop Structure to Open in Mol*</span><span style="font-size: 16px; color: #ccc;">Instantly opens a new viewer tab</span>`;
+  document.body.appendChild(overlay);
+
+  let dragCounter = 0;
+
+  window.addEventListener('dragenter', (e) => {
+      e.preventDefault(); dragCounter++; overlay.style.display = 'flex';
+  });
+  window.addEventListener('dragleave', (e) => {
+      dragCounter--; if (dragCounter === 0) overlay.style.display = 'none';
+  });
+  window.addEventListener('dragover', (e) => e.preventDefault());
+
+  window.addEventListener('drop', (e) => {
+      e.preventDefault(); dragCounter = 0; overlay.style.display = 'none';
+
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+
+      const ALLOWED_FORMATS = new Set(['pdb', 'mmcif', 'cif', 'gro', 'mol', 'mol2', 'sdf', 'xyz', 'bcif']);
+      let ext = file.name.split('.').pop().toLowerCase();
+      let format = ext;
+      if (ext === 'ent') format = 'pdb';
+      if (ext === 'cif') format = 'mmcif';
+
+      if (!ALLOWED_FORMATS.has(format)) {
+          alert(`Unsupported file format: .${ext}. Please use PDB, mmCIF, SDF, etc.`);
+          return;
+      }
+
+      // Create a secure Blob URL and pass it to a brand new Viewer tab
+      const blobUrl = URL.createObjectURL(file);
+      const viewerUrl = StorageAPI.core.runtime.getURL(`viewer.html?localBlob=${encodeURIComponent(blobUrl)}&format=${format}&filename=${encodeURIComponent(file.name)}`);
+      StorageAPI.core.tabs.create({ url: viewerUrl });
+  });
+}
+
+// --- 7. INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
   StorageAPI.get(null, (savedItems) => {
     customTemplates = savedItems.customTemplates || {};
@@ -432,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   refreshCustomDomainList();
 
-  // NEW: Check if the popup sent us here to authorize a new domain
+  // Check if the popup sent us here to authorize a new domain
   const urlParams = new URLSearchParams(window.location.search);
   const autoDomain = urlParams.get('domain');
   if (autoDomain) {
@@ -440,8 +483,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (input) {
       input.value = autoDomain;
       input.focus();
-      // Scroll to the bottom so the user sees the input
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
   }
+
+  // ACTIVATE THE DROP ZONE
+  setupOptionsDragAndDrop();
 });
