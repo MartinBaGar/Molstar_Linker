@@ -2,7 +2,6 @@
 import { MvsBuilder } from './mvs-builder.js';
 import { ExtensionSettings } from './types.js';
 
-// Tell TS that Mol* is loaded globally in the HTML
 declare const molstar: any;
 
 window.addEventListener('message', async (event: MessageEvent) => {
@@ -10,7 +9,8 @@ window.addEventListener('message', async (event: MessageEvent) => {
 
     if (type === 'load-structure') {
         try {
-            const viewer = await molstar.Viewer.create('viewer-root', {
+            // FIXED: Changed 'viewer-root' to 'app' to match your HTML exactly!
+            const viewer = await molstar.Viewer.create('app', {
                 layoutIsExpanded: false,
                 layoutShowControls: false,
                 layoutShowRemoteState: false,
@@ -21,14 +21,12 @@ window.addEventListener('message', async (event: MessageEvent) => {
                 viewportShowAnimation: false,
             });
 
-            // Use our migrated MvsBuilder to create the MolViewSpec
             const mvsData = MvsBuilder._buildBaseTemplate(
                 dataUri, 
                 format === 'cif' ? 'mmcif' : format, 
                 settings as ExtensionSettings
             );
 
-            // Load into Mol* engine
             await molstar.PluginExtensions.mvs.loadMvs(viewer.plugin, mvsData, {
                 sourceUrl: sourceUrl
             });
@@ -39,5 +37,4 @@ window.addEventListener('message', async (event: MessageEvent) => {
     }
 });
 
-// Signal to the viewer that the engine is ready
 window.parent.postMessage({ type: 'sandbox-ready' }, '*');

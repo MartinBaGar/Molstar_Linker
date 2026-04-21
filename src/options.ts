@@ -8,28 +8,29 @@ declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 function escapeHTML(str: string): string {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    const div = document.createElement('div'); div.textContent = str; return div.innerHTML;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Exact DOM Elements mapped to your HTML
     const ruleList = document.getElementById('custom-rules-container') as HTMLDivElement;
     const addRuleBtn = document.getElementById('add-custom-rule') as HTMLButtonElement;
     const saveBtn = document.getElementById('save') as HTMLButtonElement;
     const templateSelect = document.getElementById('template-select') as HTMLSelectElement;
     const templateNameInput = document.getElementById('new-template-name') as HTMLInputElement;
     const saveTemplateBtn = document.getElementById('save-template') as HTMLButtonElement;
+    const loadTemplateBtn = document.getElementById('load-template') as HTMLButtonElement;
+    const deleteTemplateBtn = document.getElementById('delete-template') as HTMLButtonElement;
     const domainList = document.getElementById('custom-domains-list') as HTMLDivElement;
     const settingsContainer = document.getElementById('settings-container') as HTMLDivElement;
     const sceneContainer = document.getElementById('scene-settings-container') as HTMLDivElement;
+    const manualDomainInput = document.getElementById('manual-domain-input') as HTMLInputElement;
+    const addManualDomainBtn = document.getElementById('add-manual-domain') as HTMLButtonElement;
 
     const settings = await new Promise<ExtensionSettings>(resolve => 
         extApi.storage.sync.get(AppConfig.getDefaults(), (data) => resolve(data as ExtensionSettings))
     );
 
-    // 2. MISSING LOGIC RESTORED: Render Global Scene Settings
+    // --- RENDER UI ---
     sceneContainer.innerHTML = `
         <div style="margin-bottom: 12px;">
             <label style="display:block; font-weight:bold; margin-bottom:4px;">Canvas Color</label>
@@ -41,7 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
     `;
 
-    // 3. MISSING LOGIC RESTORED: Render Global Targets (Proteins, Ligands, etc.)
     let targetsHTML = '';
     AppConfig.targets.forEach(t => {
         const repOptions = Object.keys(AppConfig.RepSchema).map(r => 
@@ -65,22 +65,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     settingsContainer.innerHTML = targetsHTML;
 
-    // 4. Custom Domain Management
+    // --- DOMAIN MANAGEMENT ---
     async function refreshDomainList() {
-        const data = await new Promise<{ customDomains?: string[] }>(resolve => 
-            extApi.storage.sync.get({ customDomains: [] }, resolve)
-        );
+        const data = await new Promise<{ customDomains?: string[] }>(resolve => extApi.storage.sync.get({ customDomains: [] }, resolve));
         const domains = data.customDomains || [];
         domainList.innerHTML = domains.length === 0 ? '<p style="color: #57606a; font-size: 13px;">No custom domains authorized yet.</p>' : '';
         
         domains.forEach(domain => {
             const item = document.createElement('div');
-            item.innerHTML = `<span style="font-weight:bold; margin-right:15px;">${escapeHTML(domain)}</span><button class="btn-remove" data-domain="${escapeHTML(domain)}" style="color:red; cursor:pointer;">Remove</button>`;
+            item.innerHTML = `<span style="font-weight:bold; margin-right:15px;">${escapeHTML(domain)}</span><button class="btn-remove" data-domain="${escapeHTML(domain)}" style="color:red; cursor:pointer; background:none; border:none; text-decoration:underline;">Remove</button>`;
             item.querySelector('.btn-remove')?.addEventListener('click', async (e) => {
                 const target = e.target as HTMLButtonElement;
-                const d = target.getAttribute('data-domain');
-                if (d) {
-                    await PermissionsManager.revokeAndUnregister(d);
+                if (target.dataset.domain) {
+                    await PermissionsManager.revokeAndUnregister(target.dataset.domain);
                     refreshDomainList();
                 }
             });
@@ -89,13 +86,91 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     refreshDomainList();
 
-    // 5. Custom Rules Logic
+    addManualDomainBtn?.addEventListener('click', async () => {
+        const domain = manualDomainInput.value.trim();
+        if (domain) {
+            await PermissionsManager.requestAndRegister(domain);
+            manualDomainInput.value = '';
+            refreshDomainList();
+        }
+    });
+
+    // --- TEMPLATES ---
+    async function refreshTemplateSelect() {
+        templateSelect.innerHTML = '';
+        const optGroupBuiltIn = document.createElement('optgroup');
+        optGroupBuiltIn.label = "Built-in Presets";
+        for (const [key, preset] of Object.entries(AppConfig.presets)) {
+            optGroupBuiltIn.innerHTML += `<option value="builtin_${key}">${preset.name}</option>`;
+        }
+        templateSelect.appendChild(optGroupBuiltIn);
+
+        const data = await new Promise<{ customTemplates?: Record<string, Preset> }>(resolve => extApi.storage.sync.get({ customTemplates: {} }, resolve));
+        const customTemplates = data.customTemplates || {};
+        if (Object.keys(customTemplates).length > 0) {
+            const optGroupCustom = document.createElement('optgroup');
+            optGroupCustom.label = "My Custom Templates";
+            for (const [key, tpl] of Object.entries(customTemplates)) {
+                optGroupCustom.innerHTML += `<option value="custom_${key}">${tpl.name}</option>`;
+            }
+            templateSelect.appendChild(optGroupCustom);
+        }
+    }
+    refreshTemplateSelect();
+
+    loadTemplateBtn?.addEventListener('click', async () => {
+        const val = templateSelect.value;
+        let presetOverrides: any = {};
+        if (val.startsWith('builtin_')) {
+            presetOverrides = AppConfig.presets[val.replace('builtin_', '')].settings;
+        } else {
+            const data = await new Promise<{ customTemplates?: Record<string, Preset> }>(resolve => extApi.storage.sync.get({ customTemplates: {} }, resolve));
+            presetOverrides = (data.customTemplates || {})[val.replace('custom_', '')].settings;
+        }
+        await extApi.storage.sync.set({ ...AppConfig.getDefaults(), ...presetOverrides });
+        location.reload();
+    });
+
+    deleteTemplateBtn?.addEventListener('click', async () => {
+        const val = templateSelect.value;
+        if (val.startsWith('builtin_')) return alert("Cannot delete built-in presets.");
+        const data = await new Promise<{ customTemplates?: Record<string, Preset> }>(resolve => extApi.storage.sync.get({ customTemplates: {} }, resolve));
+        const templates = data.customTemplates || {};
+        delete templates[val.replace('custom_', '')];
+        await extApi.storage.sync.set({ customTemplates: templates });
+        refreshTemplateSelect();
+    });
+
+    // --- EXPORT & IMPORT ---
+    document.getElementById('export-json')?.addEventListener('click', async () => {
+        const currentSettings = await gatherCurrentUIAsSettings();
+        const blob = new Blob([JSON.stringify(currentSettings, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'molstar_linker_settings.json';
+        a.click();
+    });
+
+    document.getElementById('import-json')?.addEventListener('change', (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const imported = JSON.parse(event.target?.result as string);
+                await extApi.storage.sync.set(imported);
+                alert('Settings imported successfully! Reloading...');
+                location.reload();
+            } catch (err) { alert('Invalid JSON file.'); }
+        };
+        reader.readAsText(file);
+    });
+
+    // --- RULES & SAVING ---
     function createRuleUI(rule: Partial<CustomRule> = {}) {
-        const id = Math.random().toString(36).substr(2, 9);
         const card = document.createElement('div');
         card.className = 'rule-card';
         card.style.cssText = 'background: white; padding: 12px; border: 1px solid #d0d7de; margin-bottom: 10px; border-radius: 6px;';
-        
         card.innerHTML = `
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <input type="text" class="rule-name" placeholder="Rule Name" value="${escapeHTML(rule.name || '')}" style="flex:1;">
@@ -114,20 +189,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (settings.customRules) settings.customRules.forEach(r => createRuleUI(r));
-    addRuleBtn.addEventListener('click', () => createRuleUI());
+    addRuleBtn?.addEventListener('click', () => createRuleUI());
 
-    // 6. Global Save Logic
     async function gatherCurrentUIAsSettings(): Promise<ExtensionSettings> {
         const newSettings: any = { ...AppConfig.getDefaults() };
-        
         newSettings.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
         newSettings.camera_json = (document.getElementById('camera_json') as HTMLInputElement).value;
 
         AppConfig.targets.forEach(t => {
-            const r = (document.getElementById(`${t.id}_rep`) as HTMLSelectElement).value;
-            const c = (document.getElementById(`${t.id}_colorVal`) as HTMLInputElement).value;
-            newSettings[`${t.id}_rep`] = r;
-            newSettings[`${t.id}_colorVal`] = c;
+            newSettings[`${t.id}_rep`] = (document.getElementById(`${t.id}_rep`) as HTMLSelectElement).value;
+            newSettings[`${t.id}_colorVal`] = (document.getElementById(`${t.id}_colorVal`) as HTMLInputElement).value;
         });
 
         const rules: CustomRule[] = [];
@@ -145,37 +216,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         return newSettings as ExtensionSettings;
     }
 
-    saveBtn.addEventListener('click', async () => {
-        const finalSettings = await gatherCurrentUIAsSettings();
-        extApi.storage.sync.set(finalSettings, () => alert("Settings saved successfully!"));
+    saveBtn?.addEventListener('click', async () => {
+        extApi.storage.sync.set(await gatherCurrentUIAsSettings(), () => alert("Settings applied to Mol*!"));
     });
-
-    // 7. GESTURE SAFE DOMAIN AUTHORIZATION
-    const urlParams = new URLSearchParams(window.location.search);
-    const domainToAuth = urlParams.get('domain');
-    if (domainToAuth) {
-        // Create an overlay so the user HAS to click a button (satisfies Chrome's User Gesture rule)
-        const overlay = document.createElement('div');
-        overlay.innerHTML = `
-            <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
-                <div style="background:white; padding:30px; border-radius:8px; text-align:center; max-width:400px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-                    <h2 style="margin-top:0; color:#0969da;">Authorize Domain</h2>
-                    <p>Would you like to allow Mol* Linker to run on <br><strong>${escapeHTML(domainToAuth)}</strong>?</p>
-                    <div style="margin-top:20px;">
-                        <button id="btn-auth-yes" style="background:#2da44e; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:10px;">Yes, Authorize</button>
-                        <button id="btn-auth-no" style="background:#eee; color:#333; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        document.getElementById('btn-auth-yes')?.addEventListener('click', async () => {
-            const success = await PermissionsManager.requestAndRegister(domainToAuth);
-            if (success) refreshDomainList();
-            overlay.remove();
-        });
-        
-        document.getElementById('btn-auth-no')?.addEventListener('click', () => overlay.remove());
-    }
+    
+    saveTemplateBtn?.addEventListener('click', async () => {
+        const name = templateNameInput.value.trim();
+        if (!name) return;
+        const currentSettings = await gatherCurrentUIAsSettings();
+        const data = await new Promise<{ customTemplates?: Record<string, Preset> }>(resolve => extApi.storage.sync.get({ customTemplates: {} }, resolve));
+        const templates = data.customTemplates || {};
+        templates[name.toLowerCase().replace(/\s+/g, '_')] = { name, settings: currentSettings };
+        await extApi.storage.sync.set({ customTemplates: templates });
+        alert(`Template "${name}" saved!`);
+        refreshTemplateSelect();
+    });
 });
