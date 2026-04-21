@@ -1,199 +1,319 @@
 // src/mvs-builder.ts
-import { AppConfig } from './config.js';
-import { ExtensionSettings, RepType } from './types.js';
 
+import { AppConfig } from './config.js';
+import type { ExtensionSettings, RepType } from './types.js';
+
+// ---------------------------------------------------------------------------
+// Allowed sub-parameter keys per representation type.
+// This is a strict allowlist — no arbitrary keys from user storage can leak
+// into the MVS tree (prevents prototype pollution and unexpected MVS nodes).
+// ---------------------------------------------------------------------------
+const ALLOWED_SUB_KEYS: Partial<Record<string, string[]>> = {
+  ball_and_stick: ['ignore_hydrogens'],
+  line:           ['ignore_hydrogens'],
+  spacefill:      ['ignore_hydrogens'],
+  surface:        ['surface_type', 'ignore_hydrogens'],
+  putty:          ['size_theme'],
+  cartoon:        ['tubular_helices'],
+};
+
+// ---------------------------------------------------------------------------
+// Allowed Mol* color theme names
+// ---------------------------------------------------------------------------
+const ALLOWED_THEMES = new Set([
+  'chain-id', 'element-symbol', 'secondary-structure', 'residue-name',
+  'sequence-id', 'uniform', 'uncertainty', 'b-factor',
+]);
+
+// ---------------------------------------------------------------------------
+// Internal MVS node types (loose — Mol* accepts plain JSON objects)
+// ---------------------------------------------------------------------------
+type MvsNode = Record<string, unknown>;
+
+// ---------------------------------------------------------------------------
+// MvsBuilder
+// ---------------------------------------------------------------------------
 export const MvsBuilder = {
 
-  _sanitizeString: function(value: any, maxLength = 512): string {
+  // -------------------------------------------------------------------------
+  // Security: string sanitizer
+  // Strips null bytes and non-printable control characters, caps length.
+  // MVS nodes are JSON (not HTML) so HTML-escaping is intentionally skipped.
+  // -------------------------------------------------------------------------
+  _sanitizeString(value: unknown, maxLength = 512): string {
     if (typeof value !== 'string') return '';
-    return value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').slice(0, maxLength);
+    return value
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+      .slice(0, maxLength);
   },
 
-  _sanitizeColor: function(colorType: string, colorVal: string): string {
-    const ALLOWED_THEMES = new Set([
-      'chain-id', 'element-symbol', 'secondary-structure', 'residue-name',
-      'sequence-id', 'uniform', 'uncertainty', 'b-factor'
-    ]);
+  // -------------------------------------------------------------------------
+  // Security: color sanitizer
+  // -------------------------------------------------------------------------
+  _sanitizeColor(colorType: string, colorVal: string): string {
     if (colorType === 'theme') {
       return ALLOWED_THEMES.has(colorVal) ? colorVal : 'chain-id';
     }
+    // Solid: only #rrggbb hex strings or a small set of safe named colors
     if (/^#[0-9a-fA-F]{6}$/.test(colorVal)) return colorVal;
-    const ALLOWED_NAMED = new Set(['white', 'red', 'blue', 'green', 'black']);
-    if (ALLOWED_NAMED.has(colorVal)) return colorVal;
-    return 'white'; 
+    const SAFE_NAMED = new Set(['white', 'red', 'blue', 'green', 'black']);
+    return SAFE_NAMED.has(colorVal) ? colorVal : 'white';
   },
 
-  _sanitizeRepType: function(repType: string): RepType {
-    const ALLOWED_REPS = new Set(Object.keys(AppConfig.RepSchema));
-    return ALLOWED_REPS.has(repType) ? (repType as RepType) : 'ball_and_stick';
+  // -------------------------------------------------------------------------
+  // Security: rep-type sanitizer
+  // -------------------------------------------------------------------------
+  _sanitizeRepType(repType: string): RepType {
+    const allowed = new Set(Object.keys(AppConfig.RepSchema)) as Set<string>;
+    return (allowed.has(repType) ? repType : 'ball_and_stick') as RepType;
   },
 
-  _deepSanitize: function(obj: any, depth = 0): any {
-    if (depth > 2 || typeof obj !== 'object' || obj === null) return obj;
-    const result: Record<string, any> = Object.create(null); 
-    for (const [k, v] of Object.entries(obj)) {
+  // -------------------------------------------------------------------------
+  // Security: deep-sanitize an arbitrary object before embedding as MVS params.
+  // Caps depth at 2, rejects arrays and prototype-polluting keys.
+  // Used for camera_json and other free-form JSON fields.
+  // -------------------------------------------------------------------------
+  _deepSanitize(obj: unknown, depth = 0): Record<string, unknown> {
+    if (depth > 2 || typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+      return {};
+    }
+    const result: Record<string, unknown> = Object.create(null);
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
       if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
-      result[k] = typeof v === 'object' ? this._deepSanitize(v, depth + 1) : v;
+      result[k] = typeof v === 'object' && v !== null
+        ? this._deepSanitize(v, depth + 1)
+        : v;
     }
     return result;
   },
 
-  createViewerUrl: function(rawStructureUrl: string, format: string, settings: ExtensionSettings): string {
+  // -------------------------------------------------------------------------
+  // Apply sub-params from user storage using the strict ALLOWED_SUB_KEYS list
+  // -------------------------------------------------------------------------
+  _applySafeSubParams(
+    target: Record<string, unknown>,
+    repType: string,
+    rawParams: unknown,
+  ): void {
+    if (!rawParams || typeof rawParams !== 'object' || Array.isArray(rawParams)) return;
+    const allowed = ALLOWED_SUB_KEYS[repType] ?? [];
+    const params = rawParams as Record<string, unknown>;
+    for (const key of allowed) {
+      if (key in params) target[key] = params[key];
+    }
+  },
+
+  // -------------------------------------------------------------------------
+  // Public: build a Mol* Viewer URL with embedded MVS data
+  // -------------------------------------------------------------------------
+  createViewerUrl(rawStructureUrl: string, format: string, settings: ExtensionSettings): string {
     const parserFormat = format === 'cif' ? 'mmcif' : format;
-    const mvsTemplate = this._buildBaseTemplate(rawStructureUrl, parserFormat, settings);
-    const mvsDataString = JSON.stringify(mvsTemplate);
+    const mvsDataString = JSON.stringify(this._buildBaseTemplate(rawStructureUrl, parserFormat, settings));
     return `https://molstar.org/viewer/?mvs-format=mvsj&mvs-data=${encodeURIComponent(mvsDataString)}`;
   },
 
-  _buildBaseTemplate: function(url: string, format: string, settings: ExtensionSettings) {
-    const rootChildren: any[] = [
+  // -------------------------------------------------------------------------
+  // Public: build the raw MVS JSON object
+  // -------------------------------------------------------------------------
+  _buildBaseTemplate(url: string, format: string, settings: ExtensionSettings): MvsNode {
+    const rootChildren: MvsNode[] = [
       {
-        "kind": "download",
-        "params": { "url": url },
-        "children": [{
-          "kind": "parse",
-          "params": { "format": format },
-          "children": [{
-            "kind": "structure",
-            "params": { "type": "model" },
-            "children": this._buildComponentBranches(settings)
-          }]
-        }]
-      }
+        kind: 'download',
+        params: { url },
+        children: [{
+          kind: 'parse',
+          params: { format },
+          children: [{
+            kind: 'structure',
+            params: { type: 'model' },
+            children: this._buildComponentBranches(settings),
+          }],
+        }],
+      },
     ];
 
-    if (settings.canvas_color && settings.canvas_color !== "#ffffff" && settings.canvas_color !== "white") {
-      const safeColor = /^#[0-9a-fA-F]{6}$/.test(settings.canvas_color) ? settings.canvas_color : '#ffffff';
-      rootChildren.push({ "kind": "canvas", "params": { "background_color": safeColor } });
+    // Canvas background color (skip the default white to keep the template lean)
+    if (settings.canvas_color && settings.canvas_color !== '#ffffff' && settings.canvas_color !== 'white') {
+      const safeColor = /^#[0-9a-fA-F]{6}$/.test(settings.canvas_color)
+        ? settings.canvas_color
+        : '#ffffff';
+      rootChildren.push({ kind: 'canvas', params: { background_color: safeColor } });
     }
 
+    // Optional camera position JSON
     if (settings.camera_json) {
       try {
-        const camParams = this._deepSanitize(JSON.parse(settings.camera_json));
-        if (camParams && typeof camParams === 'object' && !Array.isArray(camParams)) {
-          rootChildren.push({ "kind": "camera", "params": camParams });
+        const raw = JSON.parse(settings.camera_json as string);
+        const camParams = this._deepSanitize(raw);
+        if (Object.keys(camParams).length > 0) {
+          rootChildren.push({ kind: 'camera', params: camParams });
         }
-      } catch (e) { console.warn("Invalid Camera JSON"); }
+      } catch {
+        console.warn('Mol* Builder: invalid camera_json, skipped');
+      }
     }
 
-    return { "metadata": { "version": "1" }, "root": { "kind": "root", "children": rootChildren } };
+    return {
+      metadata: { version: '1' },
+      root: { kind: 'root', children: rootChildren },
+    };
   },
 
-  _getColorNode: function(colorType: string, colorVal: string): any {
+  // -------------------------------------------------------------------------
+  // Build a color MVS node
+  // -------------------------------------------------------------------------
+  _getColorNode(colorType: string, colorVal: string): MvsNode {
     const safeColor = this._sanitizeColor(colorType, colorVal);
     if (colorType === 'theme') {
-      return { "kind": "color", "params": { "color": "white" }, "custom": { "molstar_color_theme_name": safeColor } };
+      return {
+        kind: 'color',
+        params: { color: 'white' },
+        custom: { molstar_color_theme_name: safeColor },
+      };
     }
-    return { "kind": "color", "params": { "color": safeColor } };
+    return { kind: 'color', params: { color: safeColor } };
   },
 
-  _buildComponentBranches: function(settings: ExtensionSettings) {
-    const branches: any[] = [];
-    const polymerColorOverrides: any[] = [];
-    const customComponentBranches: any[] = [];
+  // -------------------------------------------------------------------------
+  // Build all component branches (custom rules + global targets)
+  // -------------------------------------------------------------------------
+  _buildComponentBranches(settings: ExtensionSettings): MvsNode[] {
+    const branches: MvsNode[] = [];
+    // Color-override nodes applied on top of polymer representations
+    const polymerColorOverrides: MvsNode[] = [];
+    // Custom component branches appended after the global target branches
+    const customComponentBranches: MvsNode[] = [];
 
     const customRules = Array.isArray(settings.customRules) ? settings.customRules : [];
 
-    const ALLOWED_SUB_KEYS: Record<string, string[]> = {
-      ball_and_stick: ['ignore_hydrogens'],
-      surface: ['surface_type', 'ignore_hydrogens'],
-      putty: ['size_theme'],
-      cartoon: ['tubular_helices'],
-      line: ['ignore_hydrogens'],
-      spacefill: ['ignore_hydrogens']
-    };
-
-    function applySafeSubParams(targetObj: Record<string, any>, repType: string, rawParams: any) {
-      if (!rawParams || typeof rawParams !== 'object' || Array.isArray(rawParams)) return;
-      const allowed = ALLOWED_SUB_KEYS[repType] || [];
-      for (const k of allowed) {
-        if (k in rawParams) targetObj[k] = rawParams[k];
-      }
-    }
-
+    // ------------------------------------------------------------------
+    // PASS 1: Custom Rules
+    // ------------------------------------------------------------------
     const MAX_RULES = 50;
-    customRules.slice(0, MAX_RULES).forEach((rule: any) => {
+    customRules.slice(0, MAX_RULES).forEach(rule => {
       if (!rule || typeof rule !== 'object') return;
 
-      const componentChildren: any[] = [];
-      const safeLabel = rule.label ? this._sanitizeString(rule.label, 256) : null;
-      const safeTooltip = rule.tooltip ? this._sanitizeString(rule.tooltip, 512) : null;
-      const safeSelector = rule.selector ? this._sanitizeString(rule.selector, 256) : null;
+      const componentChildren: MvsNode[] = [];
 
-      if (!safeSelector) return;
+      const safeLabel    = rule.label    ? this._sanitizeString(rule.label,    256) : null;
+      const safeTooltip  = rule.tooltip  ? this._sanitizeString(rule.tooltip,  512) : null;
 
-      if (safeLabel) componentChildren.push({ "kind": "label", "params": { "text": safeLabel } });
-      if (safeTooltip) componentChildren.push({ "kind": "tooltip", "params": { "text": safeTooltip } });
-      if (rule.focus) componentChildren.push({ "kind": "focus", "params": {} });
+      // Selector can be a plain object/array (from JSON.parse in options) or a string
+      let safeSelector: string | Record<string, unknown> | unknown[] | null = null;
+      if (rule.selector !== undefined && rule.selector !== null && rule.selector !== '') {
+        if (typeof rule.selector === 'string') {
+          safeSelector = this._sanitizeString(rule.selector, 256) || null;
+        } else if (typeof rule.selector === 'object') {
+          // Structured selector — already validated by options.ts extraction
+          safeSelector = rule.selector as Record<string, unknown> | unknown[];
+        }
+      }
+      if (!safeSelector) return; // A rule without a selector is meaningless
 
-      const ruleType = rule.rep ? this._sanitizeRepType(rule.rep) : "highlight";
+      if (safeLabel)   componentChildren.push({ kind: 'label',   params: { text: safeLabel } });
+      if (safeTooltip) componentChildren.push({ kind: 'tooltip', params: { text: safeTooltip } });
+      if (rule.focus)  componentChildren.push({ kind: 'focus',   params: {} });
 
-      if (ruleType === "highlight") {
+      const ruleType = rule.rep ? this._sanitizeRepType(rule.rep) : 'highlight' as RepType;
+
+      if ((ruleType as string) === 'highlight') {
+        // Highlight-only: add a color override node onto polymer representations
         const colorNode = this._getColorNode(rule.colorType, rule.colorVal);
-        colorNode.params.selector = safeSelector;
+        (colorNode.params as Record<string, unknown>).selector = safeSelector;
         polymerColorOverrides.push(colorNode);
 
         if (componentChildren.length > 0) {
-          customComponentBranches.push({ "kind": "component", "params": { "selector": safeSelector }, "children": componentChildren });
+          customComponentBranches.push({
+            kind: 'component',
+            params: { selector: safeSelector },
+            children: componentChildren,
+          });
         }
       } else {
-        const repParams: Record<string, any> = { "type": ruleType };
+        // Spawn a new representation component
+        const repParams: Record<string, unknown> = { type: ruleType };
 
         if (rule.size !== undefined) {
-          const sz = parseFloat(rule.size);
+          const sz = parseFloat(rule.size as string);
           if (!isNaN(sz) && sz > 0 && sz <= 10) repParams.size_factor = sz;
         }
 
-        applySafeSubParams(repParams, ruleType, rule.subParams);
-        applySafeSubParams(repParams, ruleType, rule.advancedParams);
+        this._applySafeSubParams(repParams, ruleType, rule.subParams);
+        this._applySafeSubParams(repParams, ruleType, rule.advancedParams);
 
-        const repChildren = [ this._getColorNode(rule.colorType, rule.colorVal) ];
+        const repChildren: MvsNode[] = [this._getColorNode(rule.colorType, rule.colorVal)];
 
         if (rule.opacity !== undefined) {
-          const op = parseFloat(rule.opacity);
+          const op = parseFloat(rule.opacity as string);
           if (!isNaN(op) && op >= 0 && op <= 1) {
-            repChildren.push({ "kind": "opacity", "params": { "opacity": op } });
+            repChildren.push({ kind: 'opacity', params: { opacity: op } });
           }
         }
 
-        componentChildren.push({ "kind": "representation", "params": repParams, "children": repChildren });
-        customComponentBranches.push({ "kind": "component", "params": { "selector": safeSelector }, "children": componentChildren });
+        componentChildren.push({ kind: 'representation', params: repParams, children: repChildren });
+        customComponentBranches.push({
+          kind: 'component',
+          params: { selector: safeSelector },
+          children: componentChildren,
+        });
       }
     });
 
-    AppConfig.targets.forEach((target) => {
-      const repType = settings[`${target.id}_rep`];
-      if (!repType || repType === "off") return;
+    // ------------------------------------------------------------------
+    // PASS 2: Global Targets (protein, nucleic, ligand, …)
+    // ------------------------------------------------------------------
+    for (const target of AppConfig.targets) {
+      const repType = settings[`${target.id}_rep`] as string | undefined;
+      if (!repType || repType === 'off') continue;
 
-      const sizeVal = settings[`${target.id}_size`];
-      const repParams: Record<string, any> = { "type": this._sanitizeRepType(repType) };
-      if (sizeVal !== undefined && sizeVal !== "") {
-        const sz = parseFloat(sizeVal);
+      const sizeVal  = settings[`${target.id}_size`];
+      const repParams: Record<string, unknown> = { type: this._sanitizeRepType(repType) };
+
+      if (sizeVal !== undefined && sizeVal !== '') {
+        const sz = parseFloat(String(sizeVal));
         if (!isNaN(sz) && sz > 0 && sz <= 10) repParams.size_factor = sz;
       }
 
-      applySafeSubParams(repParams, repParams.type, settings[`${target.id}_subParams`]);
+      this._applySafeSubParams(
+        repParams,
+        repParams.type as string,
+        settings[`${target.id}_subParams`],
+      );
 
-      const repChildren = [ this._getColorNode(settings[`${target.id}_colorType`], settings[`${target.id}_colorVal`]) ];
+      const repChildren: MvsNode[] = [
+        this._getColorNode(
+          settings[`${target.id}_colorType`] as string,
+          settings[`${target.id}_colorVal`]  as string,
+        ),
+      ];
 
       const opacityVal = settings[`${target.id}_opacity`];
       if (opacityVal !== undefined) {
-        const op = parseFloat(opacityVal);
+        const op = parseFloat(String(opacityVal));
         if (!isNaN(op) && op >= 0 && op <= 1) {
-          repChildren.push({ "kind": "opacity", "params": { "opacity": op } });
+          repChildren.push({ kind: 'opacity', params: { opacity: op } });
         }
       }
 
-      const representationNode = { "kind": "representation", "params": repParams, "children": repChildren };
+      const representationNode: MvsNode = {
+        kind: 'representation',
+        params: repParams,
+        children: repChildren,
+      };
 
+      // Attach color-override nodes onto polymer components
       if (['protein', 'nucleic'].includes(target.selector)) {
-        representationNode.children.push(...polymerColorOverrides);
+        (representationNode.children as MvsNode[]).push(...polymerColorOverrides);
       }
 
-      branches.push({ "kind": "component", "params": { "selector": target.selector }, "children": [representationNode] });
-    });
+      branches.push({
+        kind: 'component',
+        params: { selector: target.selector },
+        children: [representationNode],
+      });
+    }
 
     branches.push(...customComponentBranches);
     return branches;
-  }
+  },
 };
