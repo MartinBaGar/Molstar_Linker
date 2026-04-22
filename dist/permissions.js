@@ -40,14 +40,13 @@ export const PermissionsManager = {
             if (!granted)
                 return false;
             // ② Register the content script if not already registered
-            const existing = await this.core.scripting.getRegisteredContentScripts({ ids: [id] });
-            if (existing.length === 0) {
-                await this.core.scripting.registerContentScripts([{
-                        id,
-                        matches: [pattern],
-                        js: ['config.js', 'mvs-builder.js', 'content.js'],
-                        runAt: 'document_end',
-                    }]);
+            if (this.core.scripting?.registerContentScripts) {
+                const existing = await this.core.scripting.getRegisteredContentScripts({ ids: [id] });
+                if (existing.length === 0) {
+                    await this.core.scripting.registerContentScripts([{
+                            id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
+                        }]);
+                }
             }
             // ③ Persist the domain in storage so the UI can show it
             const data = await this.core.storage.sync.get({ customDomains: [] });
@@ -70,7 +69,7 @@ export const PermissionsManager = {
         const pattern = this.getMatchPattern(domain);
         const id = this.getScriptId(domain);
         try {
-            await this.core.scripting.unregisterContentScripts({ ids: [id] }).catch(() => { });
+            await this.core.scripting?.unregisterContentScripts({ ids: [id] }).catch(() => { });
             await new Promise(resolve => this.core.permissions.remove({ origins: [pattern] }, resolve));
             const data = await this.core.storage.sync.get({ customDomains: [] });
             await this.core.storage.sync.set({
