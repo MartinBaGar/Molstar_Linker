@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (tab?.url?.startsWith('http')) {
       const currentDomain = PermissionsManager.cleanDomain(tab.url);
-      const DEFAULT_DOMAINS = ['github.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
+      const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
       const isDefault = DEFAULT_DOMAINS.some(d => currentDomain.includes(d));
 
       const storage = await new Promise<{ customDomains: string[] }>(

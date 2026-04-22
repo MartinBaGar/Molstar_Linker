@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SCENARIO 3: URL present but format unknown (context-menu path)
   if (!ALLOWED_FORMATS.has(format)) {
     const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
-    const DEFAULT_DOMAINS = ['github.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
+    const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
     const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
 
     if (!isDefault) {
@@ -365,19 +365,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // SCENARIO 4: Authorization gatekeeper for known-format URLs on custom domains
-  const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
-  const DEFAULT_DOMAINS = ['github.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
-  const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
+  // const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
+  // const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
+  // const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
 
-  if (!isDefault) {
-    const storageData = await new Promise<{ customDomains: string[] }>(
-      resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
-    );
-    if (!storageData.customDomains.includes(targetDomain)) {
-      if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
-      return;
-    }
-  }
+  // if (!isDefault) {
+  //   const storageData = await new Promise<{ customDomains: string[] }>(
+  //     resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
+  //   );
+  //   if (!storageData.customDomains.includes(targetDomain)) {
+  //     if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
+  //     return;
+  //   }
+  // }
 
   // SCENARIO 5: Known format + authorized domain → boot instantly
   bootWorkspace(rawUrl, format);

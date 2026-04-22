@@ -338,32 +338,20 @@
           return;
         }
         if (!ALLOWED_FORMATS.has(format)) {
-          const targetDomain2 = new URL(rawUrl).hostname.replace(/^www\./, "");
-          const DEFAULT_DOMAINS2 = ["github.com", "gitlab.com", "rcsb.org", "alphafold.ebi.ac.uk"];
-          const isDefault2 = DEFAULT_DOMAINS2.some((d) => targetDomain2.includes(d));
-          if (!isDefault2) {
+          const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, "");
+          const DEFAULT_DOMAINS = ["github.com", "raw.githubusercontent.com", "gitlab.com", "rcsb.org", "alphafold.ebi.ac.uk"];
+          const isDefault = DEFAULT_DOMAINS.some((d) => targetDomain.includes(d));
+          if (!isDefault) {
             const storageData = await new Promise(
               (resolve) => extApi.storage.sync.get({ customDomains: [] }, resolve)
             );
-            if (!storageData.customDomains.includes(targetDomain2)) {
-              if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain2);
+            if (!storageData.customDomains.includes(targetDomain)) {
+              if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
               return;
             }
           }
           if (loadingDiv) showFormatSelectorUI(loadingDiv, rawUrl);
           return;
-        }
-        const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, "");
-        const DEFAULT_DOMAINS = ["github.com", "gitlab.com", "rcsb.org", "alphafold.ebi.ac.uk"];
-        const isDefault = DEFAULT_DOMAINS.some((d) => targetDomain.includes(d));
-        if (!isDefault) {
-          const storageData = await new Promise(
-            (resolve) => extApi.storage.sync.get({ customDomains: [] }, resolve)
-          );
-          if (!storageData.customDomains.includes(targetDomain)) {
-            if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
-            return;
-          }
         }
         bootWorkspace(rawUrl, format);
       });
