@@ -7,8 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "node assemble.js && tsc",
-    "watch": "tsc -w"
+    "build:chrome":  "tsc && node assemble.js chrome",
+    "build:firefox": "tsc && node assemble.js firefox",
+    "build":         "tsc && node assemble.js chrome && node assemble.js firefox",
+    "watch":         "tsc -w"
   },
   "repository": {
     "type": "git",

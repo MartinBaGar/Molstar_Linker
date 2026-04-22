@@ -4,7 +4,7 @@
     "module": "ES2020",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true, 
-    "outDir": "./dist",    
+    "outDir": "./dist",
     "rootDir": "./src",               
     "strict": true,
     "noImplicitAny": true,

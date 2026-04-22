@@ -1,25 +1,44 @@
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
-const distDir = path.join(__dirname, 'dist');
-const publicDir = path.join(__dirname, 'public');
-const manifestsDir = path.join(__dirname, 'manifests');
-
-// 1. CLEAN: Delete the dist folder if it exists to start fresh
-if (fs.existsSync(distDir)) {
-    console.log("🧹 Cleaning old dist folder...");
-    fs.rmSync(distDir, { recursive: true, force: true });
-}
-fs.mkdirSync(distDir);
-
-// 2. COPY ASSETS: Copy icons, lib, and HTML files
-console.log("📦 Copying static assets...");
-if (fs.existsSync(publicDir)) {
-    fs.cpSync(publicDir, distDir, { recursive: true });
+const browser = process.argv[2]; // "chrome" or "firefox"
+if (!browser || !['chrome', 'firefox'].includes(browser)) {
+  console.error('Usage: node assemble.js chrome|firefox');
+  process.exit(1);
 }
 
-// 3. APPLY MANIFEST: Use the chrome manifest
-console.log("📑 Applying Chrome manifest...");
-fs.copyFileSync(path.join(manifestsDir, 'chrome.json'), path.join(distDir, 'manifest.json'));
+const OUT = path.join('dist', browser); // dist/chrome or dist/firefox
 
-console.log("✅ Assembly complete!");
+// 1. Clean and recreate the output folder
+fs.rmSync(OUT, { recursive: true, force: true });
+fs.mkdirSync(OUT, { recursive: true });
+
+// 2. Copy compiled JS from dist/ (tsc output)
+const COMPILED = [
+  'background.js', 'config.js', 'content.js', 'mvs-builder.js',
+  'options.js', 'permissions.js', 'popup.js', 'sandbox.js',
+  'types.js', 'viewer.js'
+];
+
+for (const file of COMPILED) {
+  fs.copyFileSync(path.join('dist', file), path.join(OUT, file));
+}
+
+// 3. Copy the right manifest
+fs.copyFileSync(path.join(`manifests/`, `${browser}.json`), path.join(OUT, 'manifest.json'));
+
+// 4. Copy static assets
+const STATIC = [
+  'viewer.html', 'sandbox.html', 'popup.html', 'popup.css',
+  'options.html', 'options.css'
+];
+for (const file of STATIC) {
+  fs.copyFileSync(path.join('public/', file), path.join(OUT, file));
+}
+
+// 5. Copy folders (icons, lib)
+for (const folder of ['icons', 'lib']) {
+  fs.cpSync(path.join('public', folder), path.join(OUT, folder), { recursive: true });
+}
+
+console.log(`✅  Built for ${browser} → ${OUT}/`);
