@@ -8,28 +8,25 @@ https://github.com/alex-shpak/hugo-book
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Core Application Modules# content.js# The entry point on external websites.
-getStructureInfo(href): Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab. makeBadge(rawUrl, formatStr, originalHref): Generates the UI button. Crucially uses &lt;button&gt; instead of &lt;a&gt; to prevent recursive DOM cloning by the MutationObserver. injectMolstarLinker(): The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders. background.js# The routing layer.
-Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponent and fires chrome.tabs.create. viewer.js# The data acquisition and privilege layer.
+<meta name="description" content="All source files live in src/ and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained .js file in dist/. Shared modules (types, config, permissions, mvs-builder) are not separate output files — they are bundled into whichever entry points import them.
+Shared Modules# src/types.ts# Defines all shared TypeScript interfaces and the inter-context message protocol. This is the single source of truth for data shapes across the entire codebase.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/module-reference/">
   <meta property="og:site_name" content="Mol* Linker Wiki">
   <meta property="og:title" content="Module Reference">
-  <meta property="og:description" content="Core Application Modules# content.js# The entry point on external websites.
-getStructureInfo(href): Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab. makeBadge(rawUrl, formatStr, originalHref): Generates the UI button. Crucially uses &lt;button&gt; instead of &lt;a&gt; to prevent recursive DOM cloning by the MutationObserver. injectMolstarLinker(): The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders. background.js# The routing layer.
-Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponent and fires chrome.tabs.create. viewer.js# The data acquisition and privilege layer.">
+  <meta property="og:description" content="All source files live in src/ and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained .js file in dist/. Shared modules (types, config, permissions, mvs-builder) are not separate output files — they are bundled into whichever entry points import them.
+Shared Modules# src/types.ts# Defines all shared TypeScript interfaces and the inter-context message protocol. This is the single source of truth for data shapes across the entire codebase.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
 
 
   <meta itemprop="name" content="Module Reference">
-  <meta itemprop="description" content="Core Application Modules# content.js# The entry point on external websites.
-getStructureInfo(href): Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab. makeBadge(rawUrl, formatStr, originalHref): Generates the UI button. Crucially uses &lt;button&gt; instead of &lt;a&gt; to prevent recursive DOM cloning by the MutationObserver. injectMolstarLinker(): The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders. background.js# The routing layer.
-Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponent and fires chrome.tabs.create. viewer.js# The data acquisition and privilege layer.">
-  <meta itemprop="wordCount" content="256">
+  <meta itemprop="description" content="All source files live in src/ and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained .js file in dist/. Shared modules (types, config, permissions, mvs-builder) are not separate output files — they are bundled into whichever entry points import them.
+Shared Modules# src/types.ts# Defines all shared TypeScript interfaces and the inter-context message protocol. This is the single source of truth for data shapes across the entire codebase.">
+  <meta itemprop="wordCount" content="822">
 
 <title>Module Reference | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -39,7 +36,7 @@ Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponen
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.fbf53c68391b00f2c9f679680ca0e5446bde4d57d2d22ac87cebb9035e2600c1.js" integrity="sha256-&#43;/U8aDkbAPLJ9nloDKDlRGveTVfS0irIfOu5A14mAME=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
 
 
 
@@ -371,20 +368,22 @@ Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponen
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#core-application-modules">Core Application Modules</a>
+    <li><a href="#shared-modules">Shared Modules</a>
       <ul>
-        <li><a href="#content-dot-js"><code>content.js</code></a></li>
-        <li><a href="#background-dot-js"><code>background.js</code></a></li>
-        <li><a href="#viewer-dot-js"><code>viewer.js</code></a></li>
-        <li><a href="#sandbox-dot-js"><code>sandbox.js</code></a></li>
-        <li><a href="#mvs-builder-dot-js"><code>mvs-builder.js</code></a></li>
+        <li><a href="#src-types-dot-ts"><code>src/types.ts</code></a></li>
+        <li><a href="#src-config-dot-ts"><code>src/config.ts</code></a></li>
+        <li><a href="#src-permissions-dot-ts"><code>src/permissions.ts</code></a></li>
+        <li><a href="#src-mvs-builder-dot-ts"><code>src/mvs-builder.ts</code></a></li>
       </ul>
     </li>
-    <li><a href="#configuration-and-settings">Configuration &amp; Settings</a>
+    <li><a href="#entry-point-modules">Entry-Point Modules</a>
       <ul>
-        <li><a href="#config-dot-js"><code>config.js</code></a></li>
-        <li><a href="#options-dot-js-and-popup-dot-js"><code>options.js</code> &amp; <code>popup.js</code></a></li>
-        <li><a href="#permissions-dot-js"><code>permissions.js</code></a></li>
+        <li><a href="#src-background-dot-ts-background-dot-js"><code>src/background.ts</code> → <code>background.js</code></a></li>
+        <li><a href="#src-content-dot-ts-content-dot-js"><code>src/content.ts</code> → <code>content.js</code></a></li>
+        <li><a href="#src-viewer-dot-ts-viewer-dot-js"><code>src/viewer.ts</code> → <code>viewer.js</code></a></li>
+        <li><a href="#src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts"><code>src/sandbox.ts</code> → <code>sandbox.js</code> (bundles <code>mvs-builder.ts</code>)</a></li>
+        <li><a href="#src-popup-dot-ts-popup-dot-js"><code>src/popup.ts</code> → <code>popup.js</code></a></li>
+        <li><a href="#src-options-dot-ts-options-dot-js"><code>src/options.ts</code> → <code>options.js</code></a></li>
       </ul>
     </li>
   </ul>
@@ -399,47 +398,100 @@ Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponen
 
       
       
-  <article class="markdown book-article"><h2 id="core-application-modules">Core Application Modules<a class="anchor" href="#core-application-modules">#</a></h2>
-<h3 id="content-dot-js"><code>content.js</code><a class="anchor" href="#content-dot-js">#</a></h3>
-<p>The entry point on external websites.</p>
+  <article class="markdown book-article"><p>All source files live in <code>src/</code> and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained <code>.js</code> file in <code>dist/</code>. Shared modules (<code>types</code>, <code>config</code>, <code>permissions</code>, <code>mvs-builder</code>) are not separate output files — they are bundled into whichever entry points import them.</p>
+<h2 id="shared-modules">Shared Modules<a class="anchor" href="#shared-modules">#</a></h2>
+<h3 id="src-types-dot-ts"><code>src/types.ts</code><a class="anchor" href="#src-types-dot-ts">#</a></h3>
+<p>Defines all shared TypeScript interfaces and the inter-context message protocol. This is the single source of truth for data shapes across the entire codebase.</p>
+<p>Key exports:</p>
 <ul>
-<li><code>getStructureInfo(href)</code>: Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab.</li>
-<li><code>makeBadge(rawUrl, formatStr, originalHref)</code>: Generates the UI button. Crucially uses <code>&lt;button&gt;</code> instead of <code>&lt;a&gt;</code> to prevent recursive DOM cloning by the MutationObserver.</li>
-<li><code>injectMolstarLinker()</code>: The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders.</li>
+<li><code>RepType</code> — union type of all valid Mol* representation strings (<code>&quot;cartoon&quot;</code>, <code>&quot;ball_and_stick&quot;</code>, etc.)</li>
+<li><code>RuleRepType</code> — extends <code>RepType</code> with <code>|&quot;highlight&quot;</code> for custom rules</li>
+<li><code>TargetDefinition</code> — shape of one entry in <code>AppConfig.targets</code></li>
+<li><code>CustomRule</code> — full data model for a user-defined visual rule</li>
+<li><code>ExtensionSettings</code> — the master settings object stored in <code>chrome.storage.sync</code></li>
+<li><code>Preset</code> — shape of a named template</li>
+<li><code>OpenViewerMessage</code> — message sent from content script to background</li>
+<li><code>InitMolstarMessage</code> — message sent from viewer to sandbox iframe</li>
+<li><code>SandboxReadyMessage</code> — message sent from sandbox to viewer on load</li>
 </ul>
-<h3 id="background-dot-js"><code>background.js</code><a class="anchor" href="#background-dot-js">#</a></h3>
-<p>The routing layer.</p>
+<h3 id="src-config-dot-ts"><code>src/config.ts</code><a class="anchor" href="#src-config-dot-ts">#</a></h3>
+<p>Contains the static <code>AppConfig</code> object. The authoritative registry for everything the extension knows about molecular components and visual representations.</p>
+<p>Key exports:</p>
 <ul>
-<li>Listens to <code>chrome.runtime.onMessage</code>.</li>
-<li>Safely encodes URIs using <code>encodeURIComponent</code> and fires <code>chrome.tabs.create</code>.</li>
+<li><code>AppConfig.RepSchema</code> — maps representation keys to their labels and configurable sub-parameters</li>
+<li><code>AppConfig.targets</code> — array of <code>TargetDefinition</code> objects (protein, nucleic, ligand, carbs, lipid, ion, water, all)</li>
+<li><code>AppConfig.presets</code> — named built-in templates</li>
+<li><code>AppConfig.getDefaults()</code> — generates a complete <code>ExtensionSettings</code> object from the targets array with fallback values; used everywhere storage settings are read</li>
 </ul>
-<h3 id="viewer-dot-js"><code>viewer.js</code><a class="anchor" href="#viewer-dot-js">#</a></h3>
-<p>The data acquisition and privilege layer.</p>
+<h3 id="src-permissions-dot-ts"><code>src/permissions.ts</code><a class="anchor" href="#src-permissions-dot-ts">#</a></h3>
+<p>Manages dynamic host permission requests for custom domains. Cross-browser compatible (Chrome MV3 / Firefox MV2).</p>
+<p>Key exports:</p>
 <ul>
-<li>Executes <code>fetch()</code> to download structure files.</li>
-<li>Utilizes <code>FileReader.readAsDataURL()</code> to convert binary blobs into Base64 strings. This is a deliberate architectural requirement to pass structural data securely into the sandbox, which operates on an isolated <code>null</code> origin.</li>
-<li>Merges <code>chrome.storage</code> data with <code>AppConfig.getDefaults()</code> to ensure the downstream engine always has fallback rendering rules.</li>
+<li><code>PermissionsManager.cleanDomain(url)</code> — extracts the hostname from a URL string</li>
+<li><code>PermissionsManager.requestAndRegister(url)</code> — requests host permission, registers the content script, and persists the domain to storage. Must be called directly inside a user-gesture handler (Firefox requirement).</li>
+<li><code>PermissionsManager.revokeAndUnregister(url)</code> — removes the permission, unregisters the script, and removes the domain from storage.</li>
 </ul>
-<h3 id="sandbox-dot-js"><code>sandbox.js</code><a class="anchor" href="#sandbox-dot-js">#</a></h3>
-<p>The rendering execution layer.</p>
+<h3 id="src-mvs-builder-dot-ts"><code>src/mvs-builder.ts</code><a class="anchor" href="#src-mvs-builder-dot-ts">#</a></h3>
+<p>Translates extension settings into a <a href="https://molstar.org/viewer-docs/extensions/mvs/">MolViewSpec</a> JSON tree. All user-controlled values are sanitized before being embedded.</p>
+<p>Key exports:</p>
 <ul>
-<li>Operates entirely via <code>window.addEventListener('message')</code>.</li>
-<li>Initializes <code>molstar.Viewer.create()</code>.</li>
-<li>Translates received settings into an MVS Template via <code>MvsBuilder._buildBaseTemplate()</code>.</li>
-<li>Safely invokes <code>viewerInstance.loadMvsData()</code>.</li>
+<li><code>MvsBuilder._buildBaseTemplate(url, format, settings)</code> — builds the complete MVS JSON object; called by both <code>sandbox.ts</code> (rendering) and <code>createViewerUrl</code> (sharing)</li>
+<li><code>MvsBuilder.createViewerUrl(url, format, settings)</code> — encodes the MVS tree as a <code>molstar.org/viewer/</code> URL for external sharing</li>
+<li><code>MvsBuilder._sanitizeString(value, maxLength)</code> — strips control characters, caps length</li>
+<li><code>MvsBuilder._sanitizeColor(colorType, colorVal)</code> — validates against theme allowlist or <code>#rrggbb</code> pattern</li>
+<li><code>MvsBuilder._sanitizeRepType(repType)</code> — validates against <code>AppConfig.RepSchema</code> keys</li>
+<li><code>MvsBuilder._deepSanitize(obj, depth)</code> — recursively sanitizes free-form objects (used for <code>camera_json</code>), caps depth at 2, rejects arrays and prototype-polluting keys</li>
 </ul>
-<h3 id="mvs-builder-dot-js"><code>mvs-builder.js</code><a class="anchor" href="#mvs-builder-dot-js">#</a></h3>
-<p>The JSON translation engine.</p>
+<h2 id="entry-point-modules">Entry-Point Modules<a class="anchor" href="#entry-point-modules">#</a></h2>
+<h3 id="src-background-dot-ts-background-dot-js"><code>src/background.ts</code> → <code>background.js</code><a class="anchor" href="#src-background-dot-ts-background-dot-js">#</a></h3>
+<p>The extension service worker (Chrome) / event page (Firefox). Routing and security checkpoint.</p>
+<p>Responsibilities:</p>
 <ul>
-<li>Contains the deterministic logic to map extension UI settings (Targets, Styles, Colors) into the strict, hierarchical JSON format required by MolViewSpec.</li>
+<li>Listens for <code>open_viewer</code> messages from content scripts; validates URL (HTTPS-only) and format before opening <code>viewer.html</code></li>
+<li>Creates the right-click context menu item on install; handles menu clicks with <code>format=unknown</code> fallback</li>
+<li>Listens for <code>chrome.permissions.onAdded</code> to dynamically register content scripts when new custom domains are authorized</li>
 </ul>
-<h2 id="configuration-and-settings">Configuration &amp; Settings<a class="anchor" href="#configuration-and-settings">#</a></h2>
-<h3 id="config-dot-js"><code>config.js</code><a class="anchor" href="#config-dot-js">#</a></h3>
-<p>Contains the static <code>AppConfig</code> object. Defines the foundational default rules for standard molecule categories (protein, nucleic, water, lipids, etc.).</p>
-<h3 id="options-dot-js-and-popup-dot-js"><code>options.js</code> &amp; <code>popup.js</code><a class="anchor" href="#options-dot-js-and-popup-dot-js">#</a></h3>
-<p>The user interface controllers for saving settings into <code>chrome.storage.sync</code>. Uses the custom <code>StorageAPI</code> wrapper to ensure seamless promise/callback compatibility between Chrome (V3) and Firefox (V2).</p>
-<h3 id="permissions-dot-js"><code>permissions.js</code><a class="anchor" href="#permissions-dot-js">#</a></h3>
-<p>Handles dynamic host permission requests. Ensures users can authorize self-hosted GitLab or ElabFTW instances securely via the extension&rsquo;s Options page.</p>
+<h3 id="src-content-dot-ts-content-dot-js"><code>src/content.ts</code> → <code>content.js</code><a class="anchor" href="#src-content-dot-ts-content-dot-js">#</a></h3>
+<p>The DOM scanner injected into host webpages. Has no TypeScript imports — compiles to a plain classic script.</p>
+<p>Key functions:</p>
+<ul>
+<li><code>getStructureInfo(href, linkElement)</code> — 3-ring scanner: checks the URL, then link text and HTML attributes, then the parent element&rsquo;s text content. Transforms GitHub blob URLs to <code>raw.githubusercontent.com</code> and GitLab blob URLs to the GitLab API raw endpoint.</li>
+<li><code>makeBadge(rawUrl, formatStr, originalHref)</code> — creates the styled <code>&lt;button&gt;</code> badge; blocks click event propagation to prevent SPA navigation</li>
+<li><code>injectMolstarLinker()</code> — main scan pass; skips already-processed links, checks for duplicate badges, marks processed links with <code>data-ms-processed</code></li>
+<li><code>MutationObserver</code> with 500 ms debounce handles SPA navigation; disconnects on page <code>unload</code></li>
+</ul>
+<h3 id="src-viewer-dot-ts-viewer-dot-js"><code>src/viewer.ts</code> → <code>viewer.js</code><a class="anchor" href="#src-viewer-dot-ts-viewer-dot-js">#</a></h3>
+<p>The privileged shell. Runs inside the extension context with full API access.</p>
+<p>Key functions:</p>
+<ul>
+<li><code>isSafeUrl(url)</code> — validates HTTPS protocol and checks hostname against SSRF blocklist (private ranges, loopback, link-local)</li>
+<li><code>bootWorkspace(rawUrl, safeFormat)</code> — fetches the file, enforces 25 MB cap, converts to base64 data URI, calls <code>spawnIframe</code></li>
+<li><code>spawnIframe(dataUri, format, rawUrl)</code> — reads and filters storage settings using schema allowlist, spawns sandbox iframe, registers <code>SANDBOX_READY</code> listener, sends <code>INIT_MOLSTAR</code> message</li>
+<li><code>setupDragAndDrop()</code> — full-page drag-and-drop overlay for local files</li>
+</ul>
+<h3 id="src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts"><code>src/sandbox.ts</code> → <code>sandbox.js</code> (bundles <code>mvs-builder.ts</code>)<a class="anchor" href="#src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts">#</a></h3>
+<p>The isolated rendering context. Has no access to extension APIs.</p>
+<p>Flow:</p>
+<ol>
+<li>Posts <code>SANDBOX_READY</code> immediately on script load</li>
+<li>On <code>INIT_MOLSTAR</code>: validates origin (<code>chrome-extension://</code> or <code>moz-extension://</code>), validates URL (must be <code>data:</code> or <code>null</code>), validates format</li>
+<li>Converts data URI to a short <code>blob:</code> URL (anti-lag fix for large files)</li>
+<li>Calls <code>MvsBuilder._buildBaseTemplate()</code> to produce the MVS JSON</li>
+<li>Loads via <code>viewerInstance.loadMvsData()</code> if available, or the <code>PluginExtensions.mvs.loadMVS()</code> fallback</li>
+</ol>
+<h3 id="src-popup-dot-ts-popup-dot-js"><code>src/popup.ts</code> → <code>popup.js</code><a class="anchor" href="#src-popup-dot-ts-popup-dot-js">#</a></h3>
+<p>The browser toolbar popup. Lightweight — reads storage, applies a selected preset, opens the Studio.</p>
+<h3 id="src-options-dot-ts-options-dot-js"><code>src/options.ts</code> → <code>options.js</code><a class="anchor" href="#src-options-dot-ts-options-dot-js">#</a></h3>
+<p>The full Settings Studio. The most complex UI module.</p>
+<p>Key functions:</p>
+<ul>
+<li><code>buildUI()</code> — generates per-target accordion cards with representation selectors, color pickers, and sub-parameter drawers</li>
+<li><code>addCustomRuleCard(ruleData?)</code> — creates a full custom rule form card with simple/expert mode toggle and live JSON preview</li>
+<li><code>extractCurrentSettings()</code> — reads the entire UI state into an <code>ExtensionSettings</code> object</li>
+<li><code>injectSettingsIntoUI(settings)</code> — populates the entire UI from a settings object (used by template loading and JSON import)</li>
+<li><code>refreshCustomDomainList()</code> — reads authorized domains from storage and renders the revocation UI</li>
+<li>Import validation uses an explicit allowlist (<code>AppConfig.getDefaults()</code> keys) and caps <code>customRules</code> at 50 entries</li>
+</ul>
 </article>
  
       
@@ -517,20 +569,22 @@ Listens to chrome.runtime.onMessage. Safely encodes URIs using encodeURIComponen
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#core-application-modules">Core Application Modules</a>
+    <li><a href="#shared-modules">Shared Modules</a>
       <ul>
-        <li><a href="#content-dot-js"><code>content.js</code></a></li>
-        <li><a href="#background-dot-js"><code>background.js</code></a></li>
-        <li><a href="#viewer-dot-js"><code>viewer.js</code></a></li>
-        <li><a href="#sandbox-dot-js"><code>sandbox.js</code></a></li>
-        <li><a href="#mvs-builder-dot-js"><code>mvs-builder.js</code></a></li>
+        <li><a href="#src-types-dot-ts"><code>src/types.ts</code></a></li>
+        <li><a href="#src-config-dot-ts"><code>src/config.ts</code></a></li>
+        <li><a href="#src-permissions-dot-ts"><code>src/permissions.ts</code></a></li>
+        <li><a href="#src-mvs-builder-dot-ts"><code>src/mvs-builder.ts</code></a></li>
       </ul>
     </li>
-    <li><a href="#configuration-and-settings">Configuration &amp; Settings</a>
+    <li><a href="#entry-point-modules">Entry-Point Modules</a>
       <ul>
-        <li><a href="#config-dot-js"><code>config.js</code></a></li>
-        <li><a href="#options-dot-js-and-popup-dot-js"><code>options.js</code> &amp; <code>popup.js</code></a></li>
-        <li><a href="#permissions-dot-js"><code>permissions.js</code></a></li>
+        <li><a href="#src-background-dot-ts-background-dot-js"><code>src/background.ts</code> → <code>background.js</code></a></li>
+        <li><a href="#src-content-dot-ts-content-dot-js"><code>src/content.ts</code> → <code>content.js</code></a></li>
+        <li><a href="#src-viewer-dot-ts-viewer-dot-js"><code>src/viewer.ts</code> → <code>viewer.js</code></a></li>
+        <li><a href="#src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts"><code>src/sandbox.ts</code> → <code>sandbox.js</code> (bundles <code>mvs-builder.ts</code>)</a></li>
+        <li><a href="#src-popup-dot-ts-popup-dot-js"><code>src/popup.ts</code> → <code>popup.js</code></a></li>
+        <li><a href="#src-options-dot-ts-options-dot-js"><code>src/options.ts</code> → <code>options.js</code></a></li>
       </ul>
     </li>
   </ul>

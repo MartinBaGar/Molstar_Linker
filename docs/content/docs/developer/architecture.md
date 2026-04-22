@@ -6,9 +6,9 @@ draft = false
 
 ## Core Philosophy {#core-philosophy}
 
-The Mol\* Linker extension operates across complex security boundaries. Modern browsers enforce strict Content Security Policies (CSP), specifically blocking `unsafe-eval` in Manifest V3 (Chrome) and restricting cross-origin requests (CORS).
+Mol\* Linker operates across several strict security boundaries imposed by the browser. Modern browsers enforce Content Security Policies (CSP) that block `unsafe-eval` in Manifest V3 extension pages, and restrict cross-origin requests (CORS) between websites and external servers.
 
-To seamlessly load multi-megabyte structural files from dynamic Single Page Applications (SPAs) like GitLab/GitHub into a high-performance WebGL visualizer (Mol\*), the extension utilizes a robust **4-Layer Architecture**.
+To load multi-megabyte structural files from dynamic Single Page Applications (GitHub, GitLab, RCSB) into a high-performance WebGL visualizer (Mol\*), the extension uses a **4-Layer Architecture** where each layer has one clearly defined responsibility.
 
 
 ## The 4-Layer Architecture {#the-4-layer-architecture}
@@ -16,45 +16,76 @@ To seamlessly load multi-megabyte structural files from dynamic Single Page Appl
 
 ### 1. Reconnaissance (The Content Script) {#1-dot-reconnaissance--the-content-script}
 
--   **File:** `src/content.js`
--   **Environment:** Host Webpage (e.g., GitHub, GitLab, RCSB)
--   **Role:** Scans the DOM for supported structural file extensions (`.pdb`, `.cif`, `.gro`, etc.). It uses smart heuristics to ignore Git UI elements (like `/blame/` or `/commits/`) and anchor jumps (`#L10`).
--   **Action:** Injects a native HTML `<button>` next to valid links. Clicking this button stops event propagation (preventing SPA routers from navigating away) and sends a message to the background router.
+-   **Source:** `src/content.ts`
+-   **Output:** `content.js` (bundled standalone, no imports)
+-   **Environment:** The host webpage (GitHub, GitLab, RCSB, custom domains)
+-   **Role:** Scans the DOM for links that point to supported structural file formats. Uses a 3-ring scanner — URL, HTML attributes, and surrounding parent text — to detect structure links even on sites with opaque download URLs (Figshare, Zenodo).
+-   **Action:** Injects a native `<button>` badge next to each valid link. Clicking the badge stops SPA navigation and sends an `open_viewer` message to the background router via `chrome.runtime.sendMessage`.
 
 
 ### 2. The Router (The Background Script) {#2-dot-the-router--the-background-script}
 
--   **File:** `src/background.js`
--   **Environment:** Extension Service Worker (Chrome) / Event Page (Firefox)
--   **Role:** Acts as a traffic cop. It listens for the `open_viewer` message from the Content Script.
--   **Action:** Opens a new, isolated extension tab pointing to `viewer.html`, passing the target file URL and format via URL search parameters.
+-   **Source:** `src/background.ts`
+-   **Output:** `background.js`
+-   **Environment:** Extension service worker (Chrome MV3) or event page (Firefox MV2)
+-   **Role:** Acts as a traffic cop and security checkpoint. Validates that incoming `open_viewer` messages carry a safe HTTPS URL and a known format string before acting.
+-   **Action:** Opens a new isolated extension tab pointing to `viewer.html`, passing the file URL and format via URL query parameters. Also handles the right-click context menu and dynamic content script registration for newly authorized custom domains.
 
 
 ### 3. The Privileged Shell (The Viewer) {#3-dot-the-privileged-shell--the-viewer}
 
--   **Files:** `src/viewer.html`, `src/viewer.js`
--   **Environment:** Extension Context (`chrome-extension://...`)
--   **Role:** This layer operates with elevated privileges and acts as the ****Master Router**** and ****Security Gatekeeper****.
+-   **Source:** `src/viewer.ts`
+-   **Output:** `viewer.js`
+-   **Environment:** Extension context (`chrome-extension://...`), full API access
+-   **Role:** The security gatekeeper and data acquisition layer. Runs with elevated privileges that the sandbox explicitly does not have.
 -   **Actions:**
-    1.  ****Routing:**** It checks the incoming parameters to determine if it should load a Local File (via Extension Storage), a Blob URL (via Options Drag &amp; Drop), a Web URL, or an Empty Workspace.
-    2.  ****Gatekeeping:**** If a remote URL is requested via Right-Click, it checks if the domain is authorized. If not, it halts execution and prompts the user to grant Host Permissions.
-    3.  ****CORS Bypass &amp; Fetch:**** For authorized domains, it uses native `fetch()` to securely bypass browser CORS restrictions. It also reads the first 150 characters of the downloaded Blob to ensure it wasn't silently blocked by Firefox's Enhanced Tracking Protection (ETP).
-    4.  ****Strict Injection:**** It dynamically spawns an `<iframe>` pointing to the Sandbox. To satisfy modern browser specs, it uses a strict `e.source ==` iframe.contentWindow= handshake to securely pass the Base64 structure data into the sandboxed `null` origin via `postMessage('*')`.
+    1.  **Domain gating:** Checks whether the requesting domain is a default (GitHub, RCSB, etc.) or an authorized custom domain. Halts with a UI prompt if not.
+    2.  **Format gating:** If format is unknown (right-click path), shows a format selector before proceeding.
+    3.  **SSRF protection:** Validates the URL against a blocklist of private IP ranges and loopback addresses before fetching.
+    4.  **Fetch:** Downloads the structure file using `fetch()`, enforces a 25 MB size cap, and performs a Firefox tracking-protection sanity check on the first 150 bytes.
+    5.  **Schema gating:** Merges storage settings with `AppConfig.getDefaults()` using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the MVS builder.
+    6.  **Handoff:** Spawns the sandbox `<iframe>` and passes the base64 data URI and validated settings via `postMessage`, using an `e.source` guard instead of origin matching (sandboxed iframes always report `null` origin).
+    7.  **Drag &amp; drop:** Handles local file loading for offline use.
 
 
 ### 4. The Engine (The Sandbox) {#4-dot-the-engine--the-sandbox}
 
--   **Files:** `src/sandbox.html`, `src/sandbox.js`, `src/mvs-builder.js`
--   **Environment:** Isolated Sandbox (`Origin: null`)
--   **Role:** Mol\* relies heavily on `new Function()` and `eval()` to compile dynamic WebGL shaders. Standard Manifest V3 extension pages block this. The Sandbox is explicitly declared in the manifest to allow `unsafe-eval`.
--   **Action:** Receives the Base64 data, translates the user settings into a MolViewSpec (MVS) JSON tree via `MvsBuilder`, and renders the 3D scene securely.
+-   **Source:** `src/sandbox.ts`, `src/mvs-builder.ts`
+-   **Output:** `sandbox.js` (bundles both modules)
+-   **Environment:** Sandboxed iframe, origin `null`, zero extension API access
+-   **Role:** Mol\* requires `eval()` and `new Function()` to compile WebGL shaders dynamically. Standard MV3 extension pages forbid this. The sandbox is explicitly declared in the Chrome manifest to allow `unsafe-eval` in isolation.
+-   **Action:**
+    1.  Immediately posts `SANDBOX_READY` to the parent on script load.
+    2.  Validates the incoming `INIT_MOLSTAR` message (origin, URL scheme, format).
+    3.  Converts the base64 data URI back into a short `blob:` URL to avoid embedding multi-megabyte strings in the MVS JSON tree (anti-lag fix).
+    4.  Translates the validated settings into a MolViewSpec JSON tree via `MvsBuilder._buildBaseTemplate()`.
+    5.  Renders the 3D scene via the Mol\* viewer API.
+
+
+## The Build Pipeline {#the-build-pipeline}
+
+A fifth layer that exists at development time rather than runtime.
+
+```nil
+src/*.ts  ──→  tsc --noEmit ──→  (type errors only, no files)
+src/*.ts  ──→  esbuild       ──→  dist/*.js  (one file per entry point)
+dist/*.js
+public/   ──→  assemble.js   ──→  dist/chrome/   (loadable extension)
+manifests/                        dist/firefox/
+```
+
+-   **tsc** acts as a quality gate: strict type checking with no file output (`noEmit: true`).
+-   **esbuild** bundles each entry point and all its imports into one self-contained JS file. Shared modules (`config`, `permissions`, `mvs-builder`, `types`) are inlined — they do not appear as separate script files in the output.
+-   **assemble.js** routes the correct manifest, the compiled JS, and the static assets into a browser-specific folder that can be loaded directly into the browser.
+
+This design means `content.js` compiles to a plain classic script with no module syntax (it has no imports), while all other entry points also compile to classic scripts because esbuild resolves all imports at build time. The browser never needs to handle ES module resolution at runtime.
 
 
 ## Cross-Browser Compatibility (Manifest Split) {#cross-browser-compatibility--manifest-split}
 
-Google Chrome (Manifest V3) and Mozilla Firefox (Manifest V2) have fundamentally incompatible security standards regarding background workers and sandboxing.
+Chrome (MV3) and Firefox (MV2) have incompatible requirements for background workers, sandboxing, and CSP. Rather than a single manifest with conditional logic, two separate manifests are maintained:
 
-To maintain a single, universal JavaScript codebase, the architecture utilizes a dual-manifest build system:
+-   **`manifests/chrome.json`**: Uses `service_worker` for the background, `action` for the popup, and the `sandbox` manifest key to declare the sandboxed page.
+-   **`manifests/firefox.json`**: Uses `background.scripts` (event page), `browser_action` for the popup, and a permissive `content_security_policy` string. Firefox does not support the `sandbox` manifest key but allows `unsafe-eval` globally for extension pages, achieving the same result.
 
--   **Chrome (\*=manifests/chrome.json=**):\* Utilizes `service_worker` and strictly relies on the `sandbox` manifest key to escape the V3 `unsafe-eval` ban.
--   **Firefox (\*=manifests/firefox.json=**):\* Utilizes V2 `scripts` (Event Pages) and relies on a permissive `content_security_policy` to allow `unsafe-eval`, as Firefox natively strips sandbox permissions.
+The TypeScript source is identical for both targets — only the manifest differs. `assemble.js` copies the right one during the build.

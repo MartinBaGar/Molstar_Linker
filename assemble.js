@@ -15,9 +15,12 @@ fs.mkdirSync(OUT, { recursive: true });
 
 // 2. Copy compiled JS from dist/ (tsc output)
 const COMPILED = [
-  'background.js', 'config.js', 'content.js', 'mvs-builder.js',
-  'options.js', 'permissions.js', 'popup.js', 'sandbox.js',
-  'types.js', 'viewer.js'
+  'background.js',
+  'content.js',
+  'sandbox.js',
+  'viewer.js',
+  'popup.js',
+  'options.js',
 ];
 
 for (const file of COMPILED) {

@@ -9,7 +9,7 @@ https://github.com/alex-shpak/hugo-book
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
-Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Lipids lipid Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — All Atoms all Ball &amp; Stick Element symbol The all target is a catch-all that applies to every atom in the structure. It is useful as a fallback representation but is hidden by default. Enable it only when you want a uniform style applied across the entire structure regardless of molecule type.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
@@ -17,7 +17,7 @@ Available Targets# Target Selector Default Representation Default Color Proteins
   <meta property="og:site_name" content="Mol* Linker Wiki">
   <meta property="og:title" content="Molecular Targets">
   <meta property="og:description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
-Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:">
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Lipids lipid Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — All Atoms all Ball &amp; Stick Element symbol The all target is a catch-all that applies to every atom in the structure. It is useful as a fallback representation but is hidden by default. Enable it only when you want a uniform style applied across the entire structure regardless of molecule type.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
@@ -25,8 +25,8 @@ Available Targets# Target Selector Default Representation Default Color Proteins
 
   <meta itemprop="name" content="Molecular Targets">
   <meta itemprop="description" content="The Global Target Configurations panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
-Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — Representation Types# Each target can use any of the following representations:">
-  <meta itemprop="wordCount" content="224">
+Available Targets# Target Selector Default Representation Default Color Proteins protein Cartoon Chain ID Nucleic Acids (DNA/RNA) nucleic Cartoon Chain ID Ligands &amp; Small Molecules ligand Ball &amp; Stick Element symbol Carbohydrates &amp; Glycans branched Ball &amp; Stick Element symbol Lipids lipid Ball &amp; Stick Element symbol Single Ions ion Ball &amp; Stick Element symbol Water / Solvent water Hidden (Off) — All Atoms all Ball &amp; Stick Element symbol The all target is a catch-all that applies to every atom in the structure. It is useful as a fallback representation but is hidden by default. Enable it only when you want a uniform style applied across the entire structure regardless of molecule type.">
+  <meta itemprop="wordCount" content="383">
 
 <title>Molecular Targets | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -36,7 +36,7 @@ Available Targets# Target Selector Default Representation Default Color Proteins
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.fbf53c68391b00f2c9f679680ca0e5446bde4d57d2d22ac87cebb9035e2600c1.js" integrity="sha256-&#43;/U8aDkbAPLJ9nloDKDlRGveTVfS0irIfOu5A14mAME=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
 
 
 
@@ -373,6 +373,7 @@ Available Targets# Target Selector Default Representation Default Color Proteins
     <li><a href="#color">Color</a></li>
     <li><a href="#size-and-opacity">Size &amp; Opacity</a></li>
     <li><a href="#applying-changes">Applying Changes</a></li>
+    <li><a href="#sub-parameters">Sub-Parameters</a></li>
   </ul>
 </nav>
 
@@ -422,6 +423,12 @@ Available Targets# Target Selector Default Representation Default Color Proteins
           <td>Element symbol</td>
       </tr>
       <tr>
+          <td>Lipids</td>
+          <td><code>lipid</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Element symbol</td>
+      </tr>
+      <tr>
           <td>Single Ions</td>
           <td><code>ion</code></td>
           <td>Ball &amp; Stick</td>
@@ -433,8 +440,15 @@ Available Targets# Target Selector Default Representation Default Color Proteins
           <td>Hidden (Off)</td>
           <td>—</td>
       </tr>
+      <tr>
+          <td>All Atoms</td>
+          <td><code>all</code></td>
+          <td>Ball &amp; Stick</td>
+          <td>Element symbol</td>
+      </tr>
   </tbody>
 </table>
+<p>The <code>all</code> target is a catch-all that applies to every atom in the structure. It is useful as a fallback representation but is hidden by default. Enable it only when you want a uniform style applied across the entire structure regardless of molecule type.</p>
 <h2 id="representation-types">Representation Types<a class="anchor" href="#representation-types">#</a></h2>
 <p>Each target can use any of the following representations:</p>
 <table>
@@ -496,16 +510,64 @@ Available Targets# Target Selector Default Representation Default Color Proteins
 <h2 id="color">Color<a class="anchor" href="#color">#</a></h2>
 <p>Each target has a color mode toggle:</p>
 <ul>
-<li><strong>Theme</strong> — uses a Mol* built-in coloring scheme (e.g. <code>chain-id</code>, <code>element-symbol</code>, <code>secondary-structure</code>, <code>residue-index</code>, …)</li>
-<li><strong>Solid</strong> — a single flat hex color applied to the whole target</li>
+<li><strong>Theme</strong> — uses a Mol* built-in coloring scheme applied dynamically to the structure (e.g. <code>chain-id</code>, <code>element-symbol</code>, <code>secondary-structure</code>, <code>residue-name</code>, <code>sequence-id</code>, <code>uncertainty</code>, <code>b-factor</code>)</li>
+<li><strong>Solid</strong> — a single flat hex color applied uniformly to all atoms in the target</li>
 </ul>
 <h2 id="size-and-opacity">Size &amp; Opacity<a class="anchor" href="#size-and-opacity">#</a></h2>
 <ul>
 <li><strong>Size</strong> maps to the <code>size_factor</code> parameter in MolViewSpec, scaling atom/bond radius relative to the default</li>
-<li><strong>Opacity</strong> (0–1) adds a MolViewSpec <code>opacity</code> node; useful for making surfaces semi-transparent</li>
+<li><strong>Opacity</strong> (0–1) adds a MolViewSpec <code>opacity</code> node; particularly useful for making surfaces semi-transparent while keeping the cartoon underneath visible</li>
 </ul>
 <h2 id="applying-changes">Applying Changes<a class="anchor" href="#applying-changes">#</a></h2>
-<p>Click <strong>Apply to Mol*</strong> in the sidebar. Changes take effect on the next badge click.</p>
+<p>Click <strong>Apply to Mol*</strong> in the sidebar. Changes are saved to your browser&rsquo;s synced storage and take effect on the next badge click or workspace load.</p>
+<h2 id="sub-parameters">Sub-Parameters<a class="anchor" href="#sub-parameters">#</a></h2>
+<p>Some representations expose additional options in a collapsible drawer below the style selector:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Representation</th>
+          <th>Option</th>
+          <th>Effect</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Cartoon</td>
+          <td>Tubular helices</td>
+          <td>Renders helices as cylinders instead of ribbons</td>
+      </tr>
+      <tr>
+          <td>Ball &amp; Stick</td>
+          <td>Ignore hydrogens</td>
+          <td>Hides hydrogen atoms</td>
+      </tr>
+      <tr>
+          <td>Line</td>
+          <td>Ignore hydrogens</td>
+          <td>Hides hydrogen atoms</td>
+      </tr>
+      <tr>
+          <td>Spacefill</td>
+          <td>Ignore hydrogens</td>
+          <td>Hides hydrogen atoms</td>
+      </tr>
+      <tr>
+          <td>Surface</td>
+          <td>Ignore hydrogens</td>
+          <td>Excludes hydrogens from surface calculation</td>
+      </tr>
+      <tr>
+          <td>Surface</td>
+          <td>Type</td>
+          <td><code>molecular</code> (VdW) or <code>gaussian</code> (smooth density)</td>
+      </tr>
+      <tr>
+          <td>Putty</td>
+          <td>Size theme</td>
+          <td><code>uniform</code> (constant radius) or <code>uncertainty</code> (B-factor)</td>
+      </tr>
+  </tbody>
+</table>
 </article>
  
       
@@ -588,6 +650,7 @@ Available Targets# Target Selector Default Representation Default Color Proteins
     <li><a href="#color">Color</a></li>
     <li><a href="#size-and-opacity">Size &amp; Opacity</a></li>
     <li><a href="#applying-changes">Applying Changes</a></li>
+    <li><a href="#sub-parameters">Sub-Parameters</a></li>
   </ul>
 </nav>
 

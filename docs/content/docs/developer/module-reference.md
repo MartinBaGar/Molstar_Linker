@@ -4,65 +4,131 @@ author = ["Martin Bari Garnier"]
 draft = false
 +++
 
-## Core Application Modules {#core-application-modules}
+All source files live in `src/` and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained `.js` file in `dist/`. Shared modules (`types`, `config`, `permissions`, `mvs-builder`) are not separate output files — they are bundled into whichever entry points import them.
 
 
-### `content.js` {#content-dot-js}
-
-The entry point on external websites.
-
--   `getStructureInfo(href)`: Parses URLs. Intelligently strips query strings and resolves Git raw/blob API endpoints for GitHub and GitLab.
--   `makeBadge(rawUrl, formatStr, originalHref)`: Generates the UI button. Crucially uses `<button>` instead of `<a>` to prevent recursive DOM cloning by the MutationObserver.
--   `injectMolstarLinker()`: The debounced DOM scanner. Uses surgical parent-node checking to survive aggressive SPA re-renders.
+## Shared Modules {#shared-modules}
 
 
-### `background.js` {#background-dot-js}
+### `src/types.ts` {#src-types-dot-ts}
 
-The routing layer.
+Defines all shared TypeScript interfaces and the inter-context message protocol. This is the single source of truth for data shapes across the entire codebase.
 
--   Listens to `chrome.runtime.onMessage`.
--   Safely encodes URIs using `encodeURIComponent` and fires `chrome.tabs.create`.
+Key exports:
 
-
-### `viewer.js` {#viewer-dot-js}
-
-The data acquisition and privilege layer.
-
--   Executes `fetch()` to download structure files.
--   Utilizes `FileReader.readAsDataURL()` to convert binary blobs into Base64 strings. This is a deliberate architectural requirement to pass structural data securely into the sandbox, which operates on an isolated `null` origin.
--   Merges `chrome.storage` data with `AppConfig.getDefaults()` to ensure the downstream engine always has fallback rendering rules.
-
-
-### `sandbox.js` {#sandbox-dot-js}
-
-The rendering execution layer.
-
--   Operates entirely via `window.addEventListener('message')`.
--   Initializes `molstar.Viewer.create()`.
--   Translates received settings into an MVS Template via `MvsBuilder._buildBaseTemplate()`.
--   Safely invokes `viewerInstance.loadMvsData()`.
+-   `RepType` — union type of all valid Mol\* representation strings (`"cartoon"`, `"ball_and_stick"`, etc.)
+-   `RuleRepType` — extends `RepType` with `|"highlight"` for custom rules
+-   `TargetDefinition` — shape of one entry in `AppConfig.targets`
+-   `CustomRule` — full data model for a user-defined visual rule
+-   `ExtensionSettings` — the master settings object stored in `chrome.storage.sync`
+-   `Preset` — shape of a named template
+-   `OpenViewerMessage` — message sent from content script to background
+-   `InitMolstarMessage` — message sent from viewer to sandbox iframe
+-   `SandboxReadyMessage` — message sent from sandbox to viewer on load
 
 
-### `mvs-builder.js` {#mvs-builder-dot-js}
+### `src/config.ts` {#src-config-dot-ts}
 
-The JSON translation engine.
+Contains the static `AppConfig` object. The authoritative registry for everything the extension knows about molecular components and visual representations.
 
--   Contains the deterministic logic to map extension UI settings (Targets, Styles, Colors) into the strict, hierarchical JSON format required by MolViewSpec.
+Key exports:
 
-
-## Configuration &amp; Settings {#configuration-and-settings}
-
-
-### `config.js` {#config-dot-js}
-
-Contains the static `AppConfig` object. Defines the foundational default rules for standard molecule categories (protein, nucleic, water, lipids, etc.).
+-   `AppConfig.RepSchema` — maps representation keys to their labels and configurable sub-parameters
+-   `AppConfig.targets` — array of `TargetDefinition` objects (protein, nucleic, ligand, carbs, lipid, ion, water, all)
+-   `AppConfig.presets` — named built-in templates
+-   `AppConfig.getDefaults()` — generates a complete `ExtensionSettings` object from the targets array with fallback values; used everywhere storage settings are read
 
 
-### `options.js` &amp; `popup.js` {#options-dot-js-and-popup-dot-js}
+### `src/permissions.ts` {#src-permissions-dot-ts}
 
-The user interface controllers for saving settings into `chrome.storage.sync`. Uses the custom `StorageAPI` wrapper to ensure seamless promise/callback compatibility between Chrome (V3) and Firefox (V2).
+Manages dynamic host permission requests for custom domains. Cross-browser compatible (Chrome MV3 / Firefox MV2).
+
+Key exports:
+
+-   `PermissionsManager.cleanDomain(url)` — extracts the hostname from a URL string
+-   `PermissionsManager.requestAndRegister(url)` — requests host permission, registers the content script, and persists the domain to storage. Must be called directly inside a user-gesture handler (Firefox requirement).
+-   `PermissionsManager.revokeAndUnregister(url)` — removes the permission, unregisters the script, and removes the domain from storage.
 
 
-### `permissions.js` {#permissions-dot-js}
+### `src/mvs-builder.ts` {#src-mvs-builder-dot-ts}
 
-Handles dynamic host permission requests. Ensures users can authorize self-hosted GitLab or ElabFTW instances securely via the extension's Options page.
+Translates extension settings into a [MolViewSpec](https://molstar.org/viewer-docs/extensions/mvs/) JSON tree. All user-controlled values are sanitized before being embedded.
+
+Key exports:
+
+-   `MvsBuilder._buildBaseTemplate(url, format, settings)` — builds the complete MVS JSON object; called by both `sandbox.ts` (rendering) and `createViewerUrl` (sharing)
+-   `MvsBuilder.createViewerUrl(url, format, settings)` — encodes the MVS tree as a `molstar.org/viewer/` URL for external sharing
+-   `MvsBuilder._sanitizeString(value, maxLength)` — strips control characters, caps length
+-   `MvsBuilder._sanitizeColor(colorType, colorVal)` — validates against theme allowlist or `#rrggbb` pattern
+-   `MvsBuilder._sanitizeRepType(repType)` — validates against `AppConfig.RepSchema` keys
+-   `MvsBuilder._deepSanitize(obj, depth)` — recursively sanitizes free-form objects (used for `camera_json`), caps depth at 2, rejects arrays and prototype-polluting keys
+
+
+## Entry-Point Modules {#entry-point-modules}
+
+
+### `src/background.ts` → `background.js` {#src-background-dot-ts-background-dot-js}
+
+The extension service worker (Chrome) / event page (Firefox). Routing and security checkpoint.
+
+Responsibilities:
+
+-   Listens for `open_viewer` messages from content scripts; validates URL (HTTPS-only) and format before opening `viewer.html`
+-   Creates the right-click context menu item on install; handles menu clicks with `format=unknown` fallback
+-   Listens for `chrome.permissions.onAdded` to dynamically register content scripts when new custom domains are authorized
+
+
+### `src/content.ts` → `content.js` {#src-content-dot-ts-content-dot-js}
+
+The DOM scanner injected into host webpages. Has no TypeScript imports — compiles to a plain classic script.
+
+Key functions:
+
+-   `getStructureInfo(href, linkElement)` — 3-ring scanner: checks the URL, then link text and HTML attributes, then the parent element's text content. Transforms GitHub blob URLs to `raw.githubusercontent.com` and GitLab blob URLs to the GitLab API raw endpoint.
+-   `makeBadge(rawUrl, formatStr, originalHref)` — creates the styled `<button>` badge; blocks click event propagation to prevent SPA navigation
+-   `injectMolstarLinker()` — main scan pass; skips already-processed links, checks for duplicate badges, marks processed links with `data-ms-processed`
+-   `MutationObserver` with 500 ms debounce handles SPA navigation; disconnects on page `unload`
+
+
+### `src/viewer.ts` → `viewer.js` {#src-viewer-dot-ts-viewer-dot-js}
+
+The privileged shell. Runs inside the extension context with full API access.
+
+Key functions:
+
+-   `isSafeUrl(url)` — validates HTTPS protocol and checks hostname against SSRF blocklist (private ranges, loopback, link-local)
+-   `bootWorkspace(rawUrl, safeFormat)` — fetches the file, enforces 25 MB cap, converts to base64 data URI, calls `spawnIframe`
+-   `spawnIframe(dataUri, format, rawUrl)` — reads and filters storage settings using schema allowlist, spawns sandbox iframe, registers `SANDBOX_READY` listener, sends `INIT_MOLSTAR` message
+-   `setupDragAndDrop()` — full-page drag-and-drop overlay for local files
+
+
+### `src/sandbox.ts` → `sandbox.js` (bundles `mvs-builder.ts`) {#src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts}
+
+The isolated rendering context. Has no access to extension APIs.
+
+Flow:
+
+1.  Posts `SANDBOX_READY` immediately on script load
+2.  On `INIT_MOLSTAR`: validates origin (`chrome-extension://` or `moz-extension://`), validates URL (must be `data:` or `null`), validates format
+3.  Converts data URI to a short `blob:` URL (anti-lag fix for large files)
+4.  Calls `MvsBuilder._buildBaseTemplate()` to produce the MVS JSON
+5.  Loads via `viewerInstance.loadMvsData()` if available, or the `PluginExtensions.mvs.loadMVS()` fallback
+
+
+### `src/popup.ts` → `popup.js` {#src-popup-dot-ts-popup-dot-js}
+
+The browser toolbar popup. Lightweight — reads storage, applies a selected preset, opens the Studio.
+
+
+### `src/options.ts` → `options.js` {#src-options-dot-ts-options-dot-js}
+
+The full Settings Studio. The most complex UI module.
+
+Key functions:
+
+-   `buildUI()` — generates per-target accordion cards with representation selectors, color pickers, and sub-parameter drawers
+-   `addCustomRuleCard(ruleData?)` — creates a full custom rule form card with simple/expert mode toggle and live JSON preview
+-   `extractCurrentSettings()` — reads the entire UI state into an `ExtensionSettings` object
+-   `injectSettingsIntoUI(settings)` — populates the entire UI from a settings object (used by template loading and JSON import)
+-   `refreshCustomDomainList()` — reads authorized domains from storage and renders the revocation UI
+-   Import validation uses an explicit allowlist (`AppConfig.getDefaults()` keys) and caps `customRules` at 50 entries

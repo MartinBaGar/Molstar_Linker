@@ -7,10 +7,16 @@
     "doc": "docs"
   },
   "scripts": {
-    "build:chrome":  "tsc && node assemble.js chrome",
-    "build:firefox": "tsc && node assemble.js firefox",
-    "build":         "tsc && node assemble.js chrome && node assemble.js firefox",
-    "watch":         "tsc -w"
+    "build:chrome": "tsc --noEmit && node build.mjs && node assemble.js chrome",
+    "build:firefox": "tsc --noEmit && node build.mjs && node assemble.js firefox",
+    "build": "tsc --noEmit && node build.mjs && node assemble.js chrome && node assemble.js firefox",
+    "watch": "tsc --noEmit -w"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "@types/firefox-webext-browser": "^143.0.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
   },
   "repository": {
     "type": "git",
@@ -23,10 +29,5 @@
   "bugs": {
     "url": "https://github.com/MartinBaGar/Molstar_Linker/issues"
   },
-  "homepage": "https://github.com/MartinBaGar/Molstar_Linker#readme",
-  "devDependencies": {
-    "@types/chrome": "^0.1.40",
-    "@types/firefox-webext-browser": "^143.0.0",
-    "typescript": "^6.0.3"
-  }
+  "homepage": "https://github.com/MartinBaGar/Molstar_Linker#readme"
 }

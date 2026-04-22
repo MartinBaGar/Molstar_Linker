@@ -9,7 +9,7 @@ https://github.com/alex-shpak/hugo-book
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
-Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
@@ -17,7 +17,7 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
   <meta property="og:site_name" content="Mol* Linker Wiki">
   <meta property="og:title" content="Installation">
   <meta property="og:description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
-Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
@@ -25,8 +25,8 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
 
   <meta itemprop="name" content="Installation">
   <meta itemprop="description" content="Official Web Stores# The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
-Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
-  <meta itemprop="wordCount" content="243">
+Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firefox (Coming Soon) Manual Installation (Developers &amp; Advanced Users)# If you want to test the latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.">
+  <meta itemprop="wordCount" content="350">
 
 <title>Installation | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -36,7 +36,7 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.fbf53c68391b00f2c9f679680ca0e5446bde4d57d2d22ac87cebb9035e2600c1.js" integrity="sha256-&#43;/U8aDkbAPLJ9nloDKDlRGveTVfS0irIfOu5A14mAME=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
 
 
 
@@ -373,6 +373,7 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
       <ul>
         <li><a href="#step-1-download-or-build-the-extension">Step 1: Download or Build the Extension</a></li>
         <li><a href="#step-2-load-into-your-browser">Step 2: Load into your Browser</a></li>
+        <li><a href="#build-output-structure">Build Output Structure</a></li>
       </ul>
     </li>
   </ul>
@@ -394,35 +395,64 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
 <li><a href="https://addons.mozilla.org/">Install for Mozilla Firefox</a> (Coming Soon)</li>
 </ul>
 <h2 id="manual-installation--developers-and-advanced-users">Manual Installation (Developers &amp; Advanced Users)<a class="anchor" href="#manual-installation--developers-and-advanced-users">#</a></h2>
-<p>If you want to test the absolute latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.</p>
-<p>Because Mol* Linker uses a modern build system to support both Chrome and Firefox from a single codebase, you cannot simply load the raw source folder.</p>
+<p>If you want to test the latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.</p>
+<p>Mol* Linker uses a TypeScript build pipeline — you cannot simply load the raw source folder. You need to build it first.</p>
 <h3 id="step-1-download-or-build-the-extension">Step 1: Download or Build the Extension<a class="anchor" href="#step-1-download-or-build-the-extension">#</a></h3>
 <p><strong>Option A: Download a Release Zip (Easiest)</strong></p>
 <ol>
-<li>Go to the <a href="https://github.com/YourRepo/Molstar_Linker/releases">GitHub Releases page</a>.</li>
-<li>Download the latest <code>molstar_linker_chrome.zip</code> or <code>molstar_linker_firefox.zip</code>.</li>
+<li>Go to the <a href="https://github.com/MartinBaGar/molstar_linker/releases">GitHub Releases page</a>.</li>
+<li>Download the latest <code>molstar_linker_chrome-vX.Y.Z.zip</code> or <code>molstar_linker_firefox-vX.Y.Z.zip</code>.</li>
 <li>Extract the zip file into a folder on your computer.</li>
 </ol>
-<p><strong>Option B: Build from Source (For Developers)</strong></p>
+<p><strong>Option B: Build from Source</strong></p>
+<p>The recommended approach uses <a href="https://pixi.sh">pixi</a>, which installs all dependencies (Node.js, TypeScript, esbuild) in an isolated environment — no system-level installs required.</p>
 <ol>
-<li>Clone the repository and install <a href="https://github.com/casey/just">Just</a>.</li>
-<li>Open your terminal in the project root and run: <code>just build</code></li>
-<li>This will generate clean, ready-to-load extension files inside the <code>dist/chrome</code> and <code>dist/firefox</code> folders.</li>
+<li>Clone the repository:</li>
 </ol>
-<h3 id="step-2-load-into-your-browser">Step 2: Load into your Browser<a class="anchor" href="#step-2-load-into-your-browser">#</a></h3>
+<!--listend-->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://github.com/MartinBaGar/molstar_linker.git
+</span></span><span style="display:flex;"><span>cd molstar_linker</span></span></code></pre></div><ol>
+<li>Install the pixi environment (once):</li>
+</ol>
+<!--listend-->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pixi install</span></span></code></pre></div><ol>
+<li>Build for your target browser:</li>
+</ol>
+<!--listend-->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pixi run npm run build:chrome    <span style="color:#75715e"># → dist/chrome/</span>
+</span></span><span style="display:flex;"><span>pixi run npm run build:firefox   <span style="color:#75715e"># → dist/firefox/</span>
+</span></span><span style="display:flex;"><span>pixi run npm run build           <span style="color:#75715e"># → both at once</span></span></span></code></pre></div><p>If you already have a compatible Node.js environment, you can also use npm directly:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>npm install
+</span></span><span style="display:flex;"><span>npm run build</span></span></code></pre></div><h3 id="step-2-load-into-your-browser">Step 2: Load into your Browser<a class="anchor" href="#step-2-load-into-your-browser">#</a></h3>
 <p><strong>For Chrome / Edge / Brave:</strong></p>
 <ol>
 <li>Navigate to <code>chrome://extensions/</code>.</li>
 <li>Toggle <strong>Developer mode</strong> ON in the top right corner.</li>
 <li>Click <strong>Load unpacked</strong>.</li>
-<li>Select the extracted folder from Option A, or the <code>dist/chrome</code> folder from Option B.</li>
+<li>Select the <code>dist/chrome</code> folder.</li>
 </ol>
 <p><strong>For Firefox:</strong></p>
 <ol>
 <li>Navigate to <code>about:debugging#/runtime/this-firefox</code>.</li>
 <li>Click <strong>Load Temporary Add-on</strong>.</li>
-<li>Select the <code>manifest.json</code> file located inside your extracted folder or the <code>dist/firefox</code> folder.</li>
+<li>Navigate into the <code>dist/firefox</code> folder and select the <code>manifest.json</code> file.</li>
 </ol>
+<h3 id="build-output-structure">Build Output Structure<a class="anchor" href="#build-output-structure">#</a></h3>
+<p>After a successful build, the <code>dist/</code> directory looks like this:</p>
+<pre tabindex="0"><code class="language-nil" data-lang="nil">dist/
+├── chrome/          ← load this in chrome://extensions
+│   ├── manifest.json
+│   ├── background.js
+│   ├── content.js
+│   ├── viewer.js
+│   ├── popup.js
+│   ├── options.js
+│   ├── sandbox.js
+│   ├── viewer.html / sandbox.html / ...
+│   ├── icons/
+│   └── lib/
+└── firefox/         ← select manifest.json in about:debugging
+    └── ...</code></pre><p>Each browser folder is fully self-contained and ready to load.</p>
 </article>
  
       
@@ -505,6 +535,7 @@ Install for Google Chrome / Edge / Brave (Coming Soon) Install for Mozilla Firef
       <ul>
         <li><a href="#step-1-download-or-build-the-extension">Step 1: Download or Build the Extension</a></li>
         <li><a href="#step-2-load-into-your-browser">Step 2: Load into your Browser</a></li>
+        <li><a href="#build-output-structure">Build Output Structure</a></li>
       </ul>
     </li>
   </ul>

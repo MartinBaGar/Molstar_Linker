@@ -8,28 +8,25 @@ https://github.com/alex-shpak/hugo-book
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Development Workflow# The Mol* Linker extension utilizes a Single Source of Truth architecture managed by a Justfile.
-Because Chrome and Firefox require fundamentally different manifest.json configurations, you must never place a manifest directly in the src/ directory.
-Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. manifests/ : Contains chrome.json and firefox.json. dist/ : (Git-ignored) The generated build folders for local testing. releases/ : (Git-ignored) The generated .zip packages for Web Store deployment. Build Commands (via Just)# Ensure you have Just installed on your system.
+<meta name="description" content="Development Workflow# Mol* Linker is written in TypeScript and uses a two-stage build pipeline:
+Type checking — tsc --noEmit validates the entire codebase against strict TypeScript rules without producing any output files. Bundling — esbuild takes each entry-point module and bundles it with all its dependencies into a single, self-contained JavaScript file per page. Assembly — assemble.js copies the bundled JS, static HTML/CSS, icons, and the correct browser manifest into a browser-specific output folder. This separation means the TypeScript compiler is a pure quality gate, and esbuild handles the actual output — giving you both type safety and fast, modern output with zero runtime overhead.
 ">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e3440">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/Molstar_Linker/docs/developer/contributing/">
   <meta property="og:site_name" content="Mol* Linker Wiki">
   <meta property="og:title" content="Contributing & Build System">
-  <meta property="og:description" content="Development Workflow# The Mol* Linker extension utilizes a Single Source of Truth architecture managed by a Justfile.
-Because Chrome and Firefox require fundamentally different manifest.json configurations, you must never place a manifest directly in the src/ directory.
-Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. manifests/ : Contains chrome.json and firefox.json. dist/ : (Git-ignored) The generated build folders for local testing. releases/ : (Git-ignored) The generated .zip packages for Web Store deployment. Build Commands (via Just)# Ensure you have Just installed on your system.">
+  <meta property="og:description" content="Development Workflow# Mol* Linker is written in TypeScript and uses a two-stage build pipeline:
+Type checking — tsc --noEmit validates the entire codebase against strict TypeScript rules without producing any output files. Bundling — esbuild takes each entry-point module and bundles it with all its dependencies into a single, self-contained JavaScript file per page. Assembly — assemble.js copies the bundled JS, static HTML/CSS, icons, and the correct browser manifest into a browser-specific output folder. This separation means the TypeScript compiler is a pure quality gate, and esbuild handles the actual output — giving you both type safety and fast, modern output with zero runtime overhead.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
 
 
   <meta itemprop="name" content="Contributing & Build System">
-  <meta itemprop="description" content="Development Workflow# The Mol* Linker extension utilizes a Single Source of Truth architecture managed by a Justfile.
-Because Chrome and Firefox require fundamentally different manifest.json configurations, you must never place a manifest directly in the src/ directory.
-Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. manifests/ : Contains chrome.json and firefox.json. dist/ : (Git-ignored) The generated build folders for local testing. releases/ : (Git-ignored) The generated .zip packages for Web Store deployment. Build Commands (via Just)# Ensure you have Just installed on your system.">
-  <meta itemprop="wordCount" content="191">
+  <meta itemprop="description" content="Development Workflow# Mol* Linker is written in TypeScript and uses a two-stage build pipeline:
+Type checking — tsc --noEmit validates the entire codebase against strict TypeScript rules without producing any output files. Bundling — esbuild takes each entry-point module and bundles it with all its dependencies into a single, self-contained JavaScript file per page. Assembly — assemble.js copies the bundled JS, static HTML/CSS, icons, and the correct browser manifest into a browser-specific output folder. This separation means the TypeScript compiler is a pure quality gate, and esbuild handles the actual output — giving you both type safety and fast, modern output with zero runtime overhead.">
+  <meta itemprop="wordCount" content="656">
 
 <title>Contributing &amp; Build System | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -39,7 +36,7 @@ Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. ma
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.fbf53c68391b00f2c9f679680ca0e5446bde4d57d2d22ac87cebb9035e2600c1.js" integrity="sha256-&#43;/U8aDkbAPLJ9nloDKDlRGveTVfS0irIfOu5A14mAME=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
 
 
 
@@ -371,19 +368,25 @@ Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. ma
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#development-workflow">Development Workflow</a>
+    <li><a href="#development-workflow">Development Workflow</a></li>
+    <li><a href="#environment-setup">Environment Setup</a></li>
+    <li><a href="#directory-structure">Directory Structure</a></li>
+    <li><a href="#build-commands">Build Commands</a>
       <ul>
-        <li><a href="#directory-structure">Directory Structure</a></li>
+        <li><a href="#local-testing">Local testing</a></li>
+        <li><a href="#type-checking-only--no-output">Type checking only (no output)</a></li>
+        <li><a href="#packaging-a-release">Packaging a release</a></li>
       </ul>
     </li>
-    <li><a href="#build-commands--via-just">Build Commands (via Just)</a>
+    <li><a href="#key-files-explained">Key Files Explained</a>
       <ul>
-        <li><a href="#1-dot-local-testing">1. Local Testing</a></li>
-        <li><a href="#2-dot-version-bumping">2. Version Bumping</a></li>
-        <li><a href="#3-dot-packaging-releases">3. Packaging Releases</a></li>
-        <li><a href="#4-dot-automated-ci-cd-publishing">4. Automated CI/CD Publishing</a></li>
+        <li><a href="#tsconfig-dot-json"><code>tsconfig.json</code></a></li>
+        <li><a href="#build-dot-mjs"><code>build.mjs</code></a></li>
+        <li><a href="#assemble-dot-js"><code>assemble.js</code></a></li>
+        <li><a href="#manifests-chrome-dot-json-vs-manifests-firefox-dot-json"><code>manifests/chrome.json</code> vs <code>manifests/firefox.json</code></a></li>
       </ul>
     </li>
+    <li><a href="#adding-a-new-module">Adding a New Module</a></li>
   </ul>
 </nav>
 
@@ -397,31 +400,82 @@ Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. ma
       
       
   <article class="markdown book-article"><h2 id="development-workflow">Development Workflow<a class="anchor" href="#development-workflow">#</a></h2>
-<p>The Mol* Linker extension utilizes a <strong>Single Source of Truth</strong> architecture managed by a <code>Justfile</code>.</p>
-<p>Because Chrome and Firefox require fundamentally different <code>manifest.json</code> configurations, <strong>you must never place a manifest directly in the <code>src/</code> directory.</strong></p>
-<h3 id="directory-structure">Directory Structure<a class="anchor" href="#directory-structure">#</a></h3>
-<ul>
-<li><code>src/</code> : Contains all universal JavaScript, HTML, and CSS.</li>
-<li><code>manifests/</code> : Contains <code>chrome.json</code> and <code>firefox.json</code>.</li>
-<li><code>dist/</code> : (Git-ignored) The generated build folders for local testing.</li>
-<li><code>releases/</code> : (Git-ignored) The generated <code>.zip</code> packages for Web Store deployment.</li>
+<p>Mol* Linker is written in TypeScript and uses a two-stage build pipeline:</p>
+<ol>
+<li><strong>Type checking</strong> — <code>tsc --noEmit</code> validates the entire codebase against strict TypeScript rules without producing any output files.</li>
+<li><strong>Bundling</strong> — <code>esbuild</code> takes each entry-point module and bundles it with all its dependencies into a single, self-contained JavaScript file per page.</li>
+<li><strong>Assembly</strong> — <code>assemble.js</code> copies the bundled JS, static HTML/CSS, icons, and the correct browser manifest into a browser-specific output folder.</li>
+</ol>
+<p>This separation means the TypeScript compiler is a pure quality gate, and esbuild handles the actual output — giving you both type safety and fast, modern output with zero runtime overhead.</p>
+<h2 id="environment-setup">Environment Setup<a class="anchor" href="#environment-setup">#</a></h2>
+<p>The project uses <a href="https://pixi.sh">pixi</a> to manage all tooling dependencies (Node.js, TypeScript, esbuild) in a reproducible, isolated environment. This means contributors do not need to install anything globally.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Clone the repo</span>
+</span></span><span style="display:flex;"><span>git clone https://github.com/MartinBaGar/molstar_linker.git
+</span></span><span style="display:flex;"><span>cd molstar_linker
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Install the pixi environment (only needed once)</span>
+</span></span><span style="display:flex;"><span>pixi install</span></span></code></pre></div><h2 id="directory-structure">Directory Structure<a class="anchor" href="#directory-structure">#</a></h2>
+<pre tabindex="0"><code class="language-nil" data-lang="nil">Molstar_Linker/
+├── src/             ← TypeScript source (never loaded by the browser directly)
+│   ├── types.ts     ← shared interfaces and message protocol types
+│   ├── config.ts    ← AppConfig: targets, RepSchema, presets, getDefaults()
+│   ├── permissions.ts
+│   ├── mvs-builder.ts
+│   ├── background.ts
+│   ├── content.ts
+│   ├── sandbox.ts
+│   ├── viewer.ts
+│   ├── popup.ts
+│   └── options.ts
+├── public/          ← static assets, version-controlled
+│   ├── viewer.html / sandbox.html / popup.html / options.html
+│   ├── popup.css / options.css
+│   ├── icons/
+│   └── lib/         ← molstar.js and molstar.css (third-party, not compiled)
+├── manifests/       ← browser-specific manifests
+│   ├── chrome.json
+│   └── firefox.json
+├── dist/            ← gitignored, generated by the build
+│   ├── chrome/
+│   └── firefox/
+├── releases/        ← hand-managed zips for store uploads
+├── build.mjs        ← esbuild bundler
+├── assemble.js      ← copies JS + statics into dist/chrome or dist/firefox
+├── tsconfig.json    ← type-checker config (noEmit: true)
+└── package.json</code></pre><h2 id="build-commands">Build Commands<a class="anchor" href="#build-commands">#</a></h2>
+<p>All commands are run via pixi (recommended) or npm directly.</p>
+<h3 id="local-testing">Local testing<a class="anchor" href="#local-testing">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pixi run npm run build:chrome    <span style="color:#75715e"># type-check → bundle → assemble dist/chrome/</span>
+</span></span><span style="display:flex;"><span>pixi run npm run build:firefox   <span style="color:#75715e"># type-check → bundle → assemble dist/firefox/</span>
+</span></span><span style="display:flex;"><span>pixi run npm run build           <span style="color:#75715e"># both browsers at once</span></span></span></code></pre></div><ul>
+<li>Load <code>dist/chrome</code> as an <strong>Unpacked Extension</strong> in <code>chrome://extensions/</code>.</li>
+<li>Load <code>dist/firefox</code> as a <strong>Temporary Add-on</strong> in <code>about:debugging</code>, selecting <code>manifest.json</code>.</li>
 </ul>
-<h2 id="build-commands--via-just">Build Commands (via Just)<a class="anchor" href="#build-commands--via-just">#</a></h2>
-<p>Ensure you have <a href="https://github.com/casey/just">Just</a> installed on your system.</p>
-<h3 id="1-dot-local-testing">1. Local Testing<a class="anchor" href="#1-dot-local-testing">#</a></h3>
-<p>To compile the source code and manifests into loadable directories:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>just build</span></span></code></pre></div><ul>
-<li>Load <code>dist/chrome</code> as an &ldquo;Unpacked Extension&rdquo; in Chrome.</li>
-<li>Load <code>dist/firefox</code> as a &ldquo;Temporary Add-on&rdquo; in Firefox.</li>
-</ul>
-<h3 id="2-dot-version-bumping">2. Version Bumping<a class="anchor" href="#2-dot-version-bumping">#</a></h3>
-<p>To safely update the version number across all manifest files simultaneously:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>just bump 2.1.0</span></span></code></pre></div><h3 id="3-dot-packaging-releases">3. Packaging Releases<a class="anchor" href="#3-dot-packaging-releases">#</a></h3>
-<p>To generate clean, production-ready <code>.zip</code> files for both browsers:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>just zip 2.1.0</span></span></code></pre></div><p>The outputs will be placed in the <code>releases/</code> directory.</p>
-<h3 id="4-dot-automated-ci-cd-publishing">4. Automated CI/CD Publishing<a class="anchor" href="#4-dot-automated-ci-cd-publishing">#</a></h3>
-<p>If you have the GitHub CLI (<code>gh</code>) installed, you can bump, commit, tag, build, and publish a release directly to the GitHub repository in a single command:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>just publish 2.1.0</span></span></code></pre></div></article>
+<h3 id="type-checking-only--no-output">Type checking only (no output)<a class="anchor" href="#type-checking-only--no-output">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pixi run npm run watch    <span style="color:#75715e"># tsc --noEmit -w, re-checks on every file save</span></span></span></code></pre></div><p>This is the recommended mode while editing — fast feedback on type errors without a full build cycle.</p>
+<h3 id="packaging-a-release">Packaging a release<a class="anchor" href="#packaging-a-release">#</a></h3>
+<p>Zip each browser folder after a clean build:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pixi run npm run build
+</span></span><span style="display:flex;"><span>cd dist
+</span></span><span style="display:flex;"><span>zip -r ../releases/molstar_linker_chrome-vX.Y.Z.zip  chrome/
+</span></span><span style="display:flex;"><span>zip -r ../releases/molstar_linker_firefox-vX.Y.Z.zip firefox/</span></span></code></pre></div><h2 id="key-files-explained">Key Files Explained<a class="anchor" href="#key-files-explained">#</a></h2>
+<h3 id="tsconfig-dot-json"><code>tsconfig.json</code><a class="anchor" href="#tsconfig-dot-json">#</a></h3>
+<p>Sets <code>noEmit: true</code> — tsc is used exclusively for type checking, not for producing output. esbuild handles compilation and bundling. Strict mode and <code>noImplicitAny</code> are both enabled.</p>
+<h3 id="build-dot-mjs"><code>build.mjs</code><a class="anchor" href="#build-dot-mjs">#</a></h3>
+<p>Runs esbuild against the six entry points (<code>background</code>, <code>content</code>, <code>sandbox</code>, <code>viewer</code>, <code>popup</code>, <code>options</code>). Each entry point is bundled with all its TypeScript imports into a single flat JS file in <code>dist/</code>. Shared modules (<code>config</code>, <code>permissions</code>, <code>mvs-builder</code>, <code>types</code>) are not separate output files — they are inlined into whichever entry points import them.</p>
+<h3 id="assemble-dot-js"><code>assemble.js</code><a class="anchor" href="#assemble-dot-js">#</a></h3>
+<p>Takes the browser name as an argument (<code>chrome</code> or <code>firefox</code>), cleans the target output folder, copies the six bundled JS files from <code>dist/</code>, copies static assets from <code>public/</code>, and copies the correct manifest from <code>manifests/</code>. The result is a complete, self-contained loadable extension folder.</p>
+<h3 id="manifests-chrome-dot-json-vs-manifests-firefox-dot-json"><code>manifests/chrome.json</code> vs <code>manifests/firefox.json</code><a class="anchor" href="#manifests-chrome-dot-json-vs-manifests-firefox-dot-json">#</a></h3>
+<p>Chrome requires Manifest V3 (<code>service_worker</code>, <code>action</code>, strict CSP). Firefox requires Manifest V2 (<code>background.scripts</code>, <code>browser_action</code>, permissive CSP for <code>unsafe-eval</code>). Keeping them separate is honest about the platform divergence rather than maintaining one manifest with conditional logic.</p>
+<h2 id="adding-a-new-module">Adding a New Module<a class="anchor" href="#adding-a-new-module">#</a></h2>
+<ol>
+<li>Create <code>src/your-module.ts</code> with a named export.</li>
+<li>Import it in whichever entry point needs it — esbuild will bundle it automatically.</li>
+<li>If the module introduces shared types, add interfaces to <code>src/types.ts</code>.</li>
+<li>Run <code>pixi run npm run watch</code> to verify no type errors.</li>
+</ol>
+<p>There is no need to update any HTML files, manifests, or the assemble script when adding internal modules.</p>
+</article>
  
       
 
@@ -498,19 +552,25 @@ Directory Structure# src/ : Contains all universal JavaScript, HTML, and CSS. ma
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#development-workflow">Development Workflow</a>
+    <li><a href="#development-workflow">Development Workflow</a></li>
+    <li><a href="#environment-setup">Environment Setup</a></li>
+    <li><a href="#directory-structure">Directory Structure</a></li>
+    <li><a href="#build-commands">Build Commands</a>
       <ul>
-        <li><a href="#directory-structure">Directory Structure</a></li>
+        <li><a href="#local-testing">Local testing</a></li>
+        <li><a href="#type-checking-only--no-output">Type checking only (no output)</a></li>
+        <li><a href="#packaging-a-release">Packaging a release</a></li>
       </ul>
     </li>
-    <li><a href="#build-commands--via-just">Build Commands (via Just)</a>
+    <li><a href="#key-files-explained">Key Files Explained</a>
       <ul>
-        <li><a href="#1-dot-local-testing">1. Local Testing</a></li>
-        <li><a href="#2-dot-version-bumping">2. Version Bumping</a></li>
-        <li><a href="#3-dot-packaging-releases">3. Packaging Releases</a></li>
-        <li><a href="#4-dot-automated-ci-cd-publishing">4. Automated CI/CD Publishing</a></li>
+        <li><a href="#tsconfig-dot-json"><code>tsconfig.json</code></a></li>
+        <li><a href="#build-dot-mjs"><code>build.mjs</code></a></li>
+        <li><a href="#assemble-dot-js"><code>assemble.js</code></a></li>
+        <li><a href="#manifests-chrome-dot-json-vs-manifests-firefox-dot-json"><code>manifests/chrome.json</code> vs <code>manifests/firefox.json</code></a></li>
       </ul>
     </li>
+    <li><a href="#adding-a-new-module">Adding a New Module</a></li>
   </ul>
 </nav>
 
