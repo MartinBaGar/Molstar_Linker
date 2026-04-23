@@ -40,8 +40,16 @@ for (const file of STATIC) {
 }
 
 // 5. Copy folders (icons, lib)
-for (const folder of ['icons', 'lib']) {
-  fs.cpSync(path.join('public', folder), path.join(OUT, folder), { recursive: true });
-}
+fs.cpSync(path.join('public', 'icons'), path.join(OUT, 'icons'), { recursive: true });
+
+fs.mkdirSync(path.join(OUT, 'lib'), { recursive: true });
+fs.copyFileSync(
+  path.join('node_modules', 'molstar', 'build', 'viewer', 'molstar.js'),
+  path.join(OUT, 'lib', 'molstar.js')
+);
+fs.copyFileSync(
+  path.join('node_modules', 'molstar', 'build', 'viewer', 'molstar.css'),
+  path.join(OUT, 'lib', 'molstar.css')
+);
 
 console.log(`✅  Built for ${browser} → ${OUT}/`);

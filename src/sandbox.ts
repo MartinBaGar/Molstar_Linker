@@ -87,8 +87,8 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
     // Always initialise the viewer first (whether we have a file or not)
     if (!viewerInstance) {
       viewerInstance = await molstar.Viewer.create('app', {
-        layoutIsExpanded:    true,
-        layoutShowControls:  true,
+        layoutIsExpanded:    false,
+        layoutShowControls:  false,
         layoutShowRemoteState: false,
         layoutShowSequence:  true,
         layoutShowLog:       true,

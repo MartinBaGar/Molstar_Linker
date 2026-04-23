@@ -161,7 +161,7 @@ function makeBadge(
 ): HTMLButtonElement {
   const badge = document.createElement('button');
   badge.type = 'button';
-  badge.textContent = 'M*L';
+  badge.textContent = 'Mol*';
   badge.dataset.msBadge      = 'true';
   badge.dataset.originalHref = originalHref;
 

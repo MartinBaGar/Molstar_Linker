@@ -18,6 +18,9 @@
     "esbuild": "^0.28.0",
     "typescript": "^6.0.3"
   },
+  "dependencies": {
+    "molstar": "5.4.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MartinBaGar/Molstar_Linker.git"

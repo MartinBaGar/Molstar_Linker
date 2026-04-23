@@ -30,3 +30,8 @@ notes.org
 
 # Testing
 scratch.js
+
+# dist/
+public/lib/
+
+node_modules
