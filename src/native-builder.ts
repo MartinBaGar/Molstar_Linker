@@ -371,17 +371,17 @@ export const NativeBuilder = {
     const labels = plugin.managers.structure.measurement.state.labels;
     const newLabelCell = labels[labels.length - 1];
 
-    if (newLabelCell) {
-      // 4. Update the label with custom text, size, and border styles
+      // ... inside apply3DLabel ...
+      if (newLabelCell) {
       const update = plugin.state.data.build();
       
       update.to(newLabelCell.transform.ref).update((oldParams: any) => ({
         ...oldParams,
         customText: rule.label,
         sizeFactor: rule.size ? parseFloat(rule.size) : 1,
-        borderWidth: rule.subParams?.borderWidth !== undefined ? parseFloat(String(rule.subParams.borderWidth)) : 0.2,
-        borderColor: rule.subParams?.borderColor !== undefined ? Color.fromHexStyle(String(rule.subParams.borderColor)) : Color.fromHexStyle('#000000'),
-        background: false // Removes the default dark box
+        borderWidth: rule.labelBorderWidth ? parseFloat(rule.labelBorderWidth) : 0.2,
+        borderColor: Color.fromHexStyle(rule.labelBorderColor || '#000000'),
+        background: false 
       }));
       
       await plugin.state.data.updateTree(update).run();

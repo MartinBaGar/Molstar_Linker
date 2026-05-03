@@ -379,6 +379,8 @@
           element: "",
           atomIndex: "",
           label: "",
+          labelBorderWidth: "0.2",
+          labelBorderColor: "#000000",
           tooltip: "",
           focus: false,
           rawJson: '{"auth_asym_id":"A"}',
@@ -478,24 +480,37 @@
 
       <div class="rule-section">
         <div class="rule-section-title">Annotations &amp; View</div>
-        <div class="flex-row" style="align-items:flex-end">
-          <div style="flex:1.5">
-            <label>Floating Label</label>
-            <input type="text" class="cr-label"   value="${escapeHTML(data.label)}"   placeholder="e.g. Active Site">
+        
+        <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
+          <div style="flex:2">
+            <label>Floating 3D Label</label>
+            <input type="text" class="cr-label" value="${escapeHTML(data.label)}" placeholder="e.g. Active Site">
           </div>
-          <div style="flex:1.5">
-            <label>Hover Tooltip</label>
+          <div style="flex:1">
+            <label>Border Size</label>
+            <input type="number" class="cr-label-border-width" value="${escapeHTML(data.labelBorderWidth)}" step="0.1" min="0" max="1.0" placeholder="0.2">
+          </div>
+          <div style="flex:1">
+            <label>Border Color</label>
+            <div style="display:flex; align-items:center; gap:5px;">
+               <input type="color" class="cr-label-border-color" value="${escapeHTML(data.labelBorderColor)}" style="height:26px; padding:0; cursor:pointer;">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-row" style="align-items:center">
+          <div style="flex:4">
+            <label>Hover Tooltip Badge</label>
             <input type="text" class="cr-tooltip" value="${escapeHTML(data.tooltip)}" placeholder="e.g. Binds ATP">
           </div>
-          <div style="flex:1;margin-bottom:8px">
-            <label style="display:inline-flex;align-items:center;cursor:pointer">
-              <input type="checkbox" class="cr-focus"
-                ${data.focus ? "checked" : ""}
-                style="width:16px;height:16px;margin:0 8px 0 0">
-              Focus Camera Here
+          <div style="flex:1.5; padding-left: 10px;">
+            <label style="display:inline-flex;align-items:center;cursor:pointer;margin:0;">
+              <input type="checkbox" class="cr-focus" ${data.focus ? "checked" : ""} style="width:16px;height:16px;margin:0 8px 0 0">
+              Focus Camera
             </label>
           </div>
         </div>
+      </div>
       </div>
     </div>`;
         card.querySelector(".cr-color-container").appendChild(buildColorInput(data.colorType, data.colorVal));
@@ -602,6 +617,8 @@
             element: card.querySelector(".cr-element").value.trim(),
             atomIndex: card.querySelector(".cr-atom-index").value.trim(),
             label: card.querySelector(".cr-label").value.trim(),
+            labelBorderWidth: card.querySelector(".cr-label-border-width")?.value || "0.2",
+            labelBorderColor: card.querySelector(".cr-label-border-color")?.value || "#000000",
             tooltip: card.querySelector(".cr-tooltip").value.trim(),
             focus: card.querySelector(".cr-focus").checked,
             rawJson: card.querySelector(".cr-json").value,

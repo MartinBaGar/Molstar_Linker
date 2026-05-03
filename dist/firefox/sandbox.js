@@ -42800,10 +42800,11 @@ ${subTree.join("\n")}`;
               ...oldParams,
               customText: rule.label,
               sizeFactor: rule.size ? parseFloat(rule.size) : 1,
-              borderWidth: rule.subParams?.borderWidth !== void 0 ? parseFloat(String(rule.subParams.borderWidth)) : 0.2,
-              borderColor: rule.subParams?.borderColor !== void 0 ? Color.fromHexStyle(String(rule.subParams.borderColor)) : Color.fromHexStyle("#000000"),
+              borderWidth: rule.labelBorderWidth ? parseFloat(rule.labelBorderWidth) : 0.2,
+              // Clean mapping!
+              borderColor: Color.fromHexStyle(rule.labelBorderColor || "#000000"),
+              // Clean mapping!
               background: false
-              // Removes the default dark box
             }));
             await plugin.state.data.updateTree(update).run();
           }
