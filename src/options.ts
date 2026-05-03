@@ -296,7 +296,7 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
       </div>
 
       <div class="rule-section cr-expert-container" style="display:none">
-        <div class="rule-section-title">Raw MVS JSON</div>
+        <div class="rule-section-title">Raw JSON Selectors (Legacy)</div>
         <div class="flex-row">
           <div><label>Target Selector</label>
             <textarea class="cr-json">${escapeHTML(data.rawJson)}</textarea>

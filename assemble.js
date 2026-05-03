@@ -22,7 +22,7 @@ const COMPILED = [
   'popup.js',
   'options.js',
   'config.js',
-  'mvs-builder.js',
+  'native-builder.js',
 ];
 
 for (const file of COMPILED) {

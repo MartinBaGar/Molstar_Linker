@@ -62,7 +62,7 @@
         chrome.scripting.registerContentScripts([{
           id: `dynamic-molstar-${Date.now()}`,
           matches: origins,
-          js: ["config.js", "mvs-builder.js", "content.js"],
+          js: ["config.js", "content.js"],
           runAt: "document_end"
         }]).catch((err) => console.error("Mol* Linker \u2014 dynamic script registration failed:", err));
       });

@@ -77,7 +77,7 @@ function spawnIframe(
     const VALID_KEYS = new Set(Object.keys(defaults));
 
     // FIX F6: Only copy keys that exist in the schema — never let rogue keys
-    // (e.g. injected via a crafted settings import) flow into the MVS builder.
+    // (e.g. injected via a crafted settings import) flow into the native builder.
     const finalSettings: ExtensionSettings = { ...defaults };
     for (const key of Object.keys(storedSettings as Record<string, unknown>)) {
       if (VALID_KEYS.has(key)) {

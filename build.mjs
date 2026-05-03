@@ -9,7 +9,7 @@ await esbuild.build({
     'src/popup.ts',
     'src/options.ts',
     'src/config.ts',
-    'src/mvs-builder.ts'
+    'src/native-builder.ts'
   ],
   bundle:    true,
   outdir:    'dist',

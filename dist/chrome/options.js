@@ -45,9 +45,9 @@
         { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1 },
         { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", size: null },
         { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
-        { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7, mvsSelector: null },
-        { id: "water", selector: "water", label: "Water / Solvent", rep: "line", color: "element-symbol", size: null },
-        { id: "all", selector: "all", label: "All", rep: "ball_and_stick", color: "element-symbol", size: 1 }
+        { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7 },
+        { id: "water", selector: "water", label: "Water / Solvent", rep: "line", color: "element-symbol", size: null }
+        // { id: "all",      selector: "all",      label: "All",                         rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
       ];
       presets = {
         standard: {
@@ -442,7 +442,7 @@
       </div>
 
       <div class="rule-section cr-expert-container" style="display:none">
-        <div class="rule-section-title">Raw MVS JSON</div>
+        <div class="rule-section-title">Raw JSON Selectors (Legacy)</div>
         <div class="flex-row">
           <div><label>Target Selector</label>
             <textarea class="cr-json">${escapeHTML(data.rawJson)}</textarea>
