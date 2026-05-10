@@ -176,65 +176,6 @@ async function bootWorkspace(rawUrl: string, safeFormat: string): Promise<void> 
 }
 
 // ---------------------------------------------------------------------------
-// Drag & drop — always active, works on the empty workspace too
-// ---------------------------------------------------------------------------
-
-function setupDragAndDrop(): void {
-  const overlay = document.createElement('div');
-  overlay.id = 'dnd-overlay';
-  overlay.style.cssText = [
-    'position:fixed;top:0;left:0;width:100%;height:100%',
-    'background:rgba(0,0,0,0.85);color:white;display:none',
-    'align-items:center;justify-content:center',
-    'font-size:28px;font-weight:bold;font-family:sans-serif',
-    'z-index:9999;border:4px dashed #2da44e;box-sizing:border-box',
-    'flex-direction:column;gap:15px',
-  ].join(';');
-  overlay.innerHTML = [
-    '<span>\uD83D\uDCC2 Drop Structure File Here</span>',
-    '<span style="font-size:16px;color:#ccc">Supported: PDB, mmCIF, SDF, GRO, XYZ, MOL2, BCIF</span>',
-  ].join('');
-  document.body.appendChild(overlay);
-
-  let dragCounter = 0;
-
-  window.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    dragCounter++;
-    overlay.style.display = 'flex';
-  });
-  window.addEventListener('dragleave', () => {
-    if (--dragCounter === 0) overlay.style.display = 'none';
-  });
-  window.addEventListener('dragover', (e) => e.preventDefault());
-
-  window.addEventListener('drop', (e: DragEvent) => {
-    e.preventDefault();
-    dragCounter = 0;
-    overlay.style.display = 'none';
-
-    const file = e.dataTransfer?.files[0];
-    if (!file) return;
-
-    let ext    = file.name.split('.').pop()?.toLowerCase() ?? '';
-    let format = ext;
-    if (ext === 'ent') format = 'pdb';    // .ent is a PDB alias
-    if (ext === 'cif') format = 'mmcif';  // bare .cif → mmcif parser
-
-    if (!ALLOWED_FORMATS.has(format)) {
-      alert(`Unsupported format: .${ext}. Please use PDB, mmCIF, SDF, GRO, MOL2, XYZ, or BCIF.`);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      spawnIframe(ev.target!.result as string, format, 'local-file://' + file.name);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Reusable UI helpers
 // ---------------------------------------------------------------------------
 
@@ -323,8 +264,6 @@ function showFormatSelectorUI(
 // ---------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Drag & drop is always available, including on the empty workspace
-  setupDragAndDrop();
 
   const urlParams  = new URLSearchParams(window.location.search);
   const rawUrl     = urlParams.get('fileUrl');

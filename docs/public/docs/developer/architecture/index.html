@@ -26,7 +26,7 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
   <meta itemprop="name" content="Architecture & Execution Flow">
   <meta itemprop="description" content="Core Philosophy# Mol* Linker operates across several strict security boundaries imposed by the browser. Modern browsers enforce Content Security Policies (CSP) that block unsafe-eval in Manifest V3 extension pages, and restrict cross-origin requests (CORS) between websites and external servers.
 To load multi-megabyte structural files from dynamic Single Page Applications (GitHub, GitLab, RCSB) into a high-performance WebGL visualizer (Mol*), the extension uses a 4-Layer Architecture where each layer has one clearly defined responsibility.">
-  <meta itemprop="wordCount" content="819">
+  <meta itemprop="wordCount" content="885">
 
 <title>Architecture &amp; Execution Flow | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -36,7 +36,7 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.cadb06ce86471e7c64070f3e9fca4d83f1b3b89f12c26a77bbf90050a4af4212.js" integrity="sha256-ytsGzoZHHnxkBw8&#43;n8pNg/GzuJ8Swmp3u/kAUKSvQhI=" crossorigin="anonymous"></script>
 
 
 
@@ -368,7 +368,11 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#core-philosophy">Core Philosophy</a></li>
+    <li><a href="#core-philosophy">Core Philosophy</a>
+      <ul>
+        <li><a href="#key-design-decisions">Key Design Decisions</a></li>
+      </ul>
+    </li>
     <li><a href="#the-4-layer-architecture">The 4-Layer Architecture</a>
       <ul>
         <li><a href="#1-dot-reconnaissance--the-content-script">1. Reconnaissance (The Content Script)</a></li>
@@ -394,6 +398,11 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
   <article class="markdown book-article"><h2 id="core-philosophy">Core Philosophy<a class="anchor" href="#core-philosophy">#</a></h2>
 <p>Mol* Linker operates across several strict security boundaries imposed by the browser. Modern browsers enforce Content Security Policies (CSP) that block <code>unsafe-eval</code> in Manifest V3 extension pages, and restrict cross-origin requests (CORS) between websites and external servers.</p>
 <p>To load multi-megabyte structural files from dynamic Single Page Applications (GitHub, GitLab, RCSB) into a high-performance WebGL visualizer (Mol*), the extension uses a <strong>4-Layer Architecture</strong> where each layer has one clearly defined responsibility.</p>
+<h3 id="key-design-decisions">Key Design Decisions<a class="anchor" href="#key-design-decisions">#</a></h3>
+<ul>
+<li><strong>NPM Integration</strong>: The extension no longer bundles <code>molstar.js</code> directly. Instead, it uses the Mol* NPM package for better maintainability and versioning.</li>
+<li><strong>Label Customization</strong>: Labels are now fully customizable, including text size, color, and border properties. The <code>LabelHandler</code> class in <code>src/native-builder.ts</code> manages label creation, styling, and positioning.</li>
+</ul>
 <h2 id="the-4-layer-architecture">The 4-Layer Architecture<a class="anchor" href="#the-4-layer-architecture">#</a></h2>
 <h3 id="1-dot-reconnaissance--the-content-script">1. Reconnaissance (The Content Script)<a class="anchor" href="#1-dot-reconnaissance--the-content-script">#</a></h3>
 <ul>
@@ -423,7 +432,8 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
 <li><strong>Format gating:</strong> If format is unknown (right-click path), shows a format selector before proceeding.</li>
 <li><strong>SSRF protection:</strong> Validates the URL against a blocklist of private IP ranges and loopback addresses before fetching.</li>
 <li><strong>Fetch:</strong> Downloads the structure file using <code>fetch()</code>, enforces a 25 MB size cap, and performs a Firefox tracking-protection sanity check on the first 150 bytes.</li>
-<li><strong>Schema gating:</strong> Merges storage settings with <code>AppConfig.getDefaults()</code> using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the MVS builder.</li>
+<li><strong>Schema gating:</strong> Merges storage settings with <code>AppConfig.getDefaults()</code> using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the rendering engine.</li>
+<li><strong>Label Customization:</strong> Applies label styling (text size, color, border) using the <code>LabelHandler</code> class from <code>src/native-builder.ts</code>.</li>
 <li><strong>Handoff:</strong> Spawns the sandbox <code>&lt;iframe&gt;</code> and passes the base64 data URI and validated settings via <code>postMessage</code>, using an <code>e.source</code> guard instead of origin matching (sandboxed iframes always report <code>null</code> origin).</li>
 <li><strong>Drag &amp; drop:</strong> Handles local file loading for offline use.</li>
 </ol>
@@ -431,16 +441,16 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
 </ul>
 <h3 id="4-dot-the-engine--the-sandbox">4. The Engine (The Sandbox)<a class="anchor" href="#4-dot-the-engine--the-sandbox">#</a></h3>
 <ul>
-<li><strong>Source:</strong> <code>src/sandbox.ts</code>, <code>src/mvs-builder.ts</code></li>
+<li><strong>Source:</strong> <code>src/sandbox.ts</code>, <code>src/native-builder.ts</code></li>
 <li><strong>Output:</strong> <code>sandbox.js</code> (bundles both modules)</li>
 <li><strong>Environment:</strong> Sandboxed iframe, origin <code>null</code>, zero extension API access</li>
 <li><strong>Role:</strong> Mol* requires <code>eval()</code> and <code>new Function()</code> to compile WebGL shaders dynamically. Standard MV3 extension pages forbid this. The sandbox is explicitly declared in the Chrome manifest to allow <code>unsafe-eval</code> in isolation.</li>
 <li><strong>Action:</strong>
 <ol>
-<li>Immediately posts <code>SANDBOX_READY</code> to the parent on script load.</li>
+<li>Immediately posts <code>SANDBOX_READY</code> to the parent on script load to signal readiness.</li>
 <li>Validates the incoming <code>INIT_MOLSTAR</code> message (origin, URL scheme, format).</li>
-<li>Converts the base64 data URI back into a short <code>blob:</code> URL to avoid embedding multi-megabyte strings in the MVS JSON tree (anti-lag fix).</li>
-<li>Translates the validated settings into a MolViewSpec JSON tree via <code>MvsBuilder._buildBaseTemplate()</code>.</li>
+<li>Converts the base64 data URI back into a short <code>blob:</code> URL to avoid embedding multi-megabyte strings in the State tree.</li>
+<li>Initializes the Mol* viewer and loads the structure data directly into the scene.</li>
 <li>Renders the 3D scene via the Mol* viewer API.</li>
 </ol>
 </li>
@@ -453,7 +463,7 @@ dist/*.js
 public/   ──→  assemble.js   ──→  dist/chrome/   (loadable extension)
 manifests/                        dist/firefox/</code></pre><ul>
 <li><strong>tsc</strong> acts as a quality gate: strict type checking with no file output (<code>noEmit: true</code>).</li>
-<li><strong>esbuild</strong> bundles each entry point and all its imports into one self-contained JS file. Shared modules (<code>config</code>, <code>permissions</code>, <code>mvs-builder</code>, <code>types</code>) are inlined — they do not appear as separate script files in the output.</li>
+<li><strong>esbuild</strong> bundles each entry point and all its imports into one self-contained JS file. Shared modules (<code>config</code>, <code>permissions</code>, <code>native-builder</code>, <code>types</code>) are inlined — they do not appear as separate script files in the output.</li>
 <li><strong>assemble.js</strong> routes the correct manifest, the compiled JS, and the static assets into a browser-specific folder that can be loaded directly into the browser.</li>
 </ul>
 <p>This design means <code>content.js</code> compiles to a plain classic script with no module syntax (it has no imports), while all other entry points also compile to classic scripts because esbuild resolves all imports at build time. The browser never needs to handle ES module resolution at runtime.</p>
@@ -541,7 +551,11 @@ manifests/                        dist/firefox/</code></pre><ul>
   
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#core-philosophy">Core Philosophy</a></li>
+    <li><a href="#core-philosophy">Core Philosophy</a>
+      <ul>
+        <li><a href="#key-design-decisions">Key Design Decisions</a></li>
+      </ul>
+    </li>
     <li><a href="#the-4-layer-architecture">The 4-Layer Architecture</a>
       <ul>
         <li><a href="#1-dot-reconnaissance--the-content-script">1. Reconnaissance (The Content Script)</a></li>

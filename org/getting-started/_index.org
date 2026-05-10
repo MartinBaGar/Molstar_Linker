@@ -1,21 +1,23 @@
-#+TITLE: Mol* Linker Documentation
+#+TITLE: Getting Started with Mol* Linker
 #+HUGO_WEIGHT: 10
 
-Welcome to the official documentation for the *Mol* Linker* extension!
+Welcome to the official documentation for *Mol* Linker*!
 
 * Overview
-Mol* Linker is a powerful browser extension that bridges the gap between raw structural biology files and high-performance 3D visualization. 
-
-By directly integrating with GitHub, GitLab, RCSB, and AlphaFold, it allows researchers to instantly view =.pdb=, =.cif=, and molecular dynamics files (=.gro=, =.xyz=) in a fully customized, sandboxed environment powered by Mol* and MolViewSpec.
+Mol* Linker is a browser extension that seamlessly integrates with GitHub, GitLab, RCSB, and other structural biology repositories. It automatically detects molecular structure files (e.g., =.pdb=, =.cif=, =.gro=) and injects a one-click badge to open them in the [[https://molstar.org/viewer/][Mol* web viewer]] — rendered natively with your preferred visual styles.
 
 * Key Features
-- *Zero-Click Integration:* Automatically detects structural files and injects native launch buttons.
-- *Advanced CORS Bypass:* Securely fetches data directly from private, self-hosted Git repositories and ElabFTW instances without triggering cross-origin network errors.
-- *Privacy First:* Renders your data entirely in local memory via a Sandboxed architecture. Your proprietary files are never sent to external visualization servers.
-- *Global Presets:* Define your preferred coloring, representation (Cartoon, Ball & Stick), and selection logic once, and apply it automatically to every structure you open.
+- *Automatic Detection:* Scans web pages for structure files and injects interactive badges.
+- *Native Mol* Rendering:* Uses Mol*'s high-performance engine for smooth, detailed visualization.
+- *Customizable Scenes:* Configure representations, colors, and transparency for each molecular component.
+- *Custom Rules:* Highlight specific chains, residues, or atoms with tailored visual styles.
+- *Presets:* Save and apply your favorite configurations across all structures.
+- *Security & Privacy:* Files are fetched securely and rendered locally in a sandboxed environment.
+- *Custom Domains:* Authorize private or self-hosted GitLab instances for seamless integration.
 
 * Navigating this Documentation
-- [[file:getting-started/][Getting Started]]: Installation and basic usage.
-- [[file:configuration/][Configuration]]: How to define powerful Custom Rules and Presets.
-- [[file:custom-domains/][Custom Domains]]: How to authorize your private Git instances.
-- [[file:developer/][Developer]]: Architecture, security flows, and build pipelines.
+- [[file:getting-started/installation.org][Installation]]: How to install the extension.
+- [[file:getting-started/quickstart.org][Quickstart]]: Basic usage and first steps.
+- [[file:configuration/][Configuration]]: Customize representations, presets, and rules.
+- [[file:custom-domains/][Custom Domains]]: Authorize private or self-hosted domains.
+- [[file:developer/][Developer]]: Architecture, security, and contribution guidelines.

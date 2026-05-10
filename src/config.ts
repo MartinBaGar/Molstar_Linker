@@ -7,30 +7,29 @@ import type { TargetDefinition, Preset, ExtensionSettings } from './types.js';
 // Keys here are the canonical RepType values used everywhere else.
 // ---------------------------------------------------------------------------
 const RepSchema: Record<string, { label: string; params: Record<string, unknown> }> = {
-  cartoon:       { label: "Cartoon",       params: { tubular_helices: 'boolean' } },
-  backbone:      { label: "Backbone",      params: {} },
-  ball_and_stick:{ label: "Ball & Stick",  params: { ignore_hydrogens: 'boolean' } },
-  line:          { label: "Line",          params: { ignore_hydrogens: 'boolean' } },
-  spacefill:     { label: "Spacefill",     params: { ignore_hydrogens: 'boolean' } },
-  carbohydrate:  { label: "Carbohydrate",  params: {} },
-  putty:         { label: "Putty",         params: { size_theme: ['uniform', 'uncertainty'] } },
-  surface:       { label: "Surface",       params: { surface_type: ['molecular', 'gaussian'], ignore_hydrogens: 'boolean' } },
-  off:           { label: "Hide / Off",    params: {} },
+  cartoon:           { label: "Cartoon",           params: { tubular_helices: 'boolean' } },
+  backbone:          { label: "Backbone",          params: {} },
+  ball_and_stick:    { label: "Ball & Stick",      params: { ignore_hydrogens: 'boolean' } },
+  line:              { label: "Line",              params: { ignore_hydrogens: 'boolean' } },
+  spacefill:         { label: "Spacefill",         params: { ignore_hydrogens: 'boolean' } },
+  carbohydrate:      { label: "Carbohydrate",      params: {} },
+  putty:             { label: "Putty",             params: { size_theme: ['uniform', 'uncertainty'] } },
+  molecular_surface: { label: "Molecular Surface", params: { ignore_hydrogens: 'boolean' } },
+  gaussian_surface:  { label: "Gaussian Surface",  params: { ignore_hydrogens: 'boolean' } },
+  off:               { label: "Hide / Off",        params: {} },
 };
 
 // ---------------------------------------------------------------------------
 // Targets — the built-in molecular component categories.
-// Each drives a row in the options UI and a component branch in the MVS tree.
 // ---------------------------------------------------------------------------
 const targets: TargetDefinition[] = [
-  { id: "protein",  selector: "protein",  label: "Proteins",                    rep: "cartoon",       color: "chain-id",      size: null },
-  { id: "nucleic",  selector: "nucleic",  label: "Nucleic Acids (DNA/RNA)",     rep: "cartoon",       color: "chain-id",      size: null },
-  { id: "ligand",   selector: "ligand",   label: "Ligands & Small Molecules",   rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
-  { id: "carbs",    selector: "branched", label: "Carbohydrates & Glycans",     rep: "carbohydrate",  color: "chain-id",      size: null },
-  { id: "ion",      selector: "ion",      label: "Single Ions",                 rep: "ball_and_stick",color: "element-symbol", size: 0.7  },
-  { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7 },
-  { id: "water",    selector: "water",    label: "Water / Solvent",             rep: "line",          color: "element-symbol", size: null },
-  // { id: "all",      selector: "all",      label: "All",                         rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
+  { id: "protein",  selector: "protein",  label: "Proteins",                  rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
+  { id: "nucleic",  selector: "nucleic",  label: "Nucleic Acids (DNA/RNA)",   rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
+  { id: "ligand",   selector: "ligand",   label: "Ligands & Small Molecules", rep: "ball_and_stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.2  },
+  { id: "carbs",    selector: "branched", label: "Carbohydrates & Glycans",   rep: "carbohydrate",      color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
+  { id: "ion",      selector: "ion",      label: "Single Ions",               rep: "spacefill",         color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.1  },
+  { id: "lipid",    selector: "lipid",    label: "Lipids",                    rep: "ball_and_stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.3  },
+  { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian_surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2.0 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -79,6 +78,9 @@ function getDefaults(): ExtensionSettings {
     defaults[`${t.id}_colorType`] = THEME_COLORS.has(t.color) ? 'theme' : 'solid';
     defaults[`${t.id}_colorVal`]  = t.color;
     if (t.size !== null) defaults[`${t.id}_size`] = t.size;
+    if (t.alpha !== null) defaults[`${t.id}_alpha`] = t.alpha;
+
+    defaults[`${t.id}_quality`] = t.quality;
   }
 
   return defaults;

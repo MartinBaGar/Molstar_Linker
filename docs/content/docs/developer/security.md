@@ -52,7 +52,6 @@ To prevent Denial of Service (DoS) attacks or browser crashes via memory exhaust
 
 -   **URL Cap:** Content scripts reject parsing any URLs longer than 2,048 characters.
 -   **Size Cap:** The fetcher strictly enforces a 25 MB file limit. It checks the `Content-Length` header before downloading, and re-verifies the resulting `Blob` size after downloading, instantly aborting if the file is too large.
--   **Rule Cap:** The MVS JSON builder caps custom user rules at 50 to prevent infinite loops or absurdly large rendering trees.
 
 
 ### 6. Strict Content Security Policy (CSP) {#6-dot-strict-content-security-policy--csp}

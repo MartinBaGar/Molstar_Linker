@@ -1,9 +1,10 @@
-#+title: Developer Docs
+#+title: Developer Documentation
 #+draft: false
 #+HUGO_WEIGHT: 500
 
-Technical reference for contributors and anyone building on top of Mol* Linker.
+Technical reference for contributors and developers working with Mol* Linker.
 
-- [[./architecture][Architecture]] — file structure and data flow
-- [[./module-reference][Module Reference]] — API docs for each JS module
-- [[./contributing][Contributing]] — how to extend the extension
+- [[./architecture][Architecture]] — High-level architecture and data flow
+- [[./security][Security]] — Security model and threat mitigation
+- [[./module-reference][Module Reference]] — API reference for each module
+- [[./contributing][Contributing]] — How to contribute to the project

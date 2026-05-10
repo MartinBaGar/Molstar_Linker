@@ -8,12 +8,22 @@ import { AppConfig } from './config.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
 
 // ---------------------------------------------------------------------------
-// Module-level tooltip state.
-// Reset on every buildNativeScene call so stale tooltips from a previous
-// structure never bleed into the next one.
+// Per-plugin tooltip state — stored on plugin.customState so each viewer
+// instance owns its own data. No module-level globals means two viewers on
+// the same page never overwrite each other.
 // ---------------------------------------------------------------------------
-let activeTooltips: { loci: StructureElement.Loci; text: string }[] = [];
-let isTooltipProviderRegistered = false;
+type TooltipEntry = { loci: StructureElement.Loci; text: string };
+
+function getTooltipState(plugin: PluginContext): {
+  activeTooltips: TooltipEntry[];
+  isRegistered: boolean;
+} {
+  const cs = plugin.customState as any;
+  if (!cs.__nativeBuilder) {
+    cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
+  }
+  return cs.__nativeBuilder;
+}
 
 export const NativeBuilder = {
 
@@ -29,7 +39,7 @@ export const NativeBuilder = {
 
     plugin.clear();
 
-    const isBinary    = format === 'bcif';
+    const isBinary     = format === 'bcif';
     const parsedFormat = format === 'cif' ? 'mmcif' : format;
 
     const data       = await plugin.builders.data.download({ url, isBinary });
@@ -44,21 +54,6 @@ export const NativeBuilder = {
       plugin.canvas3d?.setProps({
         renderer: { backgroundColor: Color.fromHexStyle(settings.canvas_color as string) },
       });
-    }
-
-    // ------------------------------------------------------------------
-    // Camera position (applied after a short delay so the scene is ready)
-    // ------------------------------------------------------------------
-    if (settings.camera_json) {
-      try {
-        const camState = JSON.parse(settings.camera_json as string);
-        setTimeout(() => {
-          plugin.canvas3d?.camera.setState(camState);
-          plugin.canvas3d?.requestDraw();
-        }, 200);
-      } catch (e) {
-        console.warn('NativeBuilder: invalid camera_json, skipped', e);
-      }
     }
 
     // ------------------------------------------------------------------
@@ -79,84 +74,106 @@ export const NativeBuilder = {
     }
 
     // ------------------------------------------------------------------
-    // Hover tooltip provider — registered once per plugin lifetime.
-    // activeTooltips is reset at the top of each buildNativeScene call
-    // so it always reflects the current structure.
+    // Hover tooltip provider — registered once per plugin instance.
+    // activeTooltips is reset below so it always reflects the current
+    // structure. Collecting all matches before returning ensures overlapping
+    // rules all show their tooltips rather than the first one winning.
     // ------------------------------------------------------------------
-    activeTooltips = [];
+    const state = getTooltipState(plugin);
+    state.activeTooltips = [];
 
-    if (!isTooltipProviderRegistered) {
+    if (!state.isRegistered) {
       plugin.managers.lociLabels.addProvider({
         label: (hoveredLoci: any) => {
           if (hoveredLoci.kind !== 'element-loci') return undefined;
 
-          const rootA = hoveredLoci.structure.root;
+          const rootA   = hoveredLoci.structure.root;
+          const matches: string[] = [];
 
-          for (const t of activeTooltips) {
-            const rootB = t.loci.structure.root;
-            if (rootA !== rootB) continue;
+          for (const t of state.activeTooltips) {
+            if (t.loci.structure.root !== rootA) continue;
 
-            const hoverAtRoot  = StructureElement.Loci.remap(hoveredLoci, rootA);
-            const targetAtRoot = StructureElement.Loci.remap(t.loci, rootA);
-            const intersect    = StructureElement.Loci.intersect(hoverAtRoot, targetAtRoot);
+            const intersect = StructureElement.Loci.intersect(
+              StructureElement.Loci.remap(hoveredLoci, rootA),
+              StructureElement.Loci.remap(t.loci, rootA),
+            );
 
             if (!StructureElement.Loci.isEmpty(intersect)) {
-              return `<div style="background:#2da44e;color:white;padding:2px 6px;border-radius:4px;font-weight:bold;display:inline-block;line-height:1.4">${t.text}</div>`;
+              matches.push(t.text);
             }
           }
-          return undefined;
+
+          return matches.length > 0 ? matches.join('<br/>') : undefined;
         },
       });
-      isTooltipProviderRegistered = true;
+      state.isRegistered = true;
     }
 
     // ------------------------------------------------------------------
     // Custom rules
     // ------------------------------------------------------------------
-    if (!Array.isArray(settings.customRules)) return;
+    if (Array.isArray(settings.customRules)) {
+      for (let i = 0; i < settings.customRules.length; i++) {
+        const rule = settings.customRules[i];
+        if (!rule) continue;
 
-    for (let i = 0; i < settings.customRules.length; i++) {
-      const rule = settings.customRules[i];
-      if (!rule) continue;
+        const expression = rule.mode === 'expert' && rule.selector
+          ? this.buildExpertExpression(rule.selector)
+          : this.buildSimpleExpression(rule);
 
-      const expression = rule.mode === 'expert' && rule.selector
-        ? this.buildExpertExpression(rule.selector)
-        : this.buildSimpleExpression(rule);
+        // Stable ID — no Date.now() so re-renders don't bloat the state tree
+        const componentId = `custom-rule-${i}`;
 
-      // Stable ID — no Date.now() so re-renders don't bloat the state tree
-      const componentId = `custom-rule-${i}`;
+        const component = await plugin.builders.structure.tryCreateComponentFromExpression(
+          structure,
+          expression,
+          componentId,
+          { label: rule.name || `Custom Rule ${i + 1}` },
+        );
 
-      const component = await plugin.builders.structure.tryCreateComponentFromExpression(
-        structure,
-        expression,
-        componentId,
-        { label: rule.name || `Custom Rule ${i + 1}` },
-      );
+        if (!component?.obj?.data) continue;
 
-      if (!component?.obj?.data) continue;
+        await this.applyCustomRuleRepresentation(plugin, component, rule);
 
-      await this.applyCustomRuleRepresentation(plugin, component, rule);
+        // 3D label — uses the same API as Measurements › Add › Label
+        if (rule.label) {
+          await this.apply3DLabel(plugin, component, rule);
+        }
 
-      // 3D label — uses the same API as Measurements › Add › Label
-      if (rule.label) {
-        await this.apply3DLabel(plugin, component, rule); 
+        // Hover tooltip — covers atoms rendered by the custom representation.
+        // The lociLabels provider above collects all matches so overlapping
+        // rules (e.g. Chain A + Residue 50) both appear in the tooltip.
+        if (rule.label || rule.tooltip) {
+          const text = [
+            rule.tooltip ? `ℹ️ ${rule.tooltip}` : '',
+          ].filter(Boolean).join(' · ');
+
+          state.activeTooltips.push({
+            loci: Structure.toStructureElementLoci(component.obj.data),
+            text,
+          });
+        }
+
+        // Camera focus
+        if (rule.focus) {
+          plugin.managers.camera.focusLoci(
+            Structure.toStructureElementLoci(component.obj.data),
+          );
+        }
       }
+    }
 
-      // Hover tooltip
-      const hoverContent = [
-        rule.label   ? `🏷️ ${rule.label}`   : '',
-        rule.tooltip ? `ℹ️ ${rule.tooltip}` : '',
-      ].filter(Boolean).join('<br/>');
-
-      if (hoverContent) {
-        const componentLoci = Structure.toStructureElementLoci(component.obj.data);
-        activeTooltips.push({ loci: componentLoci, text: hoverContent });
-      }
-
-      // Camera focus
-      if (rule.focus) {
-        const loci = Structure.toStructureElementLoci(component.obj.data);
-        plugin.managers.camera.focusLoci(loci);
+    // ------------------------------------------------------------------
+    // Camera position — placed last so the structure is fully loaded and
+    // the canvas is guaranteed to be initialised before we move the camera.
+    // ------------------------------------------------------------------
+    if (settings.camera_json) {
+      try {
+        const camState = JSON.parse(settings.camera_json as string);
+        plugin.canvas3d?.camera.setState(camState);
+        plugin.canvas3d?.requestDraw();
+      } catch (e) {
+        console.warn('NativeBuilder: invalid camera_json, skipped', e);
       }
     }
   },
@@ -249,7 +266,7 @@ export const NativeBuilder = {
   // -------------------------------------------------------------------------
   buildExpertExpression(selector: any) {
     const queries = (Array.isArray(selector) ? selector : [selector]).map(sel => {
-      const tests: any  = {};
+      const tests: any    = {};
       const chainT: any[] = [];
       const resT: any[]   = [];
 
@@ -281,58 +298,96 @@ export const NativeBuilder = {
   // -------------------------------------------------------------------------
   // Apply a global-target representation
   // -------------------------------------------------------------------------
-  async applyRepresentation(
+async applyRepresentation(
     plugin: PluginContext,
     component: any,
     targetId: string,
     settings: ExtensionSettings,
   ): Promise<void> {
-    const repType   = settings[`${targetId}_rep`]       as string;
-    const colorType = settings[`${targetId}_colorType`] as string;
-    const colorVal  = settings[`${targetId}_colorVal`]  as string;
-    const sizeVal   = settings[`${targetId}_size`];
+    const repType    = settings[`${targetId}_rep`]       as string;
+    const colorType  = settings[`${targetId}_colorType`] as string;
+    const colorVal   = settings[`${targetId}_colorVal`]  as string;
 
-    const nativeRepType = repType === 'ball_and_stick' ? 'ball-and-stick' : repType;
-    const themeName     = colorType === 'theme' ? colorVal : 'uniform';
-    const colorParams   = colorType === 'theme'
+    const sizeVal    = settings[`${targetId}_size`];
+    const alphaVal   = settings[`${targetId}_alpha`];
+    const qualityVal = settings[`${targetId}_quality`] as string;
+
+    const REP_MAP: Record<string, string> = {
+      'ball_and_stick': 'ball-and-stick',
+      'molecular_surface': 'molecular-surface',
+      'gaussian_surface': 'gaussian-surface'
+    };
+    const nativeRepType = REP_MAP[repType] || repType;
+
+    const themeName   = colorType === 'theme' ? colorVal : 'uniform';
+    const colorParams = colorType === 'theme'
       ? undefined
       : { value: Color.fromHexStyle(colorVal || '#ffffff') };
 
     const typeParams: any = {};
+    let sizeThemeName: string | undefined = undefined;
+    let sizeParams: any = undefined;
 
+    // 1. Smart Size Application
     if (sizeVal !== undefined && sizeVal !== null && sizeVal !== '') {
-      typeParams.sizeFactor = parseFloat(String(sizeVal));
+      const parsedSize = parseFloat(String(sizeVal));
+
+      if (nativeRepType === 'gaussian-surface') {
+        // Enforce a UNIFORM base radius instead of scaling a physical radius
+        sizeThemeName = 'uniform';
+        sizeParams = { value: parsedSize };
+      } else {
+        // For everything else (Ball & Stick, Cartoon), just scale the default radius
+        typeParams.sizeFactor = parsedSize;
+      }
+    }
+
+    // 2. Apply Alpha (Transparency)
+    if (alphaVal !== undefined && alphaVal !== null && alphaVal !== '') {
+      typeParams.alpha = parseFloat(String(alphaVal));
+    }
+
+    // 3. Apply Quality
+    if (qualityVal && qualityVal !== 'auto') {
+      typeParams.quality = qualityVal;
     }
 
     const subParams = settings[`${targetId}_subParams`] as Record<string, any> | undefined;
     if (subParams) {
-      if (subParams.ignore_hydrogens) typeParams.ignoreHydrogens  = true;
-      if (subParams.surface_type)     typeParams.type             = subParams.surface_type;
-      if (subParams.tubular_helices)  typeParams.tubularHelices   = true;
+      if (subParams.ignore_hydrogens) typeParams.ignoreHydrogens = true;
+      if (subParams.tubular_helices)  typeParams.tubularHelices  = true;
     }
 
-    const opacityVal = settings[`${targetId}_opacity`];
-    if (opacityVal !== undefined && opacityVal !== '') {
-      typeParams.alpha = parseFloat(String(opacityVal));
-    }
-
+    // 4. Inject all parameters into the engine
     await plugin.builders.structure.representation.addRepresentation(
       component,
-      { type: nativeRepType as any, typeParams, color: themeName as any, colorParams },
+      {
+        type: nativeRepType as any,
+        typeParams,
+        color: themeName as any,
+        colorParams,
+        size: sizeThemeName as any,
+        sizeParams
+      },
     );
   },
 
   // -------------------------------------------------------------------------
   // Apply a custom-rule representation
   // -------------------------------------------------------------------------
-  async applyCustomRuleRepresentation(
+async applyCustomRuleRepresentation(
     plugin: PluginContext,
     component: any,
     rule: CustomRule,
   ): Promise<void> {
-    const nativeRepType = (rule.rep === 'highlight' || rule.rep === 'ball_and_stick')
-      ? 'ball-and-stick'
-      : rule.rep;
+    const REP_MAP: Record<string, string> = {
+      'ball_and_stick': 'ball-and-stick',
+      'molecular_surface': 'molecular-surface',
+      'gaussian_surface': 'gaussian-surface'
+    };
+
+    let nativeRepType = REP_MAP[rule.rep] || rule.rep;
+    if (rule.rep === 'highlight') nativeRepType = 'ball-and-stick';
 
     const themeName   = rule.colorType === 'theme' ? rule.colorVal : 'uniform';
     const colorParams = rule.colorType === 'theme'
@@ -340,52 +395,65 @@ export const NativeBuilder = {
       : { value: Color.fromHexStyle(rule.colorVal || '#ffffff') };
 
     const typeParams: any = {};
-    if (rule.size)    typeParams.sizeFactor = parseFloat(rule.size);
-    if (rule.opacity) typeParams.alpha      = parseFloat(rule.opacity);
+    let sizeThemeName: string | undefined = undefined;
+    let sizeParams: any = undefined;
+
+    // Smart Size Application
+    if (rule.size) {
+      const parsedSize = parseFloat(rule.size);
+      if (nativeRepType === 'gaussian-surface') {
+        sizeThemeName = 'uniform';
+        sizeParams = { value: parsedSize };
+      } else {
+        typeParams.sizeFactor = parsedSize;
+      }
+    }
+
+    if (rule.alpha) {
+      typeParams.alpha = parseFloat(rule.alpha);
+    }
+    if (rule.quality && rule.quality !== 'auto') {
+      typeParams.quality = rule.quality;
+    }
 
     await plugin.builders.structure.representation.addRepresentation(
       component,
-      { type: nativeRepType as any, typeParams, color: themeName as any, colorParams },
+      {
+        type: nativeRepType as any,
+        typeParams,
+        color: themeName as any,
+        colorParams,
+        size: sizeThemeName as any,
+        sizeParams
+      },
     );
   },
 
   // -------------------------------------------------------------------------
-  // 3D label — uses the same Measurements API as the Mol* UI.
+  // 3D label — uses the same API as Measurements › Add › Label.
+  // Hover tooltip is handled separately via the lociLabels provider above.
   // -------------------------------------------------------------------------
   async apply3DLabel(
     plugin: PluginContext,
     component: any,
-    rule: CustomRule
+    rule: CustomRule,
   ): Promise<void> {
     const structure = component.obj?.data;
     if (!structure) return;
 
-    // 1. Map to Root so coordinates align globally
-    const subLoci = Structure.toStructureElementLoci(structure);
+    const subLoci  = Structure.toStructureElementLoci(structure);
     const rootLoci = StructureElement.Loci.remap(subLoci, structure.root);
 
-    // 2. Add the default label safely through the Measurements API
-    await plugin.managers.structure.measurement.addLabel(rootLoci);
-
-    // 3. Immediately retrieve the label we just created
-    const labels = plugin.managers.structure.measurement.state.labels;
-    const newLabelCell = labels[labels.length - 1];
-
-      // ... inside apply3DLabel ...
-      if (newLabelCell) {
-      const update = plugin.state.data.build();
-      
-      update.to(newLabelCell.transform.ref).update((oldParams: any) => ({
-        ...oldParams,
-        customText: rule.label,
-        sizeFactor: rule.labelSize ? parseFloat(rule.labelSize) : 1,
-        textColor: Color.fromHexStyle(String(rule.labelTextColor || '#ffffff')),
+    await plugin.managers.structure.measurement.addLabel(rootLoci, {
+      visualParams: {
+        customText:  rule.label,
+        sizeFactor:  rule.labelSize        ? parseFloat(rule.labelSize)                : 1,
+        textColor:   Color.fromHexStyle(String(rule.labelTextColor  || '#ffffff')),
+        tooltip:     rule.tooltip ?? '',
         borderWidth: rule.labelBorderWidth ? parseFloat(String(rule.labelBorderWidth)) : 0.2,
         borderColor: Color.fromHexStyle(String(rule.labelBorderColor || '#000000')),
-        background: false 
-      }));
-      
-      await plugin.state.data.updateTree(update).run();
-    }
-  }
+        background:  false,
+      },
+    });
+  },
 };

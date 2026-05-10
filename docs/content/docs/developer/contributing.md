@@ -37,7 +37,7 @@ Molstar_Linker/
 │   ├── types.ts     ← shared interfaces and message protocol types
 │   ├── config.ts    ← AppConfig: targets, RepSchema, presets, getDefaults()
 │   ├── permissions.ts
-│   ├── mvs-builder.ts
+│   ├── native-builder.ts
 │   ├── background.ts
 │   ├── content.ts
 │   ├── sandbox.ts
@@ -111,7 +111,7 @@ Sets `noEmit: true` — tsc is used exclusively for type checking, not for produ
 
 ### `build.mjs` {#build-dot-mjs}
 
-Runs esbuild against the six entry points (`background`, `content`, `sandbox`, `viewer`, `popup`, `options`). Each entry point is bundled with all its TypeScript imports into a single flat JS file in `dist/`. Shared modules (`config`, `permissions`, `mvs-builder`, `types`) are not separate output files — they are inlined into whichever entry points import them.
+Runs esbuild against the six entry points (`background`, `content`, `sandbox`, `viewer`, `popup`, `options`). Each entry point is bundled with all its TypeScript imports into a single flat JS file in `dist/`. Shared modules (`config`, `permissions`, `native-builder`, `types`) are not separate output files — they are inlined into whichever entry points import them.
 
 
 ### `assemble.js` {#assemble-dot-js}

@@ -26,7 +26,7 @@ When you click a badge, the extension securely downloads the file straight into 
   <meta itemprop="name" content="Frequently Asked Questions">
   <meta itemprop="description" content="General Questions# Where did my data go? Does this extension upload my proprietary files?# Absolutely not. This is one of the biggest upgrades in Mol* Linker v2.0. Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a dedicated, local workspace directly inside your browser.
 When you click a badge, the extension securely downloads the file straight into your browser’s active, temporary memory (RAM). It never touches your hard drive, and it is never uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.">
-  <meta itemprop="wordCount" content="823">
+  <meta itemprop="wordCount" content="884">
 
 <title>Frequently Asked Questions | Mol* Linker Wiki</title>
 <link rel="icon" href="/Molstar_Linker/favicon.png" >
@@ -36,7 +36,7 @@ When you click a badge, the extension securely downloads the file straight into 
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.cadb06ce86471e7c64070f3e9fca4d83f1b3b89f12c26a77bbf90050a4af4212.js" integrity="sha256-ytsGzoZHHnxkBw8&#43;n8pNg/GzuJ8Swmp3u/kAUKSvQhI=" crossorigin="anonymous"></script>
 
 
 
@@ -378,6 +378,7 @@ When you click a badge, the extension securely downloads the file straight into 
         <li><a href="#why-did-the-badge-not-appear-next-to-my-download-link">Why did the badge not appear next to my download link?</a></li>
         <li><a href="#why-did-the-extension-prompt-me-to-select-a-format">Why did the extension prompt me to select a format?</a></li>
         <li><a href="#can-i-view-local-files-from-my-computer">Can I view local files from my computer?</a></li>
+        <li><a href="#why-don-t-labels-appear-in-the-scene">Why don’t labels appear in the scene?</a></li>
         <li><a href="#why-did-i-get-a-download-blocked-or-xml-error-on-figshare-zenodo">Why did I get a &ldquo;Download Blocked&rdquo; or XML error on Figshare/Zenodo?</a></li>
         <li><a href="#why-did-the-extension-prompt-me-to-select-a-format">Why did the extension prompt me to select a format?</a></li>
       </ul>
@@ -419,6 +420,13 @@ Older versions of this tool (and many other visualizers) had to redirect you to 
 <p>When you use the Right-Click menu on an opaque link (a link that does not explicitly end in <code>.pdb</code>, <code>.cif</code>, etc.), the extension securely passes the file to the viewer but flags the format as &ldquo;unknown&rdquo;. To prevent the Mol* engine from crashing while trying to parse a PDB as a Gromacs trajectory, it safely pauses and asks you to confirm the format before rendering.</p>
 <h3 id="can-i-view-local-files-from-my-computer">Can I view local files from my computer?<a class="anchor" href="#can-i-view-local-files-from-my-computer">#</a></h3>
 <p>Yes! Click the extension icon to open the popup, and simply Drag and Drop your local structural file into the dashed box. You can also drag and drop files directly into an already open Mol* Workspace tab! The file is read locally and is never uploaded to the internet.</p>
+<h3 id="why-don-t-labels-appear-in-the-scene">Why don’t labels appear in the scene?<a class="anchor" href="#why-don-t-labels-appear-in-the-scene">#</a></h3>
+<p>If labels are not appearing, check the following:</p>
+<ul>
+<li>Ensure that labels are enabled in the <strong>Scene Settings</strong> section of the Studio.</li>
+<li>Verify that the <strong>Text Color</strong> contrasts with the <strong>Canvas Background Color</strong> (e.g., white text on a white background will not be visible).</li>
+<li>Check that the <strong>Label Size</strong> is large enough to be visible.</li>
+</ul>
 <h3 id="why-did-i-get-a-download-blocked-or-xml-error-on-figshare-zenodo">Why did I get a &ldquo;Download Blocked&rdquo; or XML error on Figshare/Zenodo?<a class="anchor" href="#why-did-i-get-a-download-blocked-or-xml-error-on-figshare-zenodo">#</a></h3>
 <p>Browsers with strict privacy settings (especially Firefox) block &ldquo;cross-origin redirects,&rdquo; which is how sites like Figshare route files to Amazon AWS servers. Mol* Linker detects this block to prevent the 3D engine from crashing. To fix it, simply add the site to your Authorized Custom Domains in the Advanced Studio to grant the extension a secure bypass pass.</p>
 <h3 id="why-did-the-extension-prompt-me-to-select-a-format">Why did the extension prompt me to select a format?<a class="anchor" href="#why-did-the-extension-prompt-me-to-select-a-format">#</a></h3>
@@ -505,6 +513,7 @@ Older versions of this tool (and many other visualizers) had to redirect you to 
         <li><a href="#why-did-the-badge-not-appear-next-to-my-download-link">Why did the badge not appear next to my download link?</a></li>
         <li><a href="#why-did-the-extension-prompt-me-to-select-a-format">Why did the extension prompt me to select a format?</a></li>
         <li><a href="#can-i-view-local-files-from-my-computer">Can I view local files from my computer?</a></li>
+        <li><a href="#why-don-t-labels-appear-in-the-scene">Why don’t labels appear in the scene?</a></li>
         <li><a href="#why-did-i-get-a-download-blocked-or-xml-error-on-figshare-zenodo">Why did I get a &ldquo;Download Blocked&rdquo; or XML error on Figshare/Zenodo?</a></li>
         <li><a href="#why-did-the-extension-prompt-me-to-select-a-format">Why did the extension prompt me to select a format?</a></li>
       </ul>

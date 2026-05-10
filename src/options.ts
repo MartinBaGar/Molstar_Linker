@@ -210,15 +210,25 @@ function buildUI(): void {
     colorRow.appendChild(buildColorInput());
     content.appendChild(colorRow);
 
-    // — Size / Opacity row
+    // — Size / Alpha / Quality row
     const modRow = document.createElement('div');
     modRow.className = 'flex-row';
     modRow.innerHTML = `
-      <div style="flex:1"><label>Size Factor</label>
-        <input type="number" class="size-input"    step="0.5" min="0.5" max="5.0" placeholder="1.0">
+      <div style="flex:1"><label>Size</label>
+        <input type="number" class="size-input" step="0.5" min="0.5" max="5.0" placeholder="1.0">
       </div>
       <div style="flex:1"><label>Opacity</label>
-        <input type="number" class="opacity-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
+        <input type="number" class="alpha-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
+      </div>
+      <div style="flex:1.5"><label>Quality</label>
+        <select class="quality-select">
+          <option value="auto">Auto</option>
+          <option value="highest">Highest</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+          <option value="lowest">Lowest</option>
+        </select>
       </div>`;
     content.appendChild(modRow);
     targetContainer.appendChild(card);
@@ -232,7 +242,7 @@ function buildUI(): void {
 function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
   const data: CustomRule = {
     name: 'New Rule', rep: 'highlight', colorType: 'solid', colorVal: 'red',
-    size: '', opacity: '', mode: 'simple', scheme: 'auth',
+    size: '', alpha: '', quality: 'auto', mode: 'simple', scheme: 'auth',
     chain: '', ranges: '', specific: '', atomName: '', element: '', atomIndex: '',
     label: '', labelTextColor: '#000000', labelSize: '1.0',
     labelBorderWidth: '0.2', labelBorderColor: '#000000', tooltip: '', focus: false,
@@ -276,22 +286,22 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
         <div class="rule-section-title">Target Selection</div>
         <div class="grid-6">
           <div><label>Chain</label>
-            <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"      placeholder="A">
+            <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"     placeholder="A">
           </div>
           <div><label>Res Range</label>
-            <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"     placeholder="5-50">
+            <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"    placeholder="5-50">
           </div>
           <div><label>Specific Res</label>
-            <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"   placeholder="10,15">
+            <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"  placeholder="10,15">
           </div>
           <div><label>Atom</label>
-            <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"   placeholder="CA">
+            <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"  placeholder="CA">
           </div>
           <div><label>Element</label>
-            <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"    placeholder="FE">
+            <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"   placeholder="FE">
           </div>
           <div><label>Atom Idx</label>
-            <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}"  placeholder="100">
+            <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}" placeholder="100">
           </div>
         </div>
       </div>
@@ -329,14 +339,25 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
           </div>
           <div style="flex:.5">
             <label>Opacity</label>
-            <input type="number" class="cr-opacity" value="${escapeHTML(data.opacity)}" step="0.1" min="0"   max="1.0" placeholder="1.0">
+            <input type="number" class="cr-alpha"   value="${escapeHTML(data.alpha)}"   step="0.1" min="0"   max="1.0" placeholder="1.0">
+          </div>
+          <div style="flex:.7">
+            <label>Quality</label>
+            <select class="cr-quality">
+              <option value="auto">Auto</option>
+              <option value="highest">Highest</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+              <option value="lowest">Lowest</option>
+            </select>
           </div>
         </div>
       </div>
 
       <div class="rule-section">
         <div class="rule-section-title">Annotations &amp; View</div>
-        
+
         <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
           <div style="flex:2">
             <label>Floating 3D Label</label>
@@ -385,8 +406,9 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     .appendChild(buildColorInput(data.colorType, data.colorVal));
 
   // Restore select values
-  (card.querySelector('.cr-mode')   as HTMLSelectElement).value = data.mode;
-  (card.querySelector('.cr-scheme') as HTMLSelectElement).value = data.scheme ?? 'auth';
+  (card.querySelector('.cr-mode')    as HTMLSelectElement).value = data.mode;
+  (card.querySelector('.cr-scheme')  as HTMLSelectElement).value = data.scheme ?? 'auth';
+  (card.querySelector('.cr-quality') as HTMLSelectElement).value = data.quality ?? 'auto';
 
   const repSelect = card.querySelector('.cr-rep')    as HTMLSelectElement;
   const repDrawer = card.querySelector('.cr-drawer') as HTMLDivElement;
@@ -478,11 +500,12 @@ function extractCurrentSettings(): ExtensionSettings {
   for (const target of AppConfig.targets) {
     const card = document.getElementById(`card_${target.id}`);
     if (!card) continue;
-    s[`${target.id}_rep`]       = (card.querySelector('.rep-selector')       as HTMLSelectElement).value;
+    s[`${target.id}_rep`]       = (card.querySelector('.rep-selector')        as HTMLSelectElement).value;
     s[`${target.id}_colorType`] = (card.querySelector('.color-type-selector') as HTMLSelectElement).value;
     s[`${target.id}_colorVal`]  = (card.querySelector('.color-val-input')     as HTMLInputElement).value;
     s[`${target.id}_size`]      = (card.querySelector('.size-input')          as HTMLInputElement).value;
-    s[`${target.id}_opacity`]   = (card.querySelector('.opacity-input')       as HTMLInputElement).value;
+    s[`${target.id}_alpha`]     = (card.querySelector('.alpha-input')         as HTMLInputElement).value;
+    s[`${target.id}_quality`]   = (card.querySelector('.quality-select')      as HTMLSelectElement).value;
 
     const subParams: Record<string, unknown> = {};
     card.querySelectorAll<HTMLInputElement>('.target-drawer .subparam-input').forEach(input => {
@@ -494,29 +517,30 @@ function extractCurrentSettings(): ExtensionSettings {
   const customRules: CustomRule[] = [];
   document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
     const rule: CustomRule = {
-      name:         (card.querySelector('.cr-name')       as HTMLInputElement).value,
-      rep:          (card.querySelector('.cr-rep')         as HTMLSelectElement).value as CustomRule['rep'],
+      name:         (card.querySelector('.cr-name')             as HTMLInputElement).value,
+      rep:          (card.querySelector('.cr-rep')              as HTMLSelectElement).value as CustomRule['rep'],
       colorType:    (card.querySelector('.color-type-selector') as HTMLSelectElement).value as 'theme' | 'solid',
       colorVal:     (card.querySelector('.color-val-input')     as HTMLInputElement).value,
-      size:         (card.querySelector('.cr-size')        as HTMLInputElement).value,
-      opacity:      (card.querySelector('.cr-opacity')     as HTMLInputElement).value,
-      mode:         (card.querySelector('.cr-mode')        as HTMLSelectElement).value as 'simple' | 'expert',
-      scheme:       (card.querySelector('.cr-scheme')      as HTMLSelectElement).value as 'auth' | 'label',
-      chain:        (card.querySelector('.cr-chain')       as HTMLInputElement).value.trim(),
-      ranges:       (card.querySelector('.cr-ranges')      as HTMLInputElement).value.trim(),
-      specific:     (card.querySelector('.cr-specific')    as HTMLInputElement).value.trim(),
-      atomName:     (card.querySelector('.cr-atom')        as HTMLInputElement).value.trim(),
-      element:      (card.querySelector('.cr-element')     as HTMLInputElement).value.trim(),
-      atomIndex:    (card.querySelector('.cr-atom-index')  as HTMLInputElement).value.trim(),
+      size:         (card.querySelector('.cr-size')             as HTMLInputElement).value,
+      alpha:        (card.querySelector('.cr-alpha')            as HTMLInputElement).value,
+      quality:      (card.querySelector('.cr-quality')          as HTMLSelectElement).value,
+      mode:         (card.querySelector('.cr-mode')             as HTMLSelectElement).value as 'simple' | 'expert',
+      scheme:       (card.querySelector('.cr-scheme')           as HTMLSelectElement).value as 'auth' | 'label',
+      chain:        (card.querySelector('.cr-chain')            as HTMLInputElement).value.trim(),
+      ranges:       (card.querySelector('.cr-ranges')           as HTMLInputElement).value.trim(),
+      specific:     (card.querySelector('.cr-specific')         as HTMLInputElement).value.trim(),
+      atomName:     (card.querySelector('.cr-atom')             as HTMLInputElement).value.trim(),
+      element:      (card.querySelector('.cr-element')          as HTMLInputElement).value.trim(),
+      atomIndex:    (card.querySelector('.cr-atom-index')       as HTMLInputElement).value.trim(),
       label:            (card.querySelector('.cr-label')               as HTMLInputElement).value.trim(),
       labelSize:        (card.querySelector('.cr-label-size')          as HTMLInputElement)?.value || '1.0',
       labelTextColor:   (card.querySelector('.cr-label-text-color')    as HTMLInputElement)?.value || '#ffffff',
       labelBorderWidth: (card.querySelector('.cr-label-border-width')  as HTMLInputElement)?.value || '0.2',
       labelBorderColor: (card.querySelector('.cr-label-border-color')  as HTMLInputElement)?.value || '#000000',
       tooltip:          (card.querySelector('.cr-tooltip')             as HTMLInputElement).value.trim(),
-      focus:        (card.querySelector('.cr-focus')       as HTMLInputElement).checked,
-      rawJson:      (card.querySelector('.cr-json')        as HTMLTextAreaElement).value,
-      rawParamsJson:(card.querySelector('.cr-params-json') as HTMLTextAreaElement).value,
+      focus:        (card.querySelector('.cr-focus')            as HTMLInputElement).checked,
+      rawJson:      (card.querySelector('.cr-json')             as HTMLTextAreaElement).value,
+      rawParamsJson:(card.querySelector('.cr-params-json')      as HTMLTextAreaElement).value,
       subParams:    {},
     };
 
@@ -586,9 +610,12 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
     }
 
     const sizeVal    = settingsObj[`${target.id}_size`]    as string | undefined;
-    const opacityVal = settingsObj[`${target.id}_opacity`] as string | undefined;
-    if (sizeVal)    (card.querySelector('.size-input')    as HTMLInputElement).value = sizeVal;
-    if (opacityVal) (card.querySelector('.opacity-input') as HTMLInputElement).value = opacityVal;
+    const alphaVal   = settingsObj[`${target.id}_alpha`]   as string | undefined;
+    const qualityVal = settingsObj[`${target.id}_quality`] as string | undefined;
+
+    if (sizeVal)    (card.querySelector('.size-input')     as HTMLInputElement).value = sizeVal;
+    if (alphaVal)   (card.querySelector('.alpha-input')    as HTMLInputElement).value = alphaVal;
+    if (qualityVal) (card.querySelector('.quality-select') as HTMLSelectElement).value = qualityVal;
   }
 
   if (Array.isArray(settingsObj.customRules)) {
@@ -693,7 +720,7 @@ document.getElementById('import-json')?.addEventListener('change', (e: Event) =>
             return {
               name: rule.name ?? '', rep: rule.rep ?? 'highlight',
               colorType: rule.colorType ?? 'solid', colorVal: rule.colorVal ?? '#ffffff',
-              size: rule.size ?? '', opacity: rule.opacity ?? '',
+              size: rule.size ?? '', alpha: rule.alpha ?? '', quality: rule.quality ?? 'auto',
               mode: rule.mode ?? 'simple', scheme: rule.scheme ?? 'auth',
               chain: rule.chain ?? '', ranges: rule.ranges ?? '',
               specific: rule.specific ?? '', atomName: rule.atomName ?? '',

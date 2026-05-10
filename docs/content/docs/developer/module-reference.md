@@ -4,7 +4,7 @@ author = ["Martin Bari Garnier"]
 draft = false
 +++
 
-All source files live in `src/` and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained `.js` file in `dist/`. Shared modules (`types`, `config`, `permissions`, `mvs-builder`) are not separate output files — they are bundled into whichever entry points import them.
+All source files live in `src/` and are written in TypeScript. Each entry-point module is compiled by esbuild into a single self-contained `.js` file in `dist/`. Shared modules (`types`, `config`, `permissions`, `native-builder`) are not separate output files — they are bundled into whichever entry points import them.
 
 
 ## Shared Modules {#shared-modules}
@@ -50,18 +50,9 @@ Key exports:
 -   `PermissionsManager.revokeAndUnregister(url)` — removes the permission, unregisters the script, and removes the domain from storage.
 
 
-### `src/mvs-builder.ts` {#src-mvs-builder-dot-ts}
+### `src/native-builder.ts` {#src-native-builder-dot-ts}
 
-Translates extension settings into a [MolViewSpec](https://molstar.org/viewer-docs/extensions/mvs/) JSON tree. All user-controlled values are sanitized before being embedded.
-
-Key exports:
-
--   `MvsBuilder._buildBaseTemplate(url, format, settings)` — builds the complete MVS JSON object; called by both `sandbox.ts` (rendering) and `createViewerUrl` (sharing)
--   `MvsBuilder.createViewerUrl(url, format, settings)` — encodes the MVS tree as a `molstar.org/viewer/` URL for external sharing
--   `MvsBuilder._sanitizeString(value, maxLength)` — strips control characters, caps length
--   `MvsBuilder._sanitizeColor(colorType, colorVal)` — validates against theme allowlist or `#rrggbb` pattern
--   `MvsBuilder._sanitizeRepType(repType)` — validates against `AppConfig.RepSchema` keys
--   `MvsBuilder._deepSanitize(obj, depth)` — recursively sanitizes free-form objects (used for `camera_json`), caps depth at 2, rejects arrays and prototype-polluting keys
+Handles the creation, styling, and management of labels in the Mol\* viewer.
 
 
 ## Entry-Point Modules {#entry-point-modules}
@@ -102,17 +93,17 @@ Key functions:
 -   `setupDragAndDrop()` — full-page drag-and-drop overlay for local files
 
 
-### `src/sandbox.ts` → `sandbox.js` (bundles `mvs-builder.ts`) {#src-sandbox-dot-ts-sandbox-dot-js--bundles-mvs-builder-dot-ts}
+### `src/sandbox.ts` → `sandbox.js` {#src-sandbox-dot-ts-sandbox-dot-js}
 
-The isolated rendering context. Has no access to extension APIs.
+The isolated rendering context for the Mol\* viewer. Has no access to extension APIs but is allowed to use `unsafe-eval` for WebGL shader compilation.
 
 Flow:
 
-1.  Posts `SANDBOX_READY` immediately on script load
-2.  On `INIT_MOLSTAR`: validates origin (`chrome-extension://` or `moz-extension://`), validates URL (must be `data:` or `null`), validates format
-3.  Converts data URI to a short `blob:` URL (anti-lag fix for large files)
-4.  Calls `MvsBuilder._buildBaseTemplate()` to produce the MVS JSON
-5.  Loads via `viewerInstance.loadMvsData()` if available, or the `PluginExtensions.mvs.loadMVS()` fallback
+1.  Posts `SANDBOX_READY` immediately on script load to signal readiness to the parent `viewer.ts`.
+2.  On `INIT_MOLSTAR`: validates the message origin (`chrome-extension://` or `moz-extension://`), URL scheme (must be `data:` or `null`), and format.
+3.  Converts the base64 data URI to a short `blob:` URL to avoid performance issues with large files.
+4.  Initializes the Mol\* viewer and loads the structure data directly into the scene.
+5.  Renders the 3D scene using the Mol\* viewer API.
 
 
 ### `src/popup.ts` → `popup.js` {#src-popup-dot-ts-popup-dot-js}

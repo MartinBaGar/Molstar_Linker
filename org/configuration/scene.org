@@ -2,30 +2,36 @@
 #+draft: false
 #+HUGO_WEIGHT: 201
 
-The *Global Scene Settings* panel controls the overall look of the Mol* viewer, independent of any particular molecule.
+The *Canvas & Camera* section in the Options page controls the global appearance of the Mol* viewer.
 
 * Canvas Background Color
 
-Sets the viewer background. Click the color swatch to open a color picker, or type a hex value directly (e.g. =#111111= for dark mode).
+Sets the background color of the Mol* viewer. You can:
+- Click the color picker to select a color visually.
+- Enter a hex color code directly (e.g., =#111111= for dark mode).
 
-The default is white (=#ffffff=). If you want a dark background without changing anything else, use the built-in *Dark Mode Canvas* preset from the popup.
+The default is white (=#ffffff=). For a quick dark mode, use the built-in *Dark Mode Canvas* preset from the extension popup.
 
-* Camera JSON
+* Camera Settings
 
-Paste a JSON object to lock the camera to a specific position, orientation, and zoom when the viewer opens. This is useful for publication figures or shared links where you want a reproducible viewpoint.
+Lock the camera to a specific position and orientation when the viewer opens. This is useful for creating reproducible figures or shared views.
 
-The object is passed directly as a [[https://molstar.org/viewer-docs/extensions/mvs/][MolViewSpec]] =camera= node. Example:
+Enter a JSON object with the camera state. Example:
 
 #+begin_src json
 {
   "target": [0, 0, 0],
-  "position": [0, 0, 100],
+  "position": [50, 50, 50],
   "up": [0, 1, 0]
 }
 #+end_src
 
 Leave this field empty to let Mol* auto-fit the camera to the structure.
 
+**Note**: Camera settings are applied *after* the structure is loaded, so the viewer may briefly show the auto-fit view before transitioning to your saved position.
+
 * Applying Changes
 
-Click *Apply to Mol** in the sidebar after making any changes. Settings are saved to your browser's synced storage and used for all subsequent badge clicks.
+Click the *Apply* button at the bottom of the page to save your settings. Changes are stored in your browser's synced storage and take effect the next time you open a structure.
+
+**Note**: Label customization is now configured in [[file:custom-rules/][Custom Rules]] on a per-rule basis, rather than globally.

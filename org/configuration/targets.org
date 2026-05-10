@@ -2,65 +2,75 @@
 #+draft: false
 #+HUGO_WEIGHT: 202
 
-The *Global Target Configurations* panel lets you set the default visual style for each class of molecule. Each target is a collapsible card.
+The *Targets* section in the Options page lets you configure the default visual style for each molecular component. Each target is represented as a collapsible card.
 
 * Available Targets
 
-| Target                    | Selector   | Default Representation | Default Color  |
-|---------------------------+------------+------------------------+----------------|
-| Proteins                  | =protein=    | Cartoon                | Chain ID       |
-| Nucleic Acids (DNA/RNA)   | =nucleic=    | Cartoon                | Chain ID       |
-| Ligands & Small Molecules | =ligand=     | Ball & Stick           | Element symbol |
-| Carbohydrates & Glycans   | =branched=   | Ball & Stick           | Element symbol |
-| Lipids                    | =lipid=      | Ball & Stick           | Element symbol |
-| Single Ions               | =ion=        | Ball & Stick           | Element symbol |
-| Water / Solvent           | =water=      | Hidden (Off)           | —              |
-| All Atoms                 | =all=        | Ball & Stick           | Element symbol |
-
-The =all= target is a catch-all that applies to every atom in the structure. It is useful as a fallback representation but is hidden by default. Enable it only when you want a uniform style applied across the entire structure regardless of molecule type.
+| Target                    | Selector   | Default Representation | Default Color      | Default Size | Default Opacity |
+|---------------------------+------------+------------------------+--------------------+--------------+-----------------|
+| Proteins                  | =protein=  | Cartoon                | Chain ID           | —            | 1.0             |
+| Nucleic Acids (DNA/RNA)   | =nucleic=  | Cartoon                | Chain ID           | —            | 1.0             |
+| Ligands & Small Molecules | =ligand=   | Ball & Stick           | Element symbol     | 0.2          | 1.0             |
+| Carbohydrates & Glycans   | =branched= | Carbohydrate           | Chain ID           | —            | 1.0             |
+| Lipids                    | =lipid=    | Ball & Stick           | Element symbol     | 0.3          | 1.0             |
+| Single Ions               | =ion=      | Spacefill              | Element symbol     | 0.1          | 1.0             |
+| Water / Solvent           | =water=    | Gaussian Surface       | Element symbol     | 2.0          | 0.3             |
 
 * Representation Types
 
 Each target can use any of the following representations:
 
-| Key              | Label        | Extra Options                         |
-|------------------+--------------+---------------------------------------|
-| =cartoon=          | Cartoon      | Tubular helices on/off                |
-| =backbone=         | Backbone     | —                                     |
-| =ball_and_stick=   | Ball & Stick | Ignore hydrogens on/off               |
-| =line=             | Line         | Ignore hydrogens on/off               |
-| =spacefill=        | Spacefill    | Ignore hydrogens on/off               |
-| =carbohydrate=     | Carbohydrate | —                                     |
-| =putty=            | Putty        | Size theme: uniform / uncertainty     |
-| =surface=          | Surface      | Type: molecular / gaussian; ignore H  |
-| =off=              | Hide         | Omits this target from the scene      |
+| Key                  | Label               | Extra Options                         |
+|----------------------+---------------------+---------------------------------------|
+| =cartoon=            | Cartoon             | Tubular helices on/off                |
+| =backbone=           | Backbone            | —                                     |
+| =ball_and_stick=     | Ball & Stick        | Ignore hydrogens on/off               |
+| =line=               | Line                | Ignore hydrogens on/off               |
+| =spacefill=          | Spacefill           | Ignore hydrogens on/off               |
+| =carbohydrate=       | Carbohydrate        | —                                     |
+| =putty=              | Putty               | Size theme: uniform / uncertainty     |
+| =molecular_surface=  | Molecular Surface   | Ignore hydrogens on/off               |
+| =gaussian_surface=   | Gaussian Surface    | Ignore hydrogens on/off               |
+| =off=                | Hide / Off          | —                                     |
 
 * Color
 
-Each target has a color mode toggle:
+Each target has a color configuration with two modes:
 
-- *Theme* — uses a Mol* built-in coloring scheme applied dynamically to the structure (e.g. =chain-id=, =element-symbol=, =secondary-structure=, =residue-name=, =sequence-id=, =uncertainty=, =b-factor=)
-- *Solid* — a single flat hex color applied uniformly to all atoms in the target
+- *Theme*: Uses a Mol* built-in coloring scheme:
+  - =chain-id=: Color by chain
+  - =element-symbol=: Color by atom type
+  - =secondary-structure=: Color by secondary structure (proteins only)
+
+- *Solid*: Applies a single hex color (e.g., =#ff0000= for red) to all atoms in the target.
 
 * Size & Opacity
 
-- *Size* maps to the =size_factor= parameter in MolViewSpec, scaling atom/bond radius relative to the default
-- *Opacity* (0–1) adds a MolViewSpec =opacity= node; particularly useful for making surfaces semi-transparent while keeping the cartoon underneath visible
+- *Size*: Scales the representation size. The effect depends on the representation:
+  - For *Ball & Stick*, *Cartoon*, etc.: Scales the radius of atoms/bonds.
+  - For *Gaussian Surface*: Sets the base radius of the surface.
 
-* Applying Changes
+- *Opacity*: Sets the transparency (0.0 = fully transparent, 1.0 = fully opaque).
 
-Click *Apply to Mol** in the sidebar. Changes are saved to your browser's synced storage and take effect on the next badge click or workspace load.
+* Quality
+
+Controls the rendering quality:
+- =auto=: Let Mol* choose the best quality.
+- =highest=, =high=, =medium=, =low=, =lowest=: Manually set the quality level.
 
 * Sub-Parameters
 
-Some representations expose additional options in a collapsible drawer below the style selector:
+Some representations expose additional options in a collapsible drawer:
 
-| Representation | Option              | Effect                                                |
-|----------------+---------------------+-------------------------------------------------------|
-| Cartoon        | Tubular helices     | Renders helices as cylinders instead of ribbons       |
-| Ball & Stick   | Ignore hydrogens    | Hides hydrogen atoms                                  |
-| Line           | Ignore hydrogens    | Hides hydrogen atoms                                  |
-| Spacefill      | Ignore hydrogens    | Hides hydrogen atoms                                  |
-| Surface        | Ignore hydrogens    | Excludes hydrogens from surface calculation           |
-| Surface        | Type                | =molecular= (VdW) or =gaussian= (smooth density)       |
-| Putty          | Size theme          | =uniform= (constant radius) or =uncertainty= (B-factor) |
+| Representation       | Option              | Effect                                                |
+|----------------------+---------------------+-------------------------------------------------------|
+| Cartoon              | Tubular helices     | Renders helices as cylinders instead of ribbons       |
+| Ball & Stick         | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Line                 | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Spacefill            | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Molecular Surface    | Ignore hydrogens    | Excludes hydrogens from surface calculation           |
+| Gaussian Surface     | Ignore hydrogens    | Excludes hydrogens from surface calculation           |
+
+* Applying Changes
+
+Click the *Apply* button at the bottom of the page to save your settings. Changes are stored in your browser's synced storage and take effect the next time you open a structure.

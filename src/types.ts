@@ -11,7 +11,8 @@ export type RepType =
   | "spacefill"
   | "carbohydrate"
   | "putty"
-  | "surface"
+  | "molecular_surface"
+  | "gaussian_surface"
   | "off";
 
 // "highlight" is only valid in custom rules, not as a target rep
@@ -26,6 +27,8 @@ export interface TargetDefinition {
   label: string;
   rep: RepType;
   color: string;
+  alpha: number | null;
+  quality: string;
   size: number | null;
 }
 
@@ -38,7 +41,8 @@ export interface CustomRule {
   colorType: "theme" | "solid";
   colorVal: string;
   size: string;
-  opacity: string;
+  alpha: string;
+  quality: string;
   mode: "simple" | "expert";
   scheme: "auth" | "label";
   chain: string;

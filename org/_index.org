@@ -4,26 +4,27 @@
 
 #+begin_export html
 <iframe 
-  src="https://molstar.org/viewer/?snapshot-url=https://martinbagar.github.io/Molstar_Linker/models/welcome.molx&snapshot-url-type=molx&hide-controls=1" 
+  src="https://molstar.org/viewer/?snapshot-url=https://martinbagar.github.io/Molstar_Linker/models/welcome.molj&snapshot-url-type=molj&hide-controls=1" 
   width="100%" 
   height="200px" 
   style="border: none; border-radius: 8px; margin-top: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
 </iframe>
 #+end_export
 
-Mol* Linker is a browser extension for Chrome and Firefox that automatically detects molecular structure file links on GitHub and GitLab, and injects a one-click badge to open them in the [[https://molstar.org/viewer/][Mol* web viewer]] — pre-configured with your preferred representation style.
+Mol* Linker is a browser extension for Chrome and Firefox that automatically detects molecular structure file links on GitHub, GitLab, and other supported domains. It injects a one-click badge to open these files in the [[https://molstar.org/viewer/][Mol* web viewer]] — rendered natively with your preferred visual styles.
 
 No downloads. No local software. Click a badge, see your structure in 3D.
 
 * Features
 
-- Badge injection on GitHub & GitLab file browsers and directory trees
-- Full scene builder: per-molecule representation, color, opacity controls
-- Custom highlighting rules for chains, residues, or any selection
-- Named template library — save, share, and import JSON configurations
+- Automatic badge injection on GitHub, GitLab, and authorized custom domains
+- Native Mol* rendering engine for high-performance visualization
+- Full scene customization: per-molecule representations, colors, and transparency
+- Custom rules for highlighting chains, residues, atoms, or arbitrary selections
+- Named presets — save, share, and import JSON configurations
 - Works on private / self-hosted GitLab instances
 - Handles SPA navigation (no page reload required)
-- **NEW:** Offline Drag & Drop functionality for local files directly from your computer
+- Secure file fetching with built-in anti-SSRF protection
 
 * Supported Formats
 

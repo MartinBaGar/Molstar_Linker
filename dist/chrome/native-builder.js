@@ -40283,18 +40283,18 @@ ${subTree.join("\n")}`;
     spacefill: { label: "Spacefill", params: { ignore_hydrogens: "boolean" } },
     carbohydrate: { label: "Carbohydrate", params: {} },
     putty: { label: "Putty", params: { size_theme: ["uniform", "uncertainty"] } },
-    surface: { label: "Surface", params: { surface_type: ["molecular", "gaussian"], ignore_hydrogens: "boolean" } },
+    molecular_surface: { label: "Molecular Surface", params: { ignore_hydrogens: "boolean" } },
+    gaussian_surface: { label: "Gaussian Surface", params: { ignore_hydrogens: "boolean" } },
     off: { label: "Hide / Off", params: {} }
   };
   var targets = [
-    { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", size: null },
-    { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", size: null },
-    { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1 },
-    { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", size: null },
-    { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
-    { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7 },
-    { id: "water", selector: "water", label: "Water / Solvent", rep: "line", color: "element-symbol", size: null }
-    // { id: "all",      selector: "all",      label: "All",                         rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
+    { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+    { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+    { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.2 },
+    { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", alpha: 1, quality: "auto", size: null },
+    { id: "ion", selector: "ion", label: "Single Ions", rep: "spacefill", color: "element-symbol", alpha: 1, quality: "auto", size: 0.1 },
+    { id: "lipid", selector: "lipid", label: "Lipids", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.3 },
+    { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian_surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2 }
   ];
   var presets = {
     standard: {
@@ -40338,6 +40338,8 @@ ${subTree.join("\n")}`;
       defaults2[`${t.id}_colorType`] = THEME_COLORS.has(t.color) ? "theme" : "solid";
       defaults2[`${t.id}_colorVal`] = t.color;
       if (t.size !== null) defaults2[`${t.id}_size`] = t.size;
+      if (t.alpha !== null) defaults2[`${t.id}_alpha`] = t.alpha;
+      defaults2[`${t.id}_quality`] = t.quality;
     }
     return defaults2;
   }
@@ -40349,8 +40351,13 @@ ${subTree.join("\n")}`;
   };
 
   // src/native-builder.ts
-  var activeTooltips = [];
-  var isTooltipProviderRegistered = false;
+  function getTooltipState(plugin) {
+    const cs = plugin.customState;
+    if (!cs.__nativeBuilder) {
+      cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
+    }
+    return cs.__nativeBuilder;
+  }
   var NativeBuilder = {
     // -------------------------------------------------------------------------
     // Entry point — called from sandbox.ts after the blob URL is ready.
@@ -40368,17 +40375,6 @@ ${subTree.join("\n")}`;
           renderer: { backgroundColor: Color.fromHexStyle(settings.canvas_color) }
         });
       }
-      if (settings.camera_json) {
-        try {
-          const camState = JSON.parse(settings.camera_json);
-          setTimeout(() => {
-            plugin.canvas3d?.camera.setState(camState);
-            plugin.canvas3d?.requestDraw();
-          }, 200);
-        } catch (e) {
-          console.warn("NativeBuilder: invalid camera_json, skipped", e);
-        }
-      }
       for (const target of AppConfig.targets) {
         const repType = settings[`${target.id}_rep`];
         if (!repType || repType === "off") continue;
@@ -40390,55 +40386,69 @@ ${subTree.join("\n")}`;
           await this.applyRepresentation(plugin, component, target.id, settings);
         }
       }
-      activeTooltips = [];
-      if (!isTooltipProviderRegistered) {
+      const state = getTooltipState(plugin);
+      state.activeTooltips = [];
+      if (!state.isRegistered) {
         plugin.managers.lociLabels.addProvider({
           label: (hoveredLoci) => {
             if (hoveredLoci.kind !== "element-loci") return void 0;
             const rootA = hoveredLoci.structure.root;
-            for (const t of activeTooltips) {
-              const rootB = t.loci.structure.root;
-              if (rootA !== rootB) continue;
-              const hoverAtRoot = element_exports.Loci.remap(hoveredLoci, rootA);
-              const targetAtRoot = element_exports.Loci.remap(t.loci, rootA);
-              const intersect5 = element_exports.Loci.intersect(hoverAtRoot, targetAtRoot);
+            const matches = [];
+            for (const t of state.activeTooltips) {
+              if (t.loci.structure.root !== rootA) continue;
+              const intersect5 = element_exports.Loci.intersect(
+                element_exports.Loci.remap(hoveredLoci, rootA),
+                element_exports.Loci.remap(t.loci, rootA)
+              );
               if (!element_exports.Loci.isEmpty(intersect5)) {
-                return `<div style="background:#2da44e;color:white;padding:2px 6px;border-radius:4px;font-weight:bold;display:inline-block;line-height:1.4">${t.text}</div>`;
+                matches.push(t.text);
               }
             }
-            return void 0;
+            return matches.length > 0 ? matches.join("<br/>") : void 0;
           }
         });
-        isTooltipProviderRegistered = true;
+        state.isRegistered = true;
       }
-      if (!Array.isArray(settings.customRules)) return;
-      for (let i = 0; i < settings.customRules.length; i++) {
-        const rule = settings.customRules[i];
-        if (!rule) continue;
-        const expression = rule.mode === "expert" && rule.selector ? this.buildExpertExpression(rule.selector) : this.buildSimpleExpression(rule);
-        const componentId = `custom-rule-${i}`;
-        const component = await plugin.builders.structure.tryCreateComponentFromExpression(
-          structure,
-          expression,
-          componentId,
-          { label: rule.name || `Custom Rule ${i + 1}` }
-        );
-        if (!component?.obj?.data) continue;
-        await this.applyCustomRuleRepresentation(plugin, component, rule);
-        if (rule.label) {
-          await this.apply3DLabel(plugin, component, rule);
+      if (Array.isArray(settings.customRules)) {
+        for (let i = 0; i < settings.customRules.length; i++) {
+          const rule = settings.customRules[i];
+          if (!rule) continue;
+          const expression = rule.mode === "expert" && rule.selector ? this.buildExpertExpression(rule.selector) : this.buildSimpleExpression(rule);
+          const componentId = `custom-rule-${i}`;
+          const component = await plugin.builders.structure.tryCreateComponentFromExpression(
+            structure,
+            expression,
+            componentId,
+            { label: rule.name || `Custom Rule ${i + 1}` }
+          );
+          if (!component?.obj?.data) continue;
+          await this.applyCustomRuleRepresentation(plugin, component, rule);
+          if (rule.label) {
+            await this.apply3DLabel(plugin, component, rule);
+          }
+          if (rule.label || rule.tooltip) {
+            const text = [
+              rule.tooltip ? `\u2139\uFE0F ${rule.tooltip}` : ""
+            ].filter(Boolean).join(" \xB7 ");
+            state.activeTooltips.push({
+              loci: Structure.toStructureElementLoci(component.obj.data),
+              text
+            });
+          }
+          if (rule.focus) {
+            plugin.managers.camera.focusLoci(
+              Structure.toStructureElementLoci(component.obj.data)
+            );
+          }
         }
-        const hoverContent = [
-          rule.label ? `\u{1F3F7}\uFE0F ${rule.label}` : "",
-          rule.tooltip ? `\u2139\uFE0F ${rule.tooltip}` : ""
-        ].filter(Boolean).join("<br/>");
-        if (hoverContent) {
-          const componentLoci = Structure.toStructureElementLoci(component.obj.data);
-          activeTooltips.push({ loci: componentLoci, text: hoverContent });
-        }
-        if (rule.focus) {
-          const loci = Structure.toStructureElementLoci(component.obj.data);
-          plugin.managers.camera.focusLoci(loci);
+      }
+      if (settings.camera_json) {
+        try {
+          const camState = JSON.parse(settings.camera_json);
+          plugin.canvas3d?.camera.setState(camState);
+          plugin.canvas3d?.requestDraw();
+        } catch (e) {
+          console.warn("NativeBuilder: invalid camera_json, skipped", e);
         }
       }
     },
@@ -40537,67 +40547,114 @@ ${subTree.join("\n")}`;
       const colorType = settings[`${targetId}_colorType`];
       const colorVal = settings[`${targetId}_colorVal`];
       const sizeVal = settings[`${targetId}_size`];
-      const nativeRepType = repType === "ball_and_stick" ? "ball-and-stick" : repType;
+      const alphaVal = settings[`${targetId}_alpha`];
+      const qualityVal = settings[`${targetId}_quality`];
+      const REP_MAP = {
+        "ball_and_stick": "ball-and-stick",
+        "molecular_surface": "molecular-surface",
+        "gaussian_surface": "gaussian-surface"
+      };
+      const nativeRepType = REP_MAP[repType] || repType;
       const themeName = colorType === "theme" ? colorVal : "uniform";
       const colorParams = colorType === "theme" ? void 0 : { value: Color.fromHexStyle(colorVal || "#ffffff") };
       const typeParams = {};
+      let sizeThemeName = void 0;
+      let sizeParams = void 0;
       if (sizeVal !== void 0 && sizeVal !== null && sizeVal !== "") {
-        typeParams.sizeFactor = parseFloat(String(sizeVal));
+        const parsedSize = parseFloat(String(sizeVal));
+        if (nativeRepType === "gaussian-surface") {
+          sizeThemeName = "uniform";
+          sizeParams = { value: parsedSize };
+        } else {
+          typeParams.sizeFactor = parsedSize;
+        }
+      }
+      if (alphaVal !== void 0 && alphaVal !== null && alphaVal !== "") {
+        typeParams.alpha = parseFloat(String(alphaVal));
+      }
+      if (qualityVal && qualityVal !== "auto") {
+        typeParams.quality = qualityVal;
       }
       const subParams = settings[`${targetId}_subParams`];
       if (subParams) {
         if (subParams.ignore_hydrogens) typeParams.ignoreHydrogens = true;
-        if (subParams.surface_type) typeParams.type = subParams.surface_type;
         if (subParams.tubular_helices) typeParams.tubularHelices = true;
-      }
-      const opacityVal = settings[`${targetId}_opacity`];
-      if (opacityVal !== void 0 && opacityVal !== "") {
-        typeParams.alpha = parseFloat(String(opacityVal));
       }
       await plugin.builders.structure.representation.addRepresentation(
         component,
-        { type: nativeRepType, typeParams, color: themeName, colorParams }
+        {
+          type: nativeRepType,
+          typeParams,
+          color: themeName,
+          colorParams,
+          size: sizeThemeName,
+          sizeParams
+        }
       );
     },
     // -------------------------------------------------------------------------
     // Apply a custom-rule representation
     // -------------------------------------------------------------------------
     async applyCustomRuleRepresentation(plugin, component, rule) {
-      const nativeRepType = rule.rep === "highlight" || rule.rep === "ball_and_stick" ? "ball-and-stick" : rule.rep;
+      const REP_MAP = {
+        "ball_and_stick": "ball-and-stick",
+        "molecular_surface": "molecular-surface",
+        "gaussian_surface": "gaussian-surface"
+      };
+      let nativeRepType = REP_MAP[rule.rep] || rule.rep;
+      if (rule.rep === "highlight") nativeRepType = "ball-and-stick";
       const themeName = rule.colorType === "theme" ? rule.colorVal : "uniform";
       const colorParams = rule.colorType === "theme" ? void 0 : { value: Color.fromHexStyle(rule.colorVal || "#ffffff") };
       const typeParams = {};
-      if (rule.size) typeParams.sizeFactor = parseFloat(rule.size);
-      if (rule.opacity) typeParams.alpha = parseFloat(rule.opacity);
+      let sizeThemeName = void 0;
+      let sizeParams = void 0;
+      if (rule.size) {
+        const parsedSize = parseFloat(rule.size);
+        if (nativeRepType === "gaussian-surface") {
+          sizeThemeName = "uniform";
+          sizeParams = { value: parsedSize };
+        } else {
+          typeParams.sizeFactor = parsedSize;
+        }
+      }
+      if (rule.alpha) {
+        typeParams.alpha = parseFloat(rule.alpha);
+      }
+      if (rule.quality && rule.quality !== "auto") {
+        typeParams.quality = rule.quality;
+      }
       await plugin.builders.structure.representation.addRepresentation(
         component,
-        { type: nativeRepType, typeParams, color: themeName, colorParams }
+        {
+          type: nativeRepType,
+          typeParams,
+          color: themeName,
+          colorParams,
+          size: sizeThemeName,
+          sizeParams
+        }
       );
     },
     // -------------------------------------------------------------------------
-    // 3D label — uses the same Measurements API as the Mol* UI.
+    // 3D label — uses the same API as Measurements › Add › Label.
+    // Hover tooltip is handled separately via the lociLabels provider above.
     // -------------------------------------------------------------------------
     async apply3DLabel(plugin, component, rule) {
       const structure = component.obj?.data;
       if (!structure) return;
       const subLoci = Structure.toStructureElementLoci(structure);
       const rootLoci = element_exports.Loci.remap(subLoci, structure.root);
-      await plugin.managers.structure.measurement.addLabel(rootLoci);
-      const labels = plugin.managers.structure.measurement.state.labels;
-      const newLabelCell = labels[labels.length - 1];
-      if (newLabelCell) {
-        const update = plugin.state.data.build();
-        update.to(newLabelCell.transform.ref).update((oldParams) => ({
-          ...oldParams,
+      await plugin.managers.structure.measurement.addLabel(rootLoci, {
+        visualParams: {
           customText: rule.label,
           sizeFactor: rule.labelSize ? parseFloat(rule.labelSize) : 1,
           textColor: Color.fromHexStyle(String(rule.labelTextColor || "#ffffff")),
+          tooltip: rule.tooltip ?? "",
           borderWidth: rule.labelBorderWidth ? parseFloat(String(rule.labelBorderWidth)) : 0.2,
           borderColor: Color.fromHexStyle(String(rule.labelBorderColor || "#000000")),
           background: false
-        }));
-        await plugin.state.data.updateTree(update).run();
-      }
+        }
+      });
     }
   };
 })();

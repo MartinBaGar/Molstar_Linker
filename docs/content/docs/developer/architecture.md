@@ -11,6 +11,12 @@ Mol\* Linker operates across several strict security boundaries imposed by the b
 To load multi-megabyte structural files from dynamic Single Page Applications (GitHub, GitLab, RCSB) into a high-performance WebGL visualizer (Mol\*), the extension uses a **4-Layer Architecture** where each layer has one clearly defined responsibility.
 
 
+### Key Design Decisions {#key-design-decisions}
+
+-   **NPM Integration**: The extension no longer bundles `molstar.js` directly. Instead, it uses the Mol\* NPM package for better maintainability and versioning.
+-   **Label Customization**: Labels are now fully customizable, including text size, color, and border properties. The `LabelHandler` class in `src/native-builder.ts` manages label creation, styling, and positioning.
+
+
 ## The 4-Layer Architecture {#the-4-layer-architecture}
 
 
@@ -43,22 +49,23 @@ To load multi-megabyte structural files from dynamic Single Page Applications (G
     2.  **Format gating:** If format is unknown (right-click path), shows a format selector before proceeding.
     3.  **SSRF protection:** Validates the URL against a blocklist of private IP ranges and loopback addresses before fetching.
     4.  **Fetch:** Downloads the structure file using `fetch()`, enforces a 25 MB size cap, and performs a Firefox tracking-protection sanity check on the first 150 bytes.
-    5.  **Schema gating:** Merges storage settings with `AppConfig.getDefaults()` using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the MVS builder.
-    6.  **Handoff:** Spawns the sandbox `<iframe>` and passes the base64 data URI and validated settings via `postMessage`, using an `e.source` guard instead of origin matching (sandboxed iframes always report `null` origin).
-    7.  **Drag &amp; drop:** Handles local file loading for offline use.
+    5.  **Schema gating:** Merges storage settings with `AppConfig.getDefaults()` using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the rendering engine.
+    6.  **Label Customization:** Applies label styling (text size, color, border) using the `LabelHandler` class from `src/native-builder.ts`.
+    7.  **Handoff:** Spawns the sandbox `<iframe>` and passes the base64 data URI and validated settings via `postMessage`, using an `e.source` guard instead of origin matching (sandboxed iframes always report `null` origin).
+    8.  **Drag &amp; drop:** Handles local file loading for offline use.
 
 
 ### 4. The Engine (The Sandbox) {#4-dot-the-engine--the-sandbox}
 
--   **Source:** `src/sandbox.ts`, `src/mvs-builder.ts`
+-   **Source:** `src/sandbox.ts`, `src/native-builder.ts`
 -   **Output:** `sandbox.js` (bundles both modules)
 -   **Environment:** Sandboxed iframe, origin `null`, zero extension API access
 -   **Role:** Mol\* requires `eval()` and `new Function()` to compile WebGL shaders dynamically. Standard MV3 extension pages forbid this. The sandbox is explicitly declared in the Chrome manifest to allow `unsafe-eval` in isolation.
 -   **Action:**
-    1.  Immediately posts `SANDBOX_READY` to the parent on script load.
+    1.  Immediately posts `SANDBOX_READY` to the parent on script load to signal readiness.
     2.  Validates the incoming `INIT_MOLSTAR` message (origin, URL scheme, format).
-    3.  Converts the base64 data URI back into a short `blob:` URL to avoid embedding multi-megabyte strings in the MVS JSON tree (anti-lag fix).
-    4.  Translates the validated settings into a MolViewSpec JSON tree via `MvsBuilder._buildBaseTemplate()`.
+    3.  Converts the base64 data URI back into a short `blob:` URL to avoid embedding multi-megabyte strings in the State tree.
+    4.  Initializes the Mol\* viewer and loads the structure data directly into the scene.
     5.  Renders the 3D scene via the Mol\* viewer API.
 
 
@@ -75,7 +82,7 @@ manifests/                        dist/firefox/
 ```
 
 -   **tsc** acts as a quality gate: strict type checking with no file output (`noEmit: true`).
--   **esbuild** bundles each entry point and all its imports into one self-contained JS file. Shared modules (`config`, `permissions`, `mvs-builder`, `types`) are inlined — they do not appear as separate script files in the output.
+-   **esbuild** bundles each entry point and all its imports into one self-contained JS file. Shared modules (`config`, `permissions`, `native-builder`, `types`) are inlined — they do not appear as separate script files in the output.
 -   **assemble.js** routes the correct manifest, the compiled JS, and the static assets into a browser-specific folder that can be loaded directly into the browser.
 
 This design means `content.js` compiles to a plain classic script with no module syntax (it has no imports), while all other entry points also compile to classic scripts because esbuild resolves all imports at build time. The browser never needs to handle ES module resolution at runtime.

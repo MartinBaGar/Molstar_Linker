@@ -2,74 +2,94 @@
 #+draft: false
 #+HUGO_WEIGHT: 203
 
-Custom rules let you target specific chains, residues, or atoms and apply a color override or a completely separate representation on top of (or instead of) the global target settings.
+Custom Rules let you highlight specific chains, residues, or atoms with tailored visual styles. These rules override the global target settings for precise control over your structures.
 
-Click *+ Add New Rule* at the bottom of the Custom Highlighting Rules panel to create one.
+Click *+ Add New Rule* at the bottom of the *Custom Rules* panel to create a rule.
 
-* Rule Types
+* Rule Modes
 
-** Highlight (color overlay)
+** Simple Mode**
 
-Overlays a color on the existing representation without adding new geometry. Use this to call attention to a residue range or chain while keeping the surrounding context intact.
+Designed for quick, intuitive targeting:
+- *Chain*: Target a specific chain (e.g., =A=).
+- *Res Range*: Target a range of residues (e.g., =5-50= or =10-20,30-40=).
+- *Specific Res*: Target specific residues (e.g., =10,15,20=).
+- *Atom*: Target atoms by name (e.g., =CA= for alpha carbon).
+- *Element*: Target atoms by element (e.g., =FE= for iron).
+- *Atom Idx*: Target atoms by index (e.g., =100,101,102=).
 
-The color is injected as a per-selector color node inside the protein or nucleic representation — it does not create a separate component.
+** Expert Mode**
 
-** Representation
+For advanced users, this mode accepts raw JSON selectors for full control over the Mol* selection language. Example:
 
-Creates an entirely separate component in the Mol* scene with its own representation type, color, size, and opacity. Use this when you want a specific region to look different from the rest (e.g. a surface on chain A while everything else is cartoon).
+#+begin_src json
+{
+  "auth_asym_id": "A",
+  "auth_seq_id": 50
+}
+#+end_src
 
-* Selector Syntax
+* Representation Options
 
-The selector field accepts any MolViewSpec selector expression. Common examples:
+| Field      | Description                                                                                     |
+|------------+-------------------------------------------------------------------------------------------------|
+| Style      | Choose between:
+            - *Color Highlight Only*: Overlays a color on the existing representation.
+            - *Spawn: [Representation]*: Creates a new representation (e.g., Ball & Stick, Surface). |
+| Color      | Theme or solid color (same as global targets).                                                  |
+| Size       | Scales the representation size. Effect depends on the representation type.                     |
+| Opacity    | Sets transparency (0.0 = fully transparent, 1.0 = fully opaque).                                |
+| Quality    | Controls rendering quality (auto, highest, high, medium, low, lowest).                         |
 
-| Goal                         | Selector                                 |
-|------------------------------+------------------------------------------|
-| Entire chain A               | ={ "chain_id": "A" }=                      |
-| Residues 10–50               | ={ "residue_index": [10, 50] }=            |
-| A single residue (by number) | ={ "residue_number": 42 }=                 |
-| Ligand by name               | ={ "residue_name": "HEM" }=                |
-| All ligands                  | =ligand= (plain string selectors work too) |
+* Sub-Parameters
 
-Refer to the [[https://molstar.org/viewer-docs/extensions/mvs/][MolViewSpec documentation]] for the full selector schema.
+Some representations expose additional options:
 
-* Appearance Options
-
-| Field   | Description                                   |
-|---------+-----------------------------------------------|
-| Color   | Theme or solid color (same as global targets) |
-| Size    | =size_factor= for the representation            |
-| Opacity | 0–1; adds an MVS =opacity= node                 |
+| Representation       | Option              | Effect                                                |
+|----------------------+---------------------+-------------------------------------------------------|
+| Cartoon              | Tubular helices     | Renders helices as cylinders instead of ribbons       |
+| Ball & Stick         | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Line                 | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Spacefill            | Ignore hydrogens    | Hides hydrogen atoms                                  |
+| Molecular Surface    | Ignore hydrogens    | Excludes hydrogens from surface calculation           |
+| Gaussian Surface     | Ignore hydrogens    | Excludes hydrogens from surface calculation           |
 
 * Storytelling Options
 
-These options add annotation nodes to the Mol* scene — useful for guided presentations or publication figures.
+These options add annotations to enhance presentations or publications:
 
-| Field   | Effect in Mol*                                               |
-|---------+--------------------------------------------------------------|
-| Label   | Renders a 3D text label anchored to the selection centroid   |
-| Tooltip | Shows a text tooltip when the user hovers over the selection |
-| Focus   | Auto-zooms Mol* to the selection when the viewer opens       |
+| Field               | Effect in Mol*                                                                   |
+|--------------------+----------------------------------------------------------------------------------|
+| Floating 3D Label  | Renders a text label anchored to the selection.                                  |
+| Text Size           | Sets the size of the label text.                                                 |
+| Text Color          | Sets the color of the label text.                                                |
+| Border Size         | Sets the width of the label border.                                             |
+| Border Color        | Sets the color of the label border.                                             |
+| Hover Tooltip       | Shows a text badge when the user hovers over the selection.                     |
+| Focus Camera        | Auto-zooms the view to the selection when the viewer opens.                     |
 
 * Rule Order
 
-Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.
+Rules are applied in the order they appear in the list. You can drag and drop rules to reorder them.
 
 * Performance & Security Limits
 
-To ensure the Mol* rendering engine remains blazing fast and to protect your browser from memory-exhaustion crashes, the extension enforces a few strict limits on Custom Rules:
+To ensure smooth performance and security:
 
-- *Rule Cap:* You can define a maximum of *50 Custom Rules* at one time. If you define more than 50, the extension will safely prioritize the first 50 and ignore the rest.
-- *Text Limits:* For security against buffer bloat, =Label= text is truncated at 256 characters, and =Tooltip= text is truncated at 512 characters. 
-- *Sanitization:* The extension automatically strips invisible control characters and null bytes from your selectors. Ensure you are using standard MolQL/MVS syntax (e.g., =label_comp_id=, =label_asym_id=) to guarantee your rules are parsed correctly.
+- *Rule Cap*: You can define up to 50 custom rules.
+- *Text Limits*: Labels are truncated at 256 characters, and tooltips at 512 characters.
+- *Sanitization*: The extension validates selectors to ensure they use valid syntax.
 
 * Example: Highlight the Active Site
 
-Suppose you want to highlight residues 100–110 in chain A in orange, with a label:
+To highlight residues 100–110 in chain A with an orange color and a label:
 
-- *Selector*: ={ "chain_id": "A", "residue_number": [100, 110] }=
-- *Type*: Highlight
-- *Color*: Solid → =#ff6600=
-- *Label*: Active site
-- *Focus*: on
-
-  k
+1. *Rule Name*: Active Site
+2. *Mode*: Simple
+3. *Numbering*: auth (or label, depending on your structure)
+4. *Chain*: A
+5. *Res Range*: 100-110
+6. *Style*: Color Highlight Only
+7. *Color*: Solid → =#ff6600=
+8. *Floating 3D Label*: Active site
+9. *Focus Camera*: On

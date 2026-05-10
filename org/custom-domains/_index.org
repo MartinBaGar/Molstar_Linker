@@ -1,46 +1,62 @@
-#+TITLE: Custom Domains (Self-Hosted Instances)
+#+TITLE: Custom Domains
 #+draft: false
 #+HUGO_WEIGHT: 400
 
-* Authorizing Private Instances
+* Authorizing Custom Domains
 
-Many research institutions and universities use self-hosted versions of GitLab, GitHub Enterprise, or Electronic Lab Notebooks (like ElabFTW) behind secure firewalls.
+Mol* Linker works out-of-the-box on GitHub, GitLab, RCSB, and AlphaFold. To use it on other domains (e.g., self-hosted GitLab, university servers, or research databases), you must authorize the domain.
 
-By default, Mol* Linker only runs on public websites like =github.com= or =rcsb.org=. To use the extension on your private, internal network, you must authorize your custom domain.
+* Why Authorization is Needed
 
-* The CORS Advantage
-In the past, viewing 3D structures from private servers was incredibly difficult due to strict browser security rules known as CORS (Cross-Origin Resource Sharing). 
-
-*Mol* Linker v2.0 completely bypasses this limitation.* When you authorize a custom domain, you grant the extension elevated network privileges for that specific site. The extension can natively securely fetch the structural files from your private server and render them in the local workspace without requiring your IT department to alter server-side CORS headers!
+Browsers enforce strict security policies to prevent extensions from accessing arbitrary websites. Authorizing a domain grants Mol* Linker permission to:
+- Scan the page for structure files.
+- Inject *Mol** badges.
+- Fetch files securely.
 
 * How to Add a Custom Domain
 
-1. Navigate to your self-hosted instance (e.g., =https://gitlab.my-university.edu=).
-2. Click the *Mol* Linker* puzzle-piece icon in your browser's extension toolbar.
-3. In the popup menu, the extension will automatically detect your current domain.
-4. Click the *Authorize in Studio* button.
-5. Your browser will prompt you to grant permissions for this specific site. Click *Allow*.
+**Method 1: From the Extension Popup**
 
-Once authorized, the page will refresh, and Mol* (Workspace) badges will instantly appear next to all supported structural files!
+1. Navigate to the website you want to authorize (e.g., =https://gitlab.my-university.edu=).
+2. Click the *Mol* Linker* extension icon in your browser toolbar.
+3. If the domain is not authorized, you will see a prompt to *Authorize in Studio*.
+4. Click the button to open the Options page.
+5. The domain will be pre-filled in the *Manual Domain* input. Click *Add* to authorize it.
+
+**Method 2: From the Options Page**
+
+1. Open the Mol* Linker Options page:
+   - Click the extension icon → *Open Advanced Options*.
+   - Or right-click the extension icon → *Options*.
+2. Scroll to the *Custom Domains* section.
+3. Enter the domain (e.g., =gitlab.my-university.edu=) in the *Manual Domain* input.
+4. Click *Add*.
+
+**Method 3: Right-Click Fallback**
+
+1. On a page with structure files, *right-click* a download link.
+2. Select *"Open in Mol* Workspace"* from the context menu.
+3. If the domain is not authorized, you will be prompted to authorize it.
+4. Click *Authorize* to grant access.
 
 * Managing Authorized Domains
-You can view, manage, and revoke access to your custom domains at any time.
-1. Open the extension popup and click *Open Studio (Settings)*.
-2. Navigate to the *Custom Domains* tab on the left sidebar.
-3. Here, you will see a list of all currently authorized domains.
-4. Click *Remove* next to any domain to instantly revoke the extension's access to that site.
-   
-* How it Works: Dynamic Injection
-When you authorize a Custom Domain (e.g., =gitlab.my-university.edu= or =elabftw.my-company.com=) via the extension's popup menu, Mol* Linker does two things simultaneously:
-1. It safely grants the viewer the necessary network privileges to bypass strict CORS policies on that specific domain.
-2. It **dynamically registers** the Mol* Linker scanner to run on your private network.
 
-This means you do not need to edit the manifest or manually refresh your extension. The moment you click "Allow" in the browser prompt, the green Mol* Workspace badges will automatically begin appearing next to structural files on your private internal network!
+1. Open the Mol* Linker Options page.
+2. Scroll to the *Custom Domains* section.
+3. You will see a list of all authorized domains.
+4. Click *Remove* next to any domain to revoke access.
 
-* Automatic Right-Click Interception
-You don't always have to authorize domains manually from the popup! If you Right-Click a structural link on an unknown, unauthorized domain and select "Open in Mol* Workspace", the extension's **Security Gatekeeper** will intercept the request. It will explain that the domain is unauthorized and offer a one-click button to authorize it and continue to the viewer.
+* How It Works
 
-* Bypassing Strict Tracking Protections (Figshare / Zenodo)
-Some scientific databases, like Figshare, do not host files directly. Instead, clicking "Download" triggers an HTTP redirect to an Amazon Web Services (AWS) bucket. 
-Browsers with strict privacy engines (like Mozilla Firefox) often block these cross-origin redirects, causing the download to fail silently or return an XML Error page. 
-**The Fix:** Adding these sites to your Authorized Custom Domains grants the extension the necessary Host Permissions to legally and securely follow the redirect, completely bypassing the tracking block!
+When you authorize a domain:
+1. The extension requests permission to access the domain from your browser.
+2. If granted, the extension dynamically registers a content script for the domain.
+3. The content script scans the page for structure files and injects *Mol** badges.
+
+This process is secure and does not require server-side changes (e.g., CORS headers).
+
+* Troubleshooting
+
+- *Badges don't appear*: Ensure the domain is authorized and the page has been refreshed.
+- *Files fail to load*: Check that the domain is correctly spelled in the *Custom Domains* list.
+- *Permission denied*: Some browsers may require you to manually enable permissions in the extension management page (=chrome://extensions/= or =about:addons=).

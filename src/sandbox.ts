@@ -47,7 +47,7 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
       } catch {}
     }
 
-    // --- NEW LOGIC: Call the Native Builder instead of MVS ---
+    // --- NEW LOGIC: Call the Native Builder ---
     await NativeBuilder.buildNativeScene(
       viewerInstance.plugin, 
       shortBlobUrl, 

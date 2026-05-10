@@ -5,8 +5,8 @@
 * Official Web Stores
 The easiest and safest way to install Mol* Linker is through the official browser extension stores. These versions update automatically and have passed rigorous security reviews.
 
-- [[https://chrome.google.com/webstore][Install for Google Chrome / Edge / Brave]] (Coming Soon)
-- [[https://addons.mozilla.org/][Install for Mozilla Firefox]] (Coming Soon)
+- [[https://chrome.google.com/webstore/detail/mol-linker/][Install for Google Chrome / Edge / Brave]]
+- [[https://addons.mozilla.org/en-US/firefox/addon/mol-linker/][Install for Mozilla Firefox]]
 
 * Manual Installation (Developers & Advanced Users)
 If you want to test the latest features before they hit the web store, or if you want to modify the source code, you can install the extension manually.

@@ -32,7 +32,7 @@ Molstar_Linker/
 │   ├── types.ts     ← shared interfaces and message protocol types
 │   ├── config.ts    ← AppConfig: targets, RepSchema, presets, getDefaults()
 │   ├── permissions.ts
-│   ├── mvs-builder.ts
+│   ├── native-builder.ts
 │   ├── background.ts
 │   ├── content.ts
 │   ├── sandbox.ts
@@ -97,7 +97,7 @@ zip -r ../releases/molstar_linker_firefox-vX.Y.Z.zip firefox/
 Sets =noEmit: true= — tsc is used exclusively for type checking, not for producing output. esbuild handles compilation and bundling. Strict mode and =noImplicitAny= are both enabled.
 
 ** =build.mjs=
-Runs esbuild against the six entry points (=background=, =content=, =sandbox=, =viewer=, =popup=, =options=). Each entry point is bundled with all its TypeScript imports into a single flat JS file in =dist/=. Shared modules (=config=, =permissions=, =mvs-builder=, =types=) are not separate output files — they are inlined into whichever entry points import them.
+Runs esbuild against the six entry points (=background=, =content=, =sandbox=, =viewer=, =popup=, =options=). Each entry point is bundled with all its TypeScript imports into a single flat JS file in =dist/=. Shared modules (=config=, =permissions=, =native-builder=, =types=) are not separate output files — they are inlined into whichever entry points import them.
 
 ** =assemble.js=
 Takes the browser name as an argument (=chrome= or =firefox=), cleans the target output folder, copies the six bundled JS files from =dist/=, copies static assets from =public/=, and copies the correct manifest from =manifests/=. The result is a complete, self-contained loadable extension folder.

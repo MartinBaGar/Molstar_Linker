@@ -21,6 +21,8 @@
       defaults[`${t.id}_colorType`] = THEME_COLORS.has(t.color) ? "theme" : "solid";
       defaults[`${t.id}_colorVal`] = t.color;
       if (t.size !== null) defaults[`${t.id}_size`] = t.size;
+      if (t.alpha !== null) defaults[`${t.id}_alpha`] = t.alpha;
+      defaults[`${t.id}_quality`] = t.quality;
     }
     return defaults;
   }
@@ -36,18 +38,18 @@
         spacefill: { label: "Spacefill", params: { ignore_hydrogens: "boolean" } },
         carbohydrate: { label: "Carbohydrate", params: {} },
         putty: { label: "Putty", params: { size_theme: ["uniform", "uncertainty"] } },
-        surface: { label: "Surface", params: { surface_type: ["molecular", "gaussian"], ignore_hydrogens: "boolean" } },
+        molecular_surface: { label: "Molecular Surface", params: { ignore_hydrogens: "boolean" } },
+        gaussian_surface: { label: "Gaussian Surface", params: { ignore_hydrogens: "boolean" } },
         off: { label: "Hide / Off", params: {} }
       };
       targets = [
-        { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", size: null },
-        { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", size: null },
-        { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1 },
-        { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", size: null },
-        { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
-        { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7 },
-        { id: "water", selector: "water", label: "Water / Solvent", rep: "line", color: "element-symbol", size: null }
-        // { id: "all",      selector: "all",      label: "All",                         rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
+        { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.2 },
+        { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "ion", selector: "ion", label: "Single Ions", rep: "spacefill", color: "element-symbol", alpha: 1, quality: "auto", size: 0.1 },
+        { id: "lipid", selector: "lipid", label: "Lipids", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.3 },
+        { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian_surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2 }
       ];
       presets = {
         standard: {
@@ -352,11 +354,21 @@
           const modRow = document.createElement("div");
           modRow.className = "flex-row";
           modRow.innerHTML = `
-      <div style="flex:1"><label>Size Factor</label>
-        <input type="number" class="size-input"    step="0.5" min="0.5" max="5.0" placeholder="1.0">
+      <div style="flex:1"><label>Size</label>
+        <input type="number" class="size-input" step="0.5" min="0.5" max="5.0" placeholder="1.0">
       </div>
       <div style="flex:1"><label>Opacity</label>
-        <input type="number" class="opacity-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
+        <input type="number" class="alpha-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
+      </div>
+      <div style="flex:1.5"><label>Quality</label>
+        <select class="quality-select">
+          <option value="auto">Auto</option>
+          <option value="highest">Highest</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+          <option value="lowest">Lowest</option>
+        </select>
       </div>`;
           content.appendChild(modRow);
           targetContainer.appendChild(card);
@@ -369,7 +381,8 @@
           colorType: "solid",
           colorVal: "red",
           size: "",
-          opacity: "",
+          alpha: "",
+          quality: "auto",
           mode: "simple",
           scheme: "auth",
           chain: "",
@@ -425,22 +438,22 @@
         <div class="rule-section-title">Target Selection</div>
         <div class="grid-6">
           <div><label>Chain</label>
-            <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"      placeholder="A">
+            <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"     placeholder="A">
           </div>
           <div><label>Res Range</label>
-            <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"     placeholder="5-50">
+            <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"    placeholder="5-50">
           </div>
           <div><label>Specific Res</label>
-            <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"   placeholder="10,15">
+            <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"  placeholder="10,15">
           </div>
           <div><label>Atom</label>
-            <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"   placeholder="CA">
+            <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"  placeholder="CA">
           </div>
           <div><label>Element</label>
-            <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"    placeholder="FE">
+            <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"   placeholder="FE">
           </div>
           <div><label>Atom Idx</label>
-            <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}"  placeholder="100">
+            <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}" placeholder="100">
           </div>
         </div>
       </div>
@@ -475,14 +488,25 @@
           </div>
           <div style="flex:.5">
             <label>Opacity</label>
-            <input type="number" class="cr-opacity" value="${escapeHTML(data.opacity)}" step="0.1" min="0"   max="1.0" placeholder="1.0">
+            <input type="number" class="cr-alpha"   value="${escapeHTML(data.alpha)}"   step="0.1" min="0"   max="1.0" placeholder="1.0">
+          </div>
+          <div style="flex:.7">
+            <label>Quality</label>
+            <select class="cr-quality">
+              <option value="auto">Auto</option>
+              <option value="highest">Highest</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+              <option value="lowest">Lowest</option>
+            </select>
           </div>
         </div>
       </div>
 
       <div class="rule-section">
         <div class="rule-section-title">Annotations &amp; View</div>
-        
+
         <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
           <div style="flex:2">
             <label>Floating 3D Label</label>
@@ -528,6 +552,7 @@
         card.querySelector(".cr-color-container").appendChild(buildColorInput(data.colorType, data.colorVal));
         card.querySelector(".cr-mode").value = data.mode;
         card.querySelector(".cr-scheme").value = data.scheme ?? "auth";
+        card.querySelector(".cr-quality").value = data.quality ?? "auto";
         const repSelect = card.querySelector(".cr-rep");
         const repDrawer = card.querySelector(".cr-drawer");
         repSelect.value = data.rep ?? "highlight";
@@ -604,7 +629,8 @@
           s[`${target.id}_colorType`] = card.querySelector(".color-type-selector").value;
           s[`${target.id}_colorVal`] = card.querySelector(".color-val-input").value;
           s[`${target.id}_size`] = card.querySelector(".size-input").value;
-          s[`${target.id}_opacity`] = card.querySelector(".opacity-input").value;
+          s[`${target.id}_alpha`] = card.querySelector(".alpha-input").value;
+          s[`${target.id}_quality`] = card.querySelector(".quality-select").value;
           const subParams = {};
           card.querySelectorAll(".target-drawer .subparam-input").forEach((input) => {
             subParams[input.dataset.param] = input.type === "checkbox" ? input.checked : input.value;
@@ -619,7 +645,8 @@
             colorType: card.querySelector(".color-type-selector").value,
             colorVal: card.querySelector(".color-val-input").value,
             size: card.querySelector(".cr-size").value,
-            opacity: card.querySelector(".cr-opacity").value,
+            alpha: card.querySelector(".cr-alpha").value,
+            quality: card.querySelector(".cr-quality").value,
             mode: card.querySelector(".cr-mode").value,
             scheme: card.querySelector(".cr-scheme").value,
             chain: card.querySelector(".cr-chain").value.trim(),
@@ -694,9 +721,11 @@
             existing?.parentElement?.replaceWith(buildColorInput(colorType, colorVal));
           }
           const sizeVal = settingsObj[`${target.id}_size`];
-          const opacityVal = settingsObj[`${target.id}_opacity`];
+          const alphaVal = settingsObj[`${target.id}_alpha`];
+          const qualityVal = settingsObj[`${target.id}_quality`];
           if (sizeVal) card.querySelector(".size-input").value = sizeVal;
-          if (opacityVal) card.querySelector(".opacity-input").value = opacityVal;
+          if (alphaVal) card.querySelector(".alpha-input").value = alphaVal;
+          if (qualityVal) card.querySelector(".quality-select").value = qualityVal;
         }
         if (Array.isArray(settingsObj.customRules)) {
           settingsObj.customRules.forEach((rule) => addCustomRuleCard(rule));
@@ -784,7 +813,8 @@
                   colorType: rule.colorType ?? "solid",
                   colorVal: rule.colorVal ?? "#ffffff",
                   size: rule.size ?? "",
-                  opacity: rule.opacity ?? "",
+                  alpha: rule.alpha ?? "",
+                  quality: rule.quality ?? "auto",
                   mode: rule.mode ?? "simple",
                   scheme: rule.scheme ?? "auth",
                   chain: rule.chain ?? "",

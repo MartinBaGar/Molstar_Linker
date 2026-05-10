@@ -36,7 +36,7 @@ Type checking — tsc --noEmit validates the entire codebase against strict Type
 
 
   <script defer src="/Molstar_Linker/fuse.min.js"></script>
-  <script defer src="/Molstar_Linker/en.search.min.5a4b9ab7ebf504b4432a8f55d0c91b6b2c6b8e52264b7a0a246d6e6eccc6a0b5.js" integrity="sha256-Wkuat&#43;v1BLRDKo9V0MkbayxrjlImS3oKJG1ubszGoLU=" crossorigin="anonymous"></script>
+  <script defer src="/Molstar_Linker/en.search.min.cadb06ce86471e7c64070f3e9fca4d83f1b3b89f12c26a77bbf90050a4af4212.js" integrity="sha256-ytsGzoZHHnxkBw8&#43;n8pNg/GzuJ8Swmp3u/kAUKSvQhI=" crossorigin="anonymous"></script>
 
 
 
@@ -420,7 +420,7 @@ Type checking — tsc --noEmit validates the entire codebase against strict Type
 │   ├── types.ts     ← shared interfaces and message protocol types
 │   ├── config.ts    ← AppConfig: targets, RepSchema, presets, getDefaults()
 │   ├── permissions.ts
-│   ├── mvs-builder.ts
+│   ├── native-builder.ts
 │   ├── background.ts
 │   ├── content.ts
 │   ├── sandbox.ts
@@ -462,7 +462,7 @@ Type checking — tsc --noEmit validates the entire codebase against strict Type
 <h3 id="tsconfig-dot-json"><code>tsconfig.json</code><a class="anchor" href="#tsconfig-dot-json">#</a></h3>
 <p>Sets <code>noEmit: true</code> — tsc is used exclusively for type checking, not for producing output. esbuild handles compilation and bundling. Strict mode and <code>noImplicitAny</code> are both enabled.</p>
 <h3 id="build-dot-mjs"><code>build.mjs</code><a class="anchor" href="#build-dot-mjs">#</a></h3>
-<p>Runs esbuild against the six entry points (<code>background</code>, <code>content</code>, <code>sandbox</code>, <code>viewer</code>, <code>popup</code>, <code>options</code>). Each entry point is bundled with all its TypeScript imports into a single flat JS file in <code>dist/</code>. Shared modules (<code>config</code>, <code>permissions</code>, <code>mvs-builder</code>, <code>types</code>) are not separate output files — they are inlined into whichever entry points import them.</p>
+<p>Runs esbuild against the six entry points (<code>background</code>, <code>content</code>, <code>sandbox</code>, <code>viewer</code>, <code>popup</code>, <code>options</code>). Each entry point is bundled with all its TypeScript imports into a single flat JS file in <code>dist/</code>. Shared modules (<code>config</code>, <code>permissions</code>, <code>native-builder</code>, <code>types</code>) are not separate output files — they are inlined into whichever entry points import them.</p>
 <h3 id="assemble-dot-js"><code>assemble.js</code><a class="anchor" href="#assemble-dot-js">#</a></h3>
 <p>Takes the browser name as an argument (<code>chrome</code> or <code>firefox</code>), cleans the target output folder, copies the six bundled JS files from <code>dist/</code>, copies static assets from <code>public/</code>, and copies the correct manifest from <code>manifests/</code>. The result is a complete, self-contained loadable extension folder.</p>
 <h3 id="manifests-chrome-dot-json-vs-manifests-firefox-dot-json"><code>manifests/chrome.json</code> vs <code>manifests/firefox.json</code><a class="anchor" href="#manifests-chrome-dot-json-vs-manifests-firefox-dot-json">#</a></h3>

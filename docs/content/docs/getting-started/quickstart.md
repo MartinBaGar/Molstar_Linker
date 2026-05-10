@@ -10,7 +10,7 @@ Once the extension is installed, no configuration is needed to get started.
 ## See Your First Structure {#see-your-first-structure}
 
 1.  Navigate to any GitHub or GitLab repository that contains a `.pdb`, `.cif`, or other [supported file](../../#supported-formats)
-2.  Look for a green **Mol** (MVS)\* badge next to file names in the file browser, or next to links in README files
+2.  Look for a green **Mol\\** \* badge next to file names in the file browser, or next to links in README files
 3.  Click the badge — the structure opens in the Mol\* viewer in a new tab, rendered with your current settings
 
 

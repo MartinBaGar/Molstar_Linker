@@ -1,19 +1,30 @@
-#+TITLE: Configuration & Studio
+#+TITLE: Configuration & Options
 #+HUGO_WEIGHT: 20
 
-* The Mol* Linker Studio
+* The Mol* Linker Options Page
 
-The true power of Mol* Linker is the ability to dictate exactly how your molecules look *before* you even open them. 
+The Mol* Linker Options page lets you customize how molecular structures are rendered in the Mol* viewer. Instead of manually adjusting settings for each structure, you can define your preferred visual styles once and apply them automatically to all structures you open.
 
-Instead of manually clicking through complex menus every time you view a structure, you can configure your ideal scientific visualizer in the *Mol* Linker Studio*. 
+* How It Works
 
-* Instant Application
-When you click a badge on a website, the extension instantly beams your saved configurations directly into the isolated 3D workspace tab. It parses your rules and applies the styling dynamically, ensuring your structures look perfect the millisecond they finish downloading.
+When you click a *Mol** badge on a website, the extension:
+1. Fetches the structure file from the remote URL.
+2. Opens a new tab with the Mol* viewer.
+3. Applies your saved settings to render the structure natively using Mol*'s high-performance engine.
 
 * Core Configuration Concepts
 
-To master the Studio, you should understand how the extension builds the 3D scene. Explore the sections below:
+To customize the viewer, you should understand these key concepts:
 
-- [[file:targets/][Targets]]: Understand the default categories (Protein, Nucleic, Water, Ion, etc.) the extension uses to group your atoms.
-- [[file:scene/][Scene & Styles]]: Learn how to map representations (Cartoon, Spacefill, Ball & Stick) to your targets.
-- [[file:custom-rules/][Custom Rules]]: The most powerful feature. Learn how to override the defaults and build highly specific visual rules for your unique ligands, active sites, or mutation ranges.
+- [[file:targets/][Targets]]: Predefined molecular components (Proteins, Nucleic Acids, Ligands, etc.) that you can style individually.
+- [[file:scene/][Scene Settings]]: Global settings like background color and camera position.
+- [[file:custom-rules/][Custom Rules]]: Advanced rules to highlight specific chains, residues, or atoms with custom styles, labels, and tooltips.
+
+* Accessing the Options Page
+
+1. Click the Mol* Linker extension icon in your browser toolbar.
+2. Click *Open Advanced Options*.
+
+Alternatively:
+1. Right-click the Mol* Linker extension icon.
+2. Select *Options* from the context menu.

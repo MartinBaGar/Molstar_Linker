@@ -21,6 +21,8 @@
       defaults[`${t.id}_colorType`] = THEME_COLORS.has(t.color) ? "theme" : "solid";
       defaults[`${t.id}_colorVal`] = t.color;
       if (t.size !== null) defaults[`${t.id}_size`] = t.size;
+      if (t.alpha !== null) defaults[`${t.id}_alpha`] = t.alpha;
+      defaults[`${t.id}_quality`] = t.quality;
     }
     return defaults;
   }
@@ -36,18 +38,18 @@
         spacefill: { label: "Spacefill", params: { ignore_hydrogens: "boolean" } },
         carbohydrate: { label: "Carbohydrate", params: {} },
         putty: { label: "Putty", params: { size_theme: ["uniform", "uncertainty"] } },
-        surface: { label: "Surface", params: { surface_type: ["molecular", "gaussian"], ignore_hydrogens: "boolean" } },
+        molecular_surface: { label: "Molecular Surface", params: { ignore_hydrogens: "boolean" } },
+        gaussian_surface: { label: "Gaussian Surface", params: { ignore_hydrogens: "boolean" } },
         off: { label: "Hide / Off", params: {} }
       };
       targets = [
-        { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", size: null },
-        { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", size: null },
-        { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", size: 1 },
-        { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", size: null },
-        { id: "ion", selector: "ion", label: "Single Ions", rep: "ball_and_stick", color: "element-symbol", size: 0.7 },
-        { id: "lipid", selector: "lipid", label: "Lipids", rep: "line", color: "element-symbol", size: 0.7 },
-        { id: "water", selector: "water", label: "Water / Solvent", rep: "line", color: "element-symbol", size: null }
-        // { id: "all",      selector: "all",      label: "All",                         rep: "ball_and_stick",color: "element-symbol", size: 1.0  },
+        { id: "protein", selector: "protein", label: "Proteins", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "nucleic", selector: "nucleic", label: "Nucleic Acids (DNA/RNA)", rep: "cartoon", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "ligand", selector: "ligand", label: "Ligands & Small Molecules", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.2 },
+        { id: "carbs", selector: "branched", label: "Carbohydrates & Glycans", rep: "carbohydrate", color: "chain-id", alpha: 1, quality: "auto", size: null },
+        { id: "ion", selector: "ion", label: "Single Ions", rep: "spacefill", color: "element-symbol", alpha: 1, quality: "auto", size: 0.1 },
+        { id: "lipid", selector: "lipid", label: "Lipids", rep: "ball_and_stick", color: "element-symbol", alpha: 1, quality: "auto", size: 0.3 },
+        { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian_surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2 }
       ];
       presets = {
         standard: {
@@ -206,53 +208,6 @@
           }
         }
       }
-      function setupDragAndDrop() {
-        const overlay = document.createElement("div");
-        overlay.id = "dnd-overlay";
-        overlay.style.cssText = [
-          "position:fixed;top:0;left:0;width:100%;height:100%",
-          "background:rgba(0,0,0,0.85);color:white;display:none",
-          "align-items:center;justify-content:center",
-          "font-size:28px;font-weight:bold;font-family:sans-serif",
-          "z-index:9999;border:4px dashed #2da44e;box-sizing:border-box",
-          "flex-direction:column;gap:15px"
-        ].join(";");
-        overlay.innerHTML = [
-          "<span>\u{1F4C2} Drop Structure File Here</span>",
-          '<span style="font-size:16px;color:#ccc">Supported: PDB, mmCIF, SDF, GRO, XYZ, MOL2, BCIF</span>'
-        ].join("");
-        document.body.appendChild(overlay);
-        let dragCounter = 0;
-        window.addEventListener("dragenter", (e) => {
-          e.preventDefault();
-          dragCounter++;
-          overlay.style.display = "flex";
-        });
-        window.addEventListener("dragleave", () => {
-          if (--dragCounter === 0) overlay.style.display = "none";
-        });
-        window.addEventListener("dragover", (e) => e.preventDefault());
-        window.addEventListener("drop", (e) => {
-          e.preventDefault();
-          dragCounter = 0;
-          overlay.style.display = "none";
-          const file = e.dataTransfer?.files[0];
-          if (!file) return;
-          let ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-          let format = ext;
-          if (ext === "ent") format = "pdb";
-          if (ext === "cif") format = "mmcif";
-          if (!ALLOWED_FORMATS.has(format)) {
-            alert(`Unsupported format: .${ext}. Please use PDB, mmCIF, SDF, GRO, MOL2, XYZ, or BCIF.`);
-            return;
-          }
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            spawnIframe(ev.target.result, format, "local-file://" + file.name);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
       function showUnauthorizedDomainUI(loadingDiv, targetDomain) {
         loadingDiv.innerHTML = `
     <div style="background:white;padding:20px 30px;border-radius:8px;
@@ -324,7 +279,6 @@
         });
       }
       document.addEventListener("DOMContentLoaded", async () => {
-        setupDragAndDrop();
         const urlParams = new URLSearchParams(window.location.search);
         const rawUrl = urlParams.get("fileUrl");
         const format = urlParams.get("format") ?? "";
