@@ -23,6 +23,7 @@ const COMPILED = [
   'options.js',
   'config.js',
   'native-builder.js',
+  'cli.js',
 ];
 
 for (const file of COMPILED) {

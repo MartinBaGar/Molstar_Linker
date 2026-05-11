@@ -1,12 +1,14 @@
 // src/sandbox.ts
 import { NativeBuilder } from './native-builder.js';
+import { CliEngine }     from './cli.js';          // ← NEW
 import type { InitMolstarMessage } from './types.js';
 
-declare const molstar: any; // Using any for simplicity during rewrite
+declare const molstar: any;
 
 window.parent.postMessage({ action: 'SANDBOX_READY' }, '*');
 
-let viewerInstance: any = null;
+let viewerInstance: any    = null;
+let cliEngine:  CliEngine | null = null;  // ← NEW
 
 (window.history as any).replaceState = () => {};
 (window.history as any).pushState    = () => {};
@@ -24,20 +26,29 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
   try {
     if (!viewerInstance) {
       viewerInstance = await molstar.Viewer.create('app', {
-        layoutIsExpanded:    false,
-        layoutShowControls:  false,
+        layoutIsExpanded:      false,
+        layoutShowControls:    false,
         layoutShowRemoteState: false,
-        layoutShowSequence:  true,
-        layoutShowLog:       true,
-        layoutShowLeftPanel: true,
+        layoutShowSequence:    true,
+        layoutShowLog:         true,
+        layoutShowLeftPanel:   true,
       });
+
+      // ── Mount the CLI immediately after the viewer exists ─────────────────
+      // We mount here (not after buildNativeScene) so the CLI is available
+      // even on an empty workspace and does not wait for structure loading.
+      if (!cliEngine) {
+        cliEngine = new CliEngine(viewerInstance.plugin);
+        cliEngine.mount(document.body);
+      }
+      // ──────────────────────────────────────────────────────────────────────
     }
 
-    if (url === null) return; // Empty workspace
+    if (url === null) return; // Empty workspace — CLI is ready, no structure to load
 
     // Anti-lag fix: convert base64 to blob URL
     const response = await fetch(url);
-    const blob = await response.blob();
+    const blob     = await response.blob();
     let shortBlobUrl = URL.createObjectURL(blob);
 
     if (originalUrl) {
@@ -47,12 +58,11 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
       } catch {}
     }
 
-    // --- NEW LOGIC: Call the Native Builder ---
     await NativeBuilder.buildNativeScene(
-      viewerInstance.plugin, 
-      shortBlobUrl, 
-      format!, 
-      settings
+      viewerInstance.plugin,
+      shortBlobUrl,
+      format!,
+      settings,
     );
 
   } catch (err) {
