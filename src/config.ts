@@ -25,11 +25,11 @@ const RepSchema: Record<string, { label: string; params: Record<string, unknown>
 const targets: TargetDefinition[] = [
   { id: "protein",  selector: "protein",  label: "Proteins",                  rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
   { id: "nucleic",  selector: "nucleic",  label: "Nucleic Acids (DNA/RNA)",   rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
-  { id: "ligand",   selector: "ligand",   label: "Ligands & Small Molecules", rep: "ball_and_stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.2  },
+  { id: "ligand",   selector: "ligand",   label: "Ligands & Small Molecules", rep: "ball-and-stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.2  },
   { id: "carbs",    selector: "branched", label: "Carbohydrates & Glycans",   rep: "carbohydrate",      color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
   { id: "ion",      selector: "ion",      label: "Single Ions",               rep: "spacefill",         color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.1  },
-  { id: "lipid",    selector: "lipid",    label: "Lipids",                    rep: "ball_and_stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.3  },
-  { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian_surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2.0 },
+  { id: "lipid",    selector: "lipid",    label: "Lipids",                    rep: "ball-and-stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.3  },
+  { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian-surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2.0 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ const presets: Record<string, Preset> = {
   },
   all_uniform: {
     name: "Uniform Ball & Stick",
-    settings: { protein_rep: "ball_and_stick", protein_colorType: "theme", protein_colorVal: "element-symbol" },
+    settings: { protein_rep: "ball-and-stick", protein_colorType: "theme", protein_colorVal: "element-symbol" },
   },
 };
 

@@ -1,21 +1,15 @@
 // src/types.ts
 
+import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
+
+
 // ---------------------------------------------------------------------------
 // 1. Representation types — must match the keys in AppConfig.RepSchema exactly
 // ---------------------------------------------------------------------------
-export type RepType =
-  | "cartoon"
-  | "backbone"
-  | "ball_and_stick"
-  | "line"
-  | "spacefill"
-  | "carbohydrate"
-  | "putty"
-  | "molecular_surface"
-  | "gaussian_surface"
-  | "off";
+// 1a. Main representation type
+type RepType = StructureRepresentationRegistry.BuiltIn | 'off';
 
-// "highlight" is only valid in custom rules, not as a target rep
+// 1b. Custom rules representation type
 export type RuleRepType = RepType | "highlight";
 
 // ---------------------------------------------------------------------------

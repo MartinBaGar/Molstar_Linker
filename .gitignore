@@ -28,10 +28,12 @@ Thumbs.db
 # org capture
 notes.org
 
-# Testing
-scratch.js
-
 # dist/
 public/lib/
 
-node_modules
+# Build outputs
+dist/
+build/
+
+# Node modules
+node_modules/
