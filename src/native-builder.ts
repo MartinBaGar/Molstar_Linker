@@ -1,5 +1,9 @@
 // src/native-builder.ts
 
+import { CartoonRepresentationProvider } from 'molstar/lib/mol-repr/structure/representation/cartoon';
+import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
+import { PD } from 'molstar/lib/mol-util/param-definition';
+import { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import { StructureElement, Structure } from 'molstar/lib/mol-model/structure';
 import type { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { Color } from 'molstar/lib/mol-util/color';
@@ -56,22 +60,56 @@ export const NativeBuilder = {
       });
     }
 
+    // // 1. Apply Molstar's default `auto` preset
+    // await plugin.builders.structure.representation.applyPreset(
+    // structure,
+    // 'auto',
+    // );
+
+    // // 2. Override specific components manually (if settings exist)
+    // const overrides = [
+    // { id: 'polymer', rep: settings.polymer_rep },
+    // { id: 'ligand', rep: settings.ligand_rep },
+    // { id: 'water', rep: settings.water_rep },
+    // ];
+
+  for (const target of AppConfig.targets) {
+    console.log(target.id);
+    const repType = settings[`${target.id}_rep`] as string | undefined;
+    if (!repType || repType === 'off') continue;
+
+    // Create the component (if it doesn't exist, e.g., for non-default targets)
+    const component = await plugin.builders.structure.tryCreateComponentStatic(
+      structure,
+      target.selector as any,
+    );
+    if (!component) continue;
+
+    // Apply custom representation with your settings
+    await this.applyRepresentation(plugin, component, target.id, settings);
+  }
+
     // ------------------------------------------------------------------
     // Global target components (protein, nucleic, ligand, lipid, …)
     // ------------------------------------------------------------------
-    for (const target of AppConfig.targets) {
-      const repType = settings[`${target.id}_rep`] as string | undefined;
-      if (!repType || repType === 'off') continue;
+    // for (const target of AppConfig.targets) {
+    //   const repType = settings[`${target.id}_rep`] as string | undefined;
+    //   if (!repType || repType === 'off') continue;
 
-      const component = await plugin.builders.structure.tryCreateComponentStatic(
-        structure,
-        target.selector as any,
-      );
+    //   const component = await plugin.builders.structure.tryCreateComponentStatic(
+    //     structure,
+    //     target.selector as any,
+    //   );
 
-      if (component) {
-        await this.applyRepresentation(plugin, component, target.id, settings);
-      }
-    }
+    //   if (component) {
+    //     await this.applyRepresentation(plugin, component, target.id, settings);
+    //   }
+    // }
+
+    // await plugin.builders.structure.representation.applyPreset(
+    //     structure,
+    //     'auto',
+    // );
 
     // ------------------------------------------------------------------
     // Hover tooltip provider — registered once per plugin instance.
@@ -298,79 +336,38 @@ export const NativeBuilder = {
   // -------------------------------------------------------------------------
   // Apply a global-target representation
   // -------------------------------------------------------------------------
+
 async applyRepresentation(
     plugin: PluginContext,
     component: any,
     targetId: string,
     settings: ExtensionSettings,
-  ): Promise<void> {
-    const repType    = settings[`${targetId}_rep`]       as string;
-    const colorType  = settings[`${targetId}_colorType`] as string;
-    const colorVal   = settings[`${targetId}_colorVal`]  as string;
+): Promise<void> {
+    const structure = component.obj?.data;
+    if (!structure) return;
 
-    const sizeVal    = settings[`${targetId}_size`];
-    const alphaVal   = settings[`${targetId}_alpha`];
-    const qualityVal = settings[`${targetId}_quality`] as string;
+    // Check if cartoon representation is applicable to this structure
+    if (!CartoonRepresentationProvider.isApplicable(structure)) {
+        console.log(`Cartoon representation not applicable for target ${targetId}`);
+        return;
+    }
 
-    const REP_MAP: Record<string, string> = {
-      'ball_and_stick': 'ball-and-stick',
-      'molecular_surface': 'molecular-surface',
-      'gaussian_surface': 'gaussian-surface'
+    const sizeFactor = settings[`${targetId}_size`] as number | undefined ?? 1.0;
+
+    const customParams = {
+        ...CartoonRepresentationProvider.defaultValues,
+        sizeFactor: PD.Numeric(sizeFactor, { min: 0, max: 10, step: 0.01 }),
     };
-    const nativeRepType = REP_MAP[repType] || repType;
 
-    const themeName   = colorType === 'theme' ? colorVal : 'uniform';
-    const colorParams = colorType === 'theme'
-      ? undefined
-      : { value: Color.fromHexStyle(colorVal || '#ffffff') };
-
-    const typeParams: any = {};
-    let sizeThemeName: string | undefined = undefined;
-    let sizeParams: any = undefined;
-
-    // 1. Smart Size Application
-    if (sizeVal !== undefined && sizeVal !== null && sizeVal !== '') {
-      const parsedSize = parseFloat(String(sizeVal));
-
-      if (nativeRepType === 'gaussian-surface') {
-        // Enforce a UNIFORM base radius instead of scaling a physical radius
-        sizeThemeName = 'uniform';
-        sizeParams = { value: parsedSize };
-      } else {
-        // For everything else (Ball & Stick, Cartoon), just scale the default radius
-        typeParams.sizeFactor = parsedSize;
-      }
-    }
-
-    // 2. Apply Alpha (Transparency)
-    if (alphaVal !== undefined && alphaVal !== null && alphaVal !== '') {
-      typeParams.alpha = parseFloat(String(alphaVal));
-    }
-
-    // 3. Apply Quality
-    if (qualityVal && qualityVal !== 'auto') {
-      typeParams.quality = qualityVal;
-    }
-
-    const subParams = settings[`${targetId}_subParams`] as Record<string, any> | undefined;
-    if (subParams) {
-      if (subParams.ignore_hydrogens) typeParams.ignoreHydrogens = true;
-      if (subParams.tubular_helices)  typeParams.tubularHelices  = true;
-    }
-
-    // 4. Inject all parameters into the engine
     await plugin.builders.structure.representation.addRepresentation(
-      component,
-      {
-        type: nativeRepType as any,
-        typeParams,
-        color: themeName as any,
-        colorParams,
-        size: sizeThemeName as any,
-        sizeParams
-      },
+        component,
+        {
+            type: "cartoon",
+            typeParams: customParams,
+            color: settings[`${targetId}_colorVal`] as any || CartoonRepresentationProvider.defaultColorTheme.name,
+        },
     );
-  },
+},
 
   // -------------------------------------------------------------------------
   // Apply a custom-rule representation

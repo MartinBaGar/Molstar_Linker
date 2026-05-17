@@ -4,13 +4,19 @@ import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/
 
 
 // ---------------------------------------------------------------------------
-// 1. Representation types — must match the keys in AppConfig.RepSchema exactly
+// 1. Representation types
 // ---------------------------------------------------------------------------
 // 1a. Main representation type
 type RepType = StructureRepresentationRegistry.BuiltIn | 'off';
 
 // 1b. Custom rules representation type
 export type RuleRepType = RepType | "highlight";
+
+// 1c. Custom rules representation type
+// export interface RepSchema {
+//   name: string;
+
+// }
 
 // ---------------------------------------------------------------------------
 // 2. Target definition — one entry per molecular component category
@@ -106,5 +112,5 @@ export interface InitMolstarMessage {
   originalUrl: string | null;
 }
 
-export type SandboxInboundMessage = InitMolstarMessage;
-export type SandboxOutboundMessage = SandboxReadyMessage;
+// export type SandboxInboundMessage = InitMolstarMessage;
+// export type SandboxOutboundMessage = SandboxReadyMessage;

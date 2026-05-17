@@ -1,6 +1,9 @@
 // src/config.ts
 
+import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
+import { PD } from 'molstar/lib/mol-util/param-definition';
 import type { TargetDefinition, Preset, ExtensionSettings } from './types.js';
+import { ColorTheme } from 'molstar/lib/mol-theme/color';
 
 // ---------------------------------------------------------------------------
 // RepSchema — defines every allowed representation and its configurable params.
@@ -22,6 +25,7 @@ const RepSchema: Record<string, { label: string; params: Record<string, unknown>
 // ---------------------------------------------------------------------------
 // Targets — the built-in molecular component categories.
 // ---------------------------------------------------------------------------
+
 const targets: TargetDefinition[] = [
   { id: "protein",  selector: "protein",  label: "Proteins",                  rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
   { id: "nucleic",  selector: "nucleic",  label: "Nucleic Acids (DNA/RNA)",   rep: "cartoon",           color: "chain-id",       alpha: 1.0, quality: "auto", size: null },
@@ -31,6 +35,7 @@ const targets: TargetDefinition[] = [
   { id: "lipid",    selector: "lipid",    label: "Lipids",                    rep: "ball-and-stick",    color: "element-symbol", alpha: 1.0, quality: "auto", size: 0.3  },
   { id: "water", selector: "water", label: "Water / Solvent", rep: "gaussian-surface", color: "element-symbol", alpha: 0.3, quality: "low", size: 2.0 },
 ];
+
 
 // ---------------------------------------------------------------------------
 // Presets — built-in visual templates selectable from the popup / options page
@@ -65,8 +70,6 @@ const presets: Record<string, Preset> = {
 // This is the single source of truth for what keys exist in storage.
 // ---------------------------------------------------------------------------
 function getDefaults(): ExtensionSettings {
-  const THEME_COLORS = new Set(['chain-id', 'element-symbol', 'secondary-structure']);
-
   const defaults: ExtensionSettings = {
     canvas_color:  "#ffffff",
     camera_json:   "",
@@ -75,7 +78,7 @@ function getDefaults(): ExtensionSettings {
 
   for (const t of targets) {
     defaults[`${t.id}_rep`]       = t.rep;
-    defaults[`${t.id}_colorType`] = THEME_COLORS.has(t.color) ? 'theme' : 'solid';
+    defaults[`${t.id}_colorType`] = t.color in Object.keys(ColorTheme.BuiltIn) ? 'theme' : 'solid';
     defaults[`${t.id}_colorVal`]  = t.color;
     if (t.size !== null) defaults[`${t.id}_size`] = t.size;
     if (t.alpha !== null) defaults[`${t.id}_alpha`] = t.alpha;
