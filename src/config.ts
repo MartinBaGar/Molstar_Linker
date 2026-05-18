@@ -1,7 +1,7 @@
 // src/config.ts
 
 import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
-import { PD } from 'molstar/lib/mol-util/param-definition';
+// import { PD } from 'molstar/lib/mol-util/param-definition';
 import type { TargetDefinition, Preset, ExtensionSettings } from './types.js';
 import { ColorTheme } from 'molstar/lib/mol-theme/color';
 
@@ -38,20 +38,116 @@ const targets: TargetDefinition[] = [
 
 
 // ---------------------------------------------------------------------------
-// Presets — built-in visual templates selectable from the popup / options page
+// Built-in Presets — Mol* built-in presets mapped to your system
 // ---------------------------------------------------------------------------
-const presets: Record<string, Preset> = {
-  standard: {
-    name: "Standard Mol* (Smart Guess)",
+const builtInPresets: Record<string, Preset> = {
+  auto: {
+    name: "Automatic (Mol* Default)",
     settings: {},
   },
-  surface_focus: {
-    name: "Protein Surface + Spacefill Ligands",
+  "atomic-detail": {
+    name: "Atomic Detail",
     settings: {
-      protein_rep: "surface",  protein_colorType: "theme",  protein_colorVal: "chain-id",
-      nucleic_rep: "surface",  nucleic_colorType: "theme",  nucleic_colorVal: "chain-id",
-      ligand_rep:  "spacefill",ligand_colorType:  "theme",  ligand_colorVal:  "element-symbol",
-      water_rep:   "off",
+      protein_rep: "ball_and_stick",
+      nucleic_rep: "ball_and_stick",
+      ligand_rep: "ball_and_stick",
+      carbs_rep: "carbohydrate",
+      ion_rep: "spacefill",
+      lipid_rep: "ball_and_stick",
+      water_rep: "line",
+      canvas_color: "#ffffff",
+    },
+  },
+  "polymer-cartoon": {
+    name: "Polymer Cartoon",
+    settings: {
+      protein_rep: "cartoon",
+      nucleic_rep: "cartoon",
+      ligand_rep: "off",
+      carbs_rep: "off",
+      ion_rep: "off",
+      lipid_rep: "off",
+      water_rep: "off",
+      canvas_color: "#ffffff",
+    },
+  },
+  "polymer-and-ligand": {
+    name: "Polymer & Ligand",
+    settings: {
+      protein_rep: "cartoon",
+      nucleic_rep: "cartoon",
+      ligand_rep: "ball_and_stick",
+      carbs_rep: "carbohydrate",
+      ion_rep: "spacefill",
+      lipid_rep: "ball_and_stick",
+      water_rep: "gaussian_surface",
+      water_alpha: 0.3,
+      canvas_color: "#ffffff",
+    },
+  },
+  "protein-and-nucleic": {
+    name: "Protein & Nucleic",
+    settings: {
+      protein_rep: "cartoon",
+      nucleic_rep: "gaussian_surface",
+      ligand_rep: "off",
+      carbs_rep: "off",
+      ion_rep: "off",
+      lipid_rep: "off",
+      water_rep: "off",
+      canvas_color: "#ffffff",
+    },
+  },
+  "coarse-surface": {
+    name: "Coarse Surface",
+    settings: {
+      protein_rep: "gaussian_surface",
+      nucleic_rep: "gaussian_surface",
+      ligand_rep: "off",
+      carbs_rep: "off",
+      ion_rep: "off",
+      lipid_rep: "gaussian_surface",
+      water_rep: "off",
+      canvas_color: "#ffffff",
+    },
+  },
+  illustrative: {
+    name: "Illustrative",
+    settings: {
+      protein_rep: "spacefill",
+      nucleic_rep: "spacefill",
+      ligand_rep: "spacefill",
+      carbs_rep: "spacefill",
+      ion_rep: "spacefill",
+      lipid_rep: "spacefill",
+      water_rep: "spacefill",
+      canvas_color: "#ffffff",
+    },
+  },
+  "molecular-surface": {
+    name: "Molecular Surface",
+    settings: {
+      protein_rep: "molecular_surface",
+      nucleic_rep: "molecular_surface",
+      ligand_rep: "molecular_surface",
+      carbs_rep: "molecular_surface",
+      ion_rep: "molecular_surface",
+      lipid_rep: "molecular_surface",
+      water_rep: "off",
+      canvas_color: "#ffffff",
+    },
+  },
+  "auto-lod": {
+    name: "Automatic Detail (LOD)",
+    settings: {
+      protein_rep: "cartoon",
+      nucleic_rep: "cartoon",
+      ligand_rep: "ball_and_stick",
+      carbs_rep: "carbohydrate",
+      ion_rep: "spacefill",
+      lipid_rep: "ball_and_stick",
+      water_rep: "gaussian_surface",
+      water_alpha: 0.3,
       canvas_color: "#ffffff",
     },
   },
@@ -59,11 +155,15 @@ const presets: Record<string, Preset> = {
     name: "Dark Mode Canvas",
     settings: { canvas_color: "#111111" },
   },
-  all_uniform: {
-    name: "Uniform Ball & Stick",
-    settings: { protein_rep: "ball-and-stick", protein_colorType: "theme", protein_colorVal: "element-symbol" },
-  },
 };
+
+// ---------------------------------------------------------------------------
+// Custom Presets — stored in extApi.storage.sync
+// ---------------------------------------------------------------------------
+// Function to merge built-in and custom presets
+function getAllPresets(customPresets: Record<string, Preset> = {}): Record<string, Preset> {
+  return { ...builtInPresets, ...customPresets };
+}
 
 // ---------------------------------------------------------------------------
 // getDefaults — generates the full settings object with sensible default values.
@@ -74,6 +174,7 @@ function getDefaults(): ExtensionSettings {
     canvas_color:  "#ffffff",
     camera_json:   "",
     customRules:   [],
+    customPresets: {},
   };
 
   for (const t of targets) {
@@ -96,6 +197,7 @@ function getDefaults(): ExtensionSettings {
 export const AppConfig = {
   RepSchema,
   targets,
-  presets,
+  getAllPresets,
+  builtInPresets,
   getDefaults,
 } as const;

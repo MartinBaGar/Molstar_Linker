@@ -73,6 +73,7 @@ export interface ExtensionSettings {
   canvas_color: string;
   camera_json: string;
   customRules: CustomRule[];
+  customPresets: Record<string, Preset>;
   // Dynamic keys: e.g. "protein_rep", "ligand_colorVal", "ion_size"
   [key: string]: unknown;
 }

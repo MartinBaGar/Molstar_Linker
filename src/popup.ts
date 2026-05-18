@@ -10,19 +10,21 @@ const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chr
 document.addEventListener('DOMContentLoaded', async () => {
 
   const presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
-  let customTemplates: Record<string, Preset> = {};
+  let customPresets: Record<string, Preset> = {};
 
   // -------------------------------------------------------------------------
-  // 1. Populate the preset dropdown with built-ins + user templates
+  // 1. Populate the preset dropdown with built-ins + custom presets
   // -------------------------------------------------------------------------
   extApi.storage.sync.get(
-    ['customTemplates'],
-    (result: { customTemplates?: Record<string, Preset> }) => {
-      customTemplates = result.customTemplates ?? {};
+    ['customPresets'],
+    (result: { customPresets?: Record<string, Preset> }) => {
+      customPresets = result.customPresets ?? {};
+      const allPresets = AppConfig.getAllPresets(customPresets);
 
+      // Built-in presets
       const groupBuiltIn = document.createElement('optgroup');
       groupBuiltIn.label = 'Built-in Presets';
-      for (const [key, preset] of Object.entries(AppConfig.presets)) {
+      for (const [key, preset] of Object.entries(AppConfig.builtInPresets)) {
         const opt = document.createElement('option');
         opt.value       = `builtin_${key}`;
         opt.textContent = preset.name;
@@ -30,13 +32,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       presetSelect.appendChild(groupBuiltIn);
 
-      if (Object.keys(customTemplates).length > 0) {
+      // Custom presets
+      if (Object.keys(customPresets).length > 0) {
         const groupCustom = document.createElement('optgroup');
-        groupCustom.label = 'My Custom Templates';
-        for (const [key, tpl] of Object.entries(customTemplates)) {
+        groupCustom.label = 'My Custom Presets';
+        for (const [key, preset] of Object.entries(customPresets)) {
           const opt = document.createElement('option');
           opt.value       = `custom_${key}`;
-          opt.textContent = tpl.name;
+          opt.textContent = preset.name;
           groupCustom.appendChild(opt);
         }
         presetSelect.appendChild(groupCustom);
@@ -49,9 +52,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // -------------------------------------------------------------------------
   document.getElementById('apply-preset')?.addEventListener('click', () => {
     const val = presetSelect.value;
+    const allPresets = AppConfig.getAllPresets(customPresets);
     const presetOverrides = val.startsWith('builtin_')
-      ? AppConfig.presets[val.replace('builtin_', '')]?.settings ?? {}
-      : customTemplates[val.replace('custom_', '')]?.settings   ?? {};
+      ? AppConfig.builtInPresets[val.replace('builtin_', '')]?.settings ?? {}
+      : allPresets[val.replace('custom_', '')]?.settings ?? {};
 
     const newSettings = { ...AppConfig.getDefaults(), ...presetOverrides };
 

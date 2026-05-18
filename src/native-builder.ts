@@ -2,7 +2,7 @@
 
 import { CartoonRepresentationProvider } from 'molstar/lib/mol-repr/structure/representation/cartoon';
 import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
-import { PD } from 'molstar/lib/mol-util/param-definition';
+// import { PD } from 'molstar/lib/mol-util/param-definition';
 import { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import { StructureElement, Structure } from 'molstar/lib/mol-model/structure';
 import type { PluginContext } from 'molstar/lib/mol-plugin/context';
@@ -60,34 +60,39 @@ export const NativeBuilder = {
       });
     }
 
-    // // 1. Apply Molstar's default `auto` preset
-    // await plugin.builders.structure.representation.applyPreset(
-    // structure,
-    // 'auto',
-    // );
+    // ------------------------------------------------------------------
+    // 1. Apply Mol* built-in preset (e.g., 'auto', 'polymer-and-ligand')
+    // ------------------------------------------------------------------
+    const presetName = Object.keys(AppConfig.builtInPresets).find(
+      key => JSON.stringify(AppConfig.builtInPresets[key].settings) === JSON.stringify(settings)
+    ) || 'auto';
+    console.log(presetName)
 
-    // // 2. Override specific components manually (if settings exist)
-    // const overrides = [
-    // { id: 'polymer', rep: settings.polymer_rep },
-    // { id: 'ligand', rep: settings.ligand_rep },
-    // { id: 'water', rep: settings.water_rep },
-    // ];
+    // ------------------------------------------------------------------
+    // 2. Override specific components if settings exist
+    // ------------------------------------------------------------------
+    for (const target of AppConfig.targets) {
+      const repType = settings[`${target.id}_rep`] as string | undefined;
+      if (!repType || repType === 'off') continue;
 
-  for (const target of AppConfig.targets) {
-    console.log(target.id);
-    const repType = settings[`${target.id}_rep`] as string | undefined;
-    if (!repType || repType === 'off') continue;
+      const component = await plugin.builders.structure.tryCreateComponentStatic(
+        structure,
+        target.selector as any,
+      );
+      if (!component) continue;
 
-    // Create the component (if it doesn't exist, e.g., for non-default targets)
-    const component = await plugin.builders.structure.tryCreateComponentStatic(
+      // Remove existing representation (if any)
+      // await plugin.managers.structure.representation.removeAll(component);
+
+
+    await plugin.builders.structure.representation.applyPreset(
       structure,
-      target.selector as any,
+      'ball-and-stick',
+      // presetName,
     );
-    if (!component) continue;
-
-    // Apply custom representation with your settings
-    await this.applyRepresentation(plugin, component, target.id, settings);
-  }
+      // Apply custom representation with your settings
+      // await this.applyRepresentation(plugin, component, target.id, settings);
+    }
 
     // ------------------------------------------------------------------
     // Global target components (protein, nucleic, ligand, lipid, …)
@@ -343,30 +348,31 @@ async applyRepresentation(
     targetId: string,
     settings: ExtensionSettings,
 ): Promise<void> {
-    const structure = component.obj?.data;
-    if (!structure) return;
+    console.log(settings)
+    // const structure = component.obj?.data;
+    // if (!structure) return;
 
-    // Check if cartoon representation is applicable to this structure
-    if (!CartoonRepresentationProvider.isApplicable(structure)) {
-        console.log(`Cartoon representation not applicable for target ${targetId}`);
-        return;
-    }
+    // // Check if cartoon representation is applicable to this structure
+    // if (!CartoonRepresentationProvider.isApplicable(structure)) {
+    //     console.log(`Cartoon representation not applicable for target ${targetId}`);
+    //     return;
+    // }
 
-    const sizeFactor = settings[`${targetId}_size`] as number | undefined ?? 1.0;
+    // const sizeFactor = settings[`${targetId}_size`] as number | undefined ?? 1.0;
 
-    const customParams = {
-        ...CartoonRepresentationProvider.defaultValues,
-        sizeFactor: PD.Numeric(sizeFactor, { min: 0, max: 10, step: 0.01 }),
-    };
+    // // const customParams = {
+    // //     ...CartoonRepresentationProvider.defaultValues,
+    // //     sizeFactor: PD.Numeric(sizeFactor, { min: 0, max: 10, step: 0.01 }),
+    // // };
 
-    await plugin.builders.structure.representation.addRepresentation(
-        component,
-        {
-            type: "cartoon",
-            typeParams: customParams,
-            color: settings[`${targetId}_colorVal`] as any || CartoonRepresentationProvider.defaultColorTheme.name,
-        },
-    );
+    // await plugin.builders.structure.representation.addRepresentation(
+    //     component,
+    //     {
+    //         type: "cartoon",
+    //       typeParams: {sizeFactor: sizeFactor},
+    //         color: settings[`${targetId}_colorVal`] as any || CartoonRepresentationProvider.defaultColorTheme.name,
+    //     },
+    // );
 },
 
   // -------------------------------------------------------------------------

@@ -624,39 +624,44 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Template / preset management
+// 5. Preset management
 // ---------------------------------------------------------------------------
 
-let customTemplates: Record<string, Preset> = {};
+let customPresets: Record<string, Preset> = {};
 
-function updateTemplateDropdown(): void {
+function updatePresetDropdown(): void {
   const select = document.getElementById('template-select') as HTMLSelectElement;
   select.innerHTML = '';
-  for (const [key, preset] of Object.entries(AppConfig.presets)) {
+  
+  // Built-in presets
+  for (const [key, preset] of Object.entries(AppConfig.builtInPresets)) {
     select.add(new Option(`[Built-in] ${preset.name}`, `builtin_${key}`));
   }
-  for (const [key, tpl] of Object.entries(customTemplates)) {
-    select.add(new Option(`[Custom] ${tpl.name}`, `custom_${key}`));
+  
+  // Custom presets
+  for (const [key, preset] of Object.entries(customPresets)) {
+    select.add(new Option(`[Custom] ${preset.name}`, `custom_${key}`));
   }
 }
 
 document.getElementById('load-template')?.addEventListener('click', () => {
   const val = (document.getElementById('template-select') as HTMLSelectElement).value;
+  const allPresets = AppConfig.getAllPresets(customPresets);
   const overrides = val.startsWith('builtin_')
-    ? AppConfig.presets[val.replace('builtin_', '')]?.settings ?? {}
-    : customTemplates[val.replace('custom_', '')]?.settings    ?? {};
+    ? AppConfig.builtInPresets[val.replace('builtin_', '')]?.settings ?? {}
+    : allPresets[val.replace('custom_', '')]?.settings ?? {};
   injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...overrides });
-  showStatus('Template loaded!');
+  showStatus('Preset loaded!');
 });
 
 document.getElementById('delete-template')?.addEventListener('click', () => {
   const val = (document.getElementById('template-select') as HTMLSelectElement).value;
   if (val.startsWith('builtin_')) { alert('Cannot delete built-in presets.'); return; }
   const id = val.replace('custom_', '');
-  if (confirm(`Delete "${customTemplates[id]?.name}"?`)) {
-    delete customTemplates[id];
-    StorageAPI.set({ customTemplates: customTemplates as unknown as Record<string, unknown> }, () => {
-      updateTemplateDropdown();
+  if (confirm(`Delete "${customPresets[id]?.name}"?`)) {
+    delete customPresets[id];
+    StorageAPI.set({ customPresets: customPresets as unknown as Record<string, unknown> }, () => {
+      updatePresetDropdown();
       showStatus('Deleted.');
     });
   }
@@ -664,18 +669,18 @@ document.getElementById('delete-template')?.addEventListener('click', () => {
 
 document.getElementById('save-template')?.addEventListener('click', () => {
   const name = (document.getElementById('new-template-name') as HTMLInputElement).value.trim();
-  if (!name) { alert('A template name is required.'); return; }
+  if (!name) { alert('A preset name is required.'); return; }
 
   const current = extractCurrentSettings();
-  const existingId = Object.keys(customTemplates).find(
-    k => customTemplates[k].name.toLowerCase() === name.toLowerCase(),
+  const existingId = Object.keys(customPresets).find(
+    k => customPresets[k].name.toLowerCase() === name.toLowerCase(),
   );
   if (existingId && !confirm(`Overwrite "${name}"?`)) return;
 
-  const id = existingId ?? `user_tpl_${Date.now()}`;
-  customTemplates[id] = { name, settings: current };
-  StorageAPI.set({ customTemplates: customTemplates as unknown as Record<string, unknown> }, () => {
-    updateTemplateDropdown();
+  const id = existingId ?? `user_preset_${Date.now()}`;
+  customPresets[id] = { name, settings: current };
+  StorageAPI.set({ customPresets: customPresets as unknown as Record<string, unknown> }, () => {
+    updatePresetDropdown();
     (document.getElementById('new-template-name') as HTMLInputElement).value = '';
     showStatus('Saved!');
   });
@@ -811,8 +816,8 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
 
 document.addEventListener('DOMContentLoaded', () => {
   StorageAPI.get(null, (savedItems) => {
-    customTemplates = (savedItems.customTemplates as Record<string, Preset>) ?? {};
-    updateTemplateDropdown();
+    customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
+    updatePresetDropdown();
     injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
   });
 
