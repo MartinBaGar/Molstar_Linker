@@ -1,7 +1,7 @@
 // src/types.ts
 
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
-
+import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
 
 // ---------------------------------------------------------------------------
 // 1. Representation types
@@ -12,59 +12,76 @@ type RepType = StructureRepresentationRegistry.BuiltIn | 'off';
 // 1b. Custom rules representation type
 export type RuleRepType = RepType | "highlight";
 
-// 1c. Custom rules representation type
-// export interface RepSchema {
-//   name: string;
-
-// }
-
-// ---------------------------------------------------------------------------
-// 2. Target definition — one entry per molecular component category
-// ---------------------------------------------------------------------------
-export interface TargetDefinition {
-  id: string;
-  selector: string;
-  label: string;
-  rep: RepType;
-  color: string;
-  alpha: number | null;
-  quality: string;
-  size: number | null;
-}
-
 // ---------------------------------------------------------------------------
 // 3. Custom Rule — the full data model for a user-defined visual rule
 // ---------------------------------------------------------------------------
-export interface CustomRule {
+// Block A: Base info every rule must have
+export interface RuleMetadata {
+  id: string;
   name: string;
-  rep: RuleRepType;
-  colorType: "theme" | "solid";
-  colorVal: string;
-  size: string;
-  alpha: string;
-  quality: string;
-  mode: "simple" | "expert";
-  scheme: "auth" | "label";
-  chain: string;
-  ranges: string;
-  specific: string;
-  atomName: string;
-  element: string;
-  atomIndex: string;
-  label: string;
-  labelSize?: string;
-  labelTextColor?: string;
-  labelBorderWidth?: string;
-  labelBorderColor?: string;
-  tooltip: string;
-  focus: boolean;
-  rawJson: string;
-  rawParamsJson: string;
-  subParams: Record<string, boolean | string>;
-  // Computed at save-time from simple/expert mode fields
-  selector?: Record<string, unknown> | Record<string, unknown>[] | string;
-  advancedParams?: Record<string, unknown>;
+  tooltip?: string;
 }
+
+// Block B: Where to apply the rule
+export interface SelectionCriteria {
+  // mode: "simple" | "expert";
+  scheme: "auth" | "label";
+  chain?: string;
+  ranges?: string;
+  specific?: string;
+  atomName?: string;
+  element?: string;
+  selector?: Record<string, unknown> | Record<string, unknown>[] | string; // What is it ?
+}
+
+// Block C: 3D Label specific settings
+export interface LabelConfig {
+  text: string;
+  size?: string;
+  textColor?: string;
+  borderWidth?: string;
+  borderColor?: string;
+}
+
+
+export interface CustomRuleBase {
+  meta?: RuleMetadata;  // Changed from required to optional
+  selection?: SelectionCriteria;
+  label?: LabelConfig;
+  focus?: boolean;
+}
+
+// export interface CustomRuleBase {
+//   meta: RuleMetadata;
+//   selection: SelectionCriteria;
+//   label?: LabelConfig;
+//   focus?: boolean;
+//   // name: string;
+//   // tooltip?: string;
+//   // rawJson: string;
+//   // rawParamsJson: string;
+//   // subParams: Record<string, boolean | string>;
+//   // selector?: Record<string, unknown> | Record<string, unknown>[] | string;
+//   // advancedParams?: Record<string, unknown>;
+// }
+
+// Cartoon Representation
+// export interface CartoonRule extends CustomRuleBase {
+//   type: "cartoon";
+//   colorType: "theme" | "solid";
+//   colorVal: string; // e.g., "#00ff00"
+//   // No props field needed!
+// }
+
+export interface CartoonRule extends CustomRuleBase {
+  type: "cartoon";
+  colorType?: "theme" | "solid";
+  colorVal?: string;
+}
+
+export type CustomRule =
+  | CartoonRule
+  ;
 
 // ---------------------------------------------------------------------------
 // 4. Extension settings — stored in chrome.storage.sync
@@ -73,17 +90,7 @@ export interface ExtensionSettings {
   canvas_color: string;
   camera_json: string;
   customRules: CustomRule[];
-  customPresets: Record<string, Preset>;
-  // Dynamic keys: e.g. "protein_rep", "ligand_colorVal", "ion_size"
   [key: string]: unknown;
-}
-
-// ---------------------------------------------------------------------------
-// 5. Presets / Templates
-// ---------------------------------------------------------------------------
-export interface Preset {
-  name: string;
-  settings: Partial<ExtensionSettings>;
 }
 
 // ---------------------------------------------------------------------------
