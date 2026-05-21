@@ -1,7 +1,9 @@
 // src/types.ts
 
+import { ColorTheme } from 'molstar/lib/mol-theme/color';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
+import type { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 
 // ---------------------------------------------------------------------------
 // 1. Representation types
@@ -43,45 +45,16 @@ export interface LabelConfig {
   borderColor?: string;
 }
 
-
 export interface CustomRuleBase {
-  meta?: RuleMetadata;  // Changed from required to optional
+  meta?: RuleMetadata;
   selection?: SelectionCriteria;
   label?: LabelConfig;
   focus?: boolean;
 }
 
-// export interface CustomRuleBase {
-//   meta: RuleMetadata;
-//   selection: SelectionCriteria;
-//   label?: LabelConfig;
-//   focus?: boolean;
-//   // name: string;
-//   // tooltip?: string;
-//   // rawJson: string;
-//   // rawParamsJson: string;
-//   // subParams: Record<string, boolean | string>;
-//   // selector?: Record<string, unknown> | Record<string, unknown>[] | string;
-//   // advancedParams?: Record<string, unknown>;
-// }
-
-// Cartoon Representation
-// export interface CartoonRule extends CustomRuleBase {
-//   type: "cartoon";
-//   colorType: "theme" | "solid";
-//   colorVal: string; // e.g., "#00ff00"
-//   // No props field needed!
-// }
-
-export interface CartoonRule extends CustomRuleBase {
-  type: "cartoon";
-  colorType?: "theme" | "solid";
-  colorVal?: string;
+export interface CustomRule extends CustomRuleBase {
+  repprop: StructureRepresentationBuiltInProps;
 }
-
-export type CustomRule =
-  | CartoonRule
-  ;
 
 // ---------------------------------------------------------------------------
 // 4. Extension settings — stored in chrome.storage.sync

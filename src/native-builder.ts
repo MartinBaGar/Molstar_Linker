@@ -11,7 +11,8 @@ import type { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { Color } from 'molstar/lib/mol-util/color';
 import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
 import { AppConfig } from './config.js';
-import type { ExtensionSettings, CustomRule, CartoonRule } from './types.js';
+import type { ExtensionSettings, CustomRule } from './types.js';
+// import type { ExtensionSettings, CustomRule, CartoonRule } from './types.js';
 import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 
 // ---------------------------------------------------------------------------
@@ -35,17 +36,9 @@ function getTooltipState(plugin: PluginContext): {
 }
 
 // Helper function to convert CustomRule to Molstar props
-function toMolstarProps(rule: CartoonRule) {
+function toMolstarProps(rule: CustomRule) {
   // Start with minimal required props
-  const props: any = {
-    type: "cartoon" as const,  // "as const" ensures type is literal "cartoon"
-  };
-
-  // Add color if specified
-  if (rule.colorType && rule.colorVal) {
-    props.color = rule.colorType === "solid" ? "uniform" : "chain-id";
-    props.colorParams = { value: Color.fromHexStyle(rule.colorVal) };
-  }
+  const props = rule.repprop;
 
   return props;
 }
@@ -105,9 +98,10 @@ export const NativeBuilder = {
         { label: 'Residues 30-45' }
     );
 
-const testRule: CartoonRule = {
-  type: "cartoon",  // Only required field
-  // All other fields are optional now
+const testRule: CustomRule = {
+  repprop: {
+    type: "gaussian-volume",
+  }
 };
 
 if (surfaceComponent) {
