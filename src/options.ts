@@ -2,7 +2,6 @@
 
 import { AppConfig } from './config.js';
 // import { PermissionsManager } from './permissions.js';
-// // import type { ExtensionSettings, CustomRule, Preset } from './types.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
 
 declare const browser: typeof chrome;
@@ -45,113 +44,9 @@ function showStatus(message: string, isError = false): void {
 // // ---------------------------------------------------------------------------
 // // Dynamic UI helpers
 // // ---------------------------------------------------------------------------
-
-// // function buildRepSelect(currentVal = 'cartoon'): HTMLSelectElement {
-// //   const select = document.createElement('select');
-// //   select.className = 'rep-selector';
-// //   for (const [key, schema] of Object.entries(AppConfig.RepSchema)) {
-// //     select.add(new Option(schema.label, key));
-// //   }
-// //   select.value = currentVal;
-// //   return select;
-// // }
-
-// // function updateSubParamsDrawer(
-// //   drawer: HTMLDivElement,
-// //   repType: string,
-// //   storedValues: Record<string, unknown> = {},
-// // ): void {
-// //   drawer.innerHTML = '';
-// //   const schema = AppConfig.RepSchema[repType]?.params;
-
-// //   if (!schema || Object.keys(schema).length === 0) {
-// //     drawer.style.display = 'none';
-// //     return;
-// //   }
-
-// //   drawer.style.display = 'block';
-// //   for (const [paramName, paramType] of Object.entries(schema)) {
-// //     const row   = document.createElement('div');
-// //     row.className = 'drawer-row';
-// //     const label = document.createElement('label');
-// //     label.textContent = paramName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-// //     row.appendChild(label);
-
-// //     if (paramType === 'boolean') {
-// //       const cb = document.createElement('input');
-// //       cb.type  = 'checkbox';
-// //       cb.dataset.param = paramName;
-// //       cb.className     = 'subparam-input';
-// //       cb.checked       = storedValues[paramName] === true;
-// //       row.appendChild(cb);
-// //     } else if (Array.isArray(paramType)) {
-// //       const sel = document.createElement('select');
-// //       sel.dataset.param = paramName;
-// //       sel.className     = 'subparam-input';
-// //       for (const opt of paramType) sel.add(new Option(opt as string, opt as string));
-// //       if (storedValues[paramName]) sel.value = storedValues[paramName] as string;
-// //       row.appendChild(sel);
-// //     }
-// //     drawer.appendChild(row);
-// //   }
-// // }
-
-// function buildColorInput(typeVal?: string, colorVal?: string): HTMLDivElement {
-//   const wrapper    = document.createElement('div');
-//   const typeSelect = document.createElement('select');
-//   typeSelect.className = 'color-type-selector';
-//   typeSelect.add(new Option('Mol* Theme',      'theme'));
-//   typeSelect.add(new Option('Solid Hex / X11', 'solid'));
-//   typeSelect.value = typeVal ?? 'theme';
-
-//   const dynamicArea = document.createElement('div');
-//   dynamicArea.className = 'color-dynamic-area';
-
-//   const renderDynamic = (): void => {
-//     dynamicArea.innerHTML = '';
-//     if (typeSelect.value === 'theme') {
-//       const themeSel = document.createElement('select');
-//       themeSel.className = 'color-val-input';
-//       themeSel.add(new Option('By Chain',           'chain-id'));
-//       themeSel.add(new Option('By Atom Type',       'element-symbol'));
-//       themeSel.add(new Option('Secondary Structure','secondary-structure'));
-//       const THEME_COLORS = new Set(['chain-id', 'element-symbol', 'secondary-structure']);
-//       themeSel.value = colorVal && THEME_COLORS.has(colorVal) ? colorVal : 'chain-id';
-//       dynamicArea.appendChild(themeSel);
-//     } else {
-//       const group  = document.createElement('div');
-//       group.className = 'color-input-group';
-//       const picker = document.createElement('input');
-//       picker.type  = 'color';
-//       picker.className = 'color-picker';
-//       const text   = document.createElement('input');
-//       text.type    = 'text';
-//       text.className = 'color-val-input color-text';
-//       text.placeholder = 'e.g. #ff0000';
-
-//       const THEME_COLORS = new Set(['chain-id', 'element-symbol', 'secondary-structure']);
-//       const initVal = colorVal && !THEME_COLORS.has(colorVal) ? colorVal : '#ff0000';
-//       text.value   = initVal;
-//       if (initVal.startsWith('#') && initVal.length === 7) picker.value = initVal;
-//       picker.addEventListener('input', (e) => { text.value = (e.target as HTMLInputElement).value; });
-
-//       group.appendChild(picker);
-//       group.appendChild(text);
-//       dynamicArea.appendChild(group);
-//     }
-//   };
-
-//   typeSelect.addEventListener('change', renderDynamic);
-//   renderDynamic();
-//   wrapper.appendChild(typeSelect);
-//   wrapper.appendChild(dynamicArea);
-//   return wrapper;
-// }
-
 // // ---------------------------------------------------------------------------
 // // 1. Build the main UI (scene settings + per-target cards)
 // // ---------------------------------------------------------------------------
-
 const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
 const targetContainer = document.getElementById('settings-container')       as HTMLDivElement;
 const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
@@ -182,58 +77,6 @@ function buildUI(): void {
     });
 
   targetContainer.innerHTML = '';
-
-  // for (const target of AppConfig.targets) {
-    const card = document.createElement('details');
-  //   card.className = 'target-card';
-  //   card.id        = `card_${target.id}`;
-  //   card.innerHTML = `<summary><span>${target.label}</span><span style="font-size:10px;opacity:.5">▼</span></summary><div class="card-content"></div>`;
-  //   const content  = card.querySelector('.card-content') as HTMLDivElement;
-
-  //   // — Representation row
-  //   const repRow    = document.createElement('div');
-  //   repRow.className = 'setting-row';
-  //   repRow.innerHTML = '<label>Style</label>';
-  //   const repSelect  = buildRepSelect();
-  //   const repDrawer  = document.createElement('div');
-  //   repDrawer.className = 'params-drawer target-drawer';
-  //   repSelect.addEventListener('change', (e) => {
-  //     updateSubParamsDrawer(repDrawer, (e.target as HTMLSelectElement).value);
-  //   });
-  //   repRow.appendChild(repSelect);
-  //   repRow.appendChild(repDrawer);
-  //   content.appendChild(repRow);
-
-  //   // — Color row
-  //   const colorRow = document.createElement('div');
-  //   colorRow.className = 'setting-row';
-  //   colorRow.innerHTML = '<label>Color</label>';
-  //   colorRow.appendChild(buildColorInput());
-  //   content.appendChild(colorRow);
-
-  //   // — Size / Alpha / Quality row
-  //   const modRow = document.createElement('div');
-  //   modRow.className = 'flex-row';
-  //   modRow.innerHTML = `
-  //     <div style="flex:1"><label>Size</label>
-  //       <input type="number" class="size-input" step="0.5" min="0.5" max="5.0" placeholder="1.0">
-  //     </div>
-  //     <div style="flex:1"><label>Opacity</label>
-  //       <input type="number" class="alpha-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
-  //     </div>
-  //     <div style="flex:1.5"><label>Quality</label>
-  //       <select class="quality-select">
-  //         <option value="auto">Auto</option>
-  //         <option value="highest">Highest</option>
-  //         <option value="high">High</option>
-  //         <option value="medium">Medium</option>
-  //         <option value="low">Low</option>
-  //         <option value="lowest">Lowest</option>
-  //       </select>
-  //     </div>`;
-  //   content.appendChild(modRow);
-  //   targetContainer.appendChild(card);
-  // }
 }
 
 // // ---------------------------------------------------------------------------
@@ -245,7 +88,7 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     meta: { id: Date.now().toString(), name: 'New Rule' },
     repprop: {
       type: 'cartoon',
-      ...ruleData?.repprop, // Override with provided data (if any)
+      ...ruleData?.repprop,
     },
     ...ruleData,
   };
@@ -283,148 +126,10 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
       </div>
     </div>`;
 
-    //   <div class="rule-section cr-simple-container">
-    //     <div class="rule-section-title">Target Selection</div>
-    //     <div class="grid-6">
-    //       <div><label>Chain</label>
-    //         <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"     placeholder="A">
-    //       </div>
-    //       <div><label>Res Range</label>
-    //         <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"    placeholder="5-50">
-    //       </div>
-    //       <div><label>Specific Res</label>
-    //         <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"  placeholder="10,15">
-    //       </div>
-    //       <div><label>Atom</label>
-    //         <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"  placeholder="CA">
-    //       </div>
-    //       <div><label>Element</label>
-    //         <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"   placeholder="FE">
-    //       </div>
-    //       <div><label>Atom Idx</label>
-    //         <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}" placeholder="100">
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   <div class="rule-section cr-expert-container" style="display:none">
-    //     <div class="rule-section-title">Raw JSON Selectors (Legacy)</div>
-    //     <div class="flex-row">
-    //       <div><label>Target Selector</label>
-    //         <textarea class="cr-json">${escapeHTML(data.rawJson)}</textarea>
-    //       </div>
-    //       <div><label>Advanced Rep Params</label>
-    //         <textarea class="cr-params-json" placeholder='{"ignore_hydrogens":true}'>${escapeHTML(data.rawParamsJson)}</textarea>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   <div class="rule-section">
-    //     <div class="rule-section-title">Appearance</div>
-    //     <div class="flex-row">
-    //       <div style="flex:1.5" class="cr-rep-container">
-    //         <label>Style</label>
-    //         <select class="cr-rep">
-    //           <option value="highlight">Color Highlight Only</option>
-    //           ${Object.keys(AppConfig.RepSchema)
-    //             .filter(k => k !== 'off')
-    //             .map(k => `<option value="${k}">Spawn: ${AppConfig.RepSchema[k].label}</option>`)
-    //             .join('')}
-    //         </select>
-    //         <div class="params-drawer cr-drawer"></div>
-    //       </div>
-    //       <div style="flex:1.5" class="cr-color-container"><label>Color</label></div>
-    //       <div style="flex:.5">
-    //         <label>Size</label>
-    //         <input type="number" class="cr-size"    value="${escapeHTML(data.size)}"    step="0.5" min="0.5" max="5.0" placeholder="1.0">
-    //       </div>
-    //       <div style="flex:.5">
-    //         <label>Opacity</label>
-    //         <input type="number" class="cr-alpha"   value="${escapeHTML(data.alpha)}"   step="0.1" min="0"   max="1.0" placeholder="1.0">
-    //       </div>
-    //       <div style="flex:.7">
-    //         <label>Quality</label>
-    //         <select class="cr-quality">
-    //           <option value="auto">Auto</option>
-    //           <option value="highest">Highest</option>
-    //           <option value="high">High</option>
-    //           <option value="medium">Medium</option>
-    //           <option value="low">Low</option>
-    //           <option value="lowest">Lowest</option>
-    //         </select>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   <div class="rule-section">
-    //     <div class="rule-section-title">Annotations &amp; View</div>
-
-    //     <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
-    //       <div style="flex:2">
-    //         <label>Floating 3D Label</label>
-    //         <input type="text" class="cr-label" value="${escapeHTML(data.label)}" placeholder="e.g. Active Site">
-    //       </div>
-    //       <div style="flex:0.8">
-    //         <label>Text Size</label>
-    //         <input type="number" class="cr-label-size" value="${escapeHTML(data.labelSize || '1.0')}" step="0.1" min="0.1" max="5.0" placeholder="1.0">
-    //       </div>
-    //       <div style="flex:0.8">
-    //         <label>Text Color</label>
-    //         <div style="display:flex; align-items:center;">
-    //            <input type="color" class="cr-label-text-color" value="${escapeHTML(data.labelTextColor || '#ffffff')}" style="height:26px; padding:0; cursor:pointer;">
-    //         </div>
-    //       </div>
-    //       <div style="flex:0.8">
-    //         <label>Border Size</label>
-    //         <input type="number" class="cr-label-border-width" value="${escapeHTML(data.labelBorderWidth)}" step="0.1" min="0" max="1.0" placeholder="0.2">
-    //       </div>
-    //       <div style="flex:0.8">
-    //         <label>Border Color</label>
-    //         <div style="display:flex; align-items:center;">
-    //            <input type="color" class="cr-label-border-color" value="${escapeHTML(data.labelBorderColor)}" style="height:26px; padding:0; cursor:pointer;">
-    //         </div>
-    //       </div>
-    //     </div>
-
-    //     <div class="flex-row" style="align-items:center">
-    //       <div style="flex:4">
-    //         <label>Hover Tooltip Badge</label>
-    //         <input type="text" class="cr-tooltip" value="${escapeHTML(data.tooltip)}" placeholder="e.g. Binds ATP">
-    //       </div>
-    //       <div style="flex:1.5; padding-left: 10px;">
-    //         <label style="display:inline-flex;align-items:center;cursor:pointer;margin:0;">
-    //           <input type="checkbox" class="cr-focus" ${data.focus ? 'checked' : ''} style="width:16px;height:16px;margin:0 8px 0 0">
-    //           Focus Camera
-    //         </label>
-    //       </div>
-    //     </div>
-    //   </div>
-    //   </div>
-    // </div>`;
-
-//   // Inject color input widget
-//   (card.querySelector('.cr-color-container') as HTMLDivElement)
-//     .appendChild(buildColorInput(data.colorType, data.colorVal));
-
   (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
     (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
       (e.target as HTMLInputElement).value || 'Unnamed Rule';
   });
-  // (card.querySelector('.cr-rep') as HTMLSelectElement).value = data.repprop.type;
-  // (card.querySelector('.cr-rep') as HTMLSelectElement).value = data.repprop.type;
-
-//   // Restore select values
-  // (card.querySelector('.cr-mode')    as HTMLSelectElement).value = data.mode;
-//   (card.querySelector('.cr-scheme')  as HTMLSelectElement).value = data.scheme ?? 'auth';
-//   (card.querySelector('.cr-quality') as HTMLSelectElement).value = data.quality ?? 'auto';
-
-  // const repSelect = card.querySelector('.cr-rep')    as HTMLSelectElement;
-  // const repDrawer = card.querySelector('.cr-drawer') as HTMLDivElement;
-  // repSelect.value = data.rep ?? 'highlight';
-//   repSelect.addEventListener('change', (e) => {
-//     updateSubParamsDrawer(repDrawer, (e.target as HTMLSelectElement).value);
-//   });
-//   updateSubParamsDrawer(repDrawer, repSelect.value, data.subParams as Record<string, unknown>);
 
 //   // Delete button
   card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
@@ -436,58 +141,6 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
       (e.target as HTMLInputElement).value || 'Unnamed Rule';
   });
-
-//   // Simple ↔ Expert mode toggle
-  // const modeSelect  = card.querySelector('.cr-mode')             as HTMLSelectElement;
-  // const schemeSelect= card.querySelector('.cr-scheme')           as HTMLSelectElement;
-//   const simpleDiv   = card.querySelector('.cr-simple-container') as HTMLDivElement;
-//   const expertDiv   = card.querySelector('.cr-expert-container') as HTMLDivElement;
-//   const jsonBox     = card.querySelector('.cr-json')             as HTMLTextAreaElement;
-
-//   const updateVisibility = (): void => {
-//     if (modeSelect.value === 'simple') {
-//       simpleDiv.style.display = 'block';
-//       expertDiv.style.display = 'none';
-//       (schemeSelect.parentElement as HTMLElement).style.display = 'block';
-//     } else {
-//       // Auto-populate the JSON textarea from the simple fields
-//       const prefix = schemeSelect.value === 'label' ? 'label' : 'auth';
-//       const base: Record<string, unknown> = {};
-//       const ch = (card.querySelector('.cr-chain')   as HTMLInputElement).value.trim();
-//       const at = (card.querySelector('.cr-atom')    as HTMLInputElement).value.trim();
-//       const el = (card.querySelector('.cr-element') as HTMLInputElement).value.trim();
-//       if (ch) base[`${prefix}_asym_id`] = ch;
-//       if (at) base[`${prefix}_atom_id`] = at;
-//       if (el) base['type_symbol']       = el;
-
-//       const selectors: Record<string, unknown>[] = [];
-//       const ranges   = (card.querySelector('.cr-ranges')     as HTMLInputElement).value.trim();
-//       const specific = (card.querySelector('.cr-specific')   as HTMLInputElement).value.trim();
-//       const idxs     = (card.querySelector('.cr-atom-index') as HTMLInputElement).value.trim();
-
-//       if (ranges)   ranges.split(',').forEach(p => {
-//         const b = p.trim().split('-');
-//         if (b.length === 2) selectors.push({ ...base,
-//           [`beg_${prefix}_seq_id`]: parseInt(b[0]), [`end_${prefix}_seq_id`]: parseInt(b[1]) });
-//       });
-//       if (specific) specific.split(',').forEach(p => {
-//         if (!isNaN(parseInt(p))) selectors.push({ ...base, [`${prefix}_seq_id`]: parseInt(p) });
-//       });
-//       if (idxs)     idxs.split(',').forEach(p => {
-//         if (!isNaN(parseInt(p))) selectors.push({ ...base, atom_index: parseInt(p) });
-//       });
-
-//       if (selectors.length === 0 && Object.keys(base).length > 0) selectors.push(base);
-//       jsonBox.value = JSON.stringify(selectors.length === 1 ? selectors[0] : selectors.length > 1 ? selectors : {}, null, 2);
-
-//       simpleDiv.style.display = 'none';
-//       expertDiv.style.display = 'block';
-//       (schemeSelect.parentElement as HTMLElement).style.display = 'none';
-//     }
-
-  // modeSelect.addEventListener('change',  updateVisibility);
-  // schemeSelect.addEventListener('change', updateVisibility);
-  // updateVisibility();
 
   rulesContainer.appendChild(card);
   };
@@ -515,48 +168,7 @@ name: (card.querySelector('.cr-name') as HTMLInputElement).value,
 repprop: {
 
 }
-      // rep:          (card.querySelector('.cr-rep')              as HTMLSelectElement).value as CustomRule['rep'],
-      // colorType:    (card.querySelector('.color-type-selector') as HTMLSelectElement).value as 'theme' | 'solid',
-      // colorVal:     (card.querySelector('.color-val-input')     as HTMLInputElement).value,
-      // size:         (card.querySelector('.cr-size')             as HTMLInputElement).value,
-      // alpha:        (card.querySelector('.cr-alpha')            as HTMLInputElement).value,
-      // quality:      (card.querySelector('.cr-quality')          as HTMLSelectElement).value,
-      // mode:         (card.querySelector('.cr-mode')             as HTMLSelectElement).value as 'simple' | 'expert',
-      // scheme:       (card.querySelector('.cr-scheme')           as HTMLSelectElement).value as 'auth' | 'label',
-      // chain:        (card.querySelector('.cr-chain')            as HTMLInputElement).value.trim(),
-      // ranges:       (card.querySelector('.cr-ranges')           as HTMLInputElement).value.trim(),
-      // specific:     (card.querySelector('.cr-specific')         as HTMLInputElement).value.trim(),
-      // atomName:     (card.querySelector('.cr-atom')             as HTMLInputElement).value.trim(),
-      // element:      (card.querySelector('.cr-element')          as HTMLInputElement).value.trim(),
-      // atomIndex:    (card.querySelector('.cr-atom-index')       as HTMLInputElement).value.trim(),
-      // label:            (card.querySelector('.cr-label')               as HTMLInputElement).value.trim(),
-      // labelSize:        (card.querySelector('.cr-label-size')          as HTMLInputElement)?.value || '1.0',
-      // labelTextColor:   (card.querySelector('.cr-label-text-color')    as HTMLInputElement)?.value || '#ffffff',
-      // labelBorderWidth: (card.querySelector('.cr-label-border-width')  as HTMLInputElement)?.value || '0.2',
-      // labelBorderColor: (card.querySelector('.cr-label-border-color')  as HTMLInputElement)?.value || '#000000',
-      // tooltip:          (card.querySelector('.cr-tooltip')             as HTMLInputElement).value.trim(),
-      // focus:        (card.querySelector('.cr-focus')            as HTMLInputElement).checked,
-      // rawJson:      (card.querySelector('.cr-json')             as HTMLTextAreaElement).value,
-      // rawParamsJson:(card.querySelector('.cr-params-json')      as HTMLTextAreaElement).value,
-      // subParams:    {},
     };
-
-    // card.querySelectorAll<HTMLInputElement>('.cr-drawer .subparam-input').forEach(input => {
-    //   rule.subParams[input.dataset.param!] = input.type === 'checkbox' ? input.checked : input.value;
-    // });
-
-    // Compute the structured selector from the active mode
-    // try {
-    //   const raw = rule.rawJson.trim();
-    //   rule.selector = (raw.startsWith('{') || raw.startsWith('['))
-    //     ? JSON.parse(raw) as Record<string, unknown>
-    //     : raw;
-    // } catch { rule.selector = {}; }
-
-    // if (rule.mode === 'expert') {
-    //   try { rule.advancedParams = JSON.parse(rule.rawParamsJson); } catch { rule.advancedParams = {}; }
-    // }
-
     customRules.push(rule);
   });
 
@@ -584,37 +196,6 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
     (document.getElementById('camera_json') as HTMLTextAreaElement).value = settingsObj.camera_json as string;
   }
 
-  // for (const target of AppConfig.targets) {
-  //   const card = document.getElementById(`card_${target.id}`);
-  //   if (!card) continue;
-
-  //   const repVal = settingsObj[`${target.id}_rep`] as string | undefined;
-  //   if (repVal) {
-  //     const repSel = card.querySelector('.rep-selector') as HTMLSelectElement;
-  //     repSel.value = repVal;
-  //     updateSubParamsDrawer(
-  //       card.querySelector('.target-drawer') as HTMLDivElement,
-  //       repVal,
-  //       (settingsObj[`${target.id}_subParams`] as Record<string, unknown>) ?? {},
-  //     );
-  //   }
-
-  //   const colorType = settingsObj[`${target.id}_colorType`] as string | undefined;
-  //   const colorVal  = settingsObj[`${target.id}_colorVal`]  as string | undefined;
-  //   if (colorType) {
-  //     const existing = card.querySelector('.color-type-selector');
-  //     existing?.parentElement?.replaceWith(buildColorInput(colorType, colorVal));
-  //   }
-
-  //   const sizeVal    = settingsObj[`${target.id}_size`]    as string | undefined;
-  //   const alphaVal   = settingsObj[`${target.id}_alpha`]   as string | undefined;
-  //   const qualityVal = settingsObj[`${target.id}_quality`] as string | undefined;
-
-  //   if (sizeVal)    (card.querySelector('.size-input')     as HTMLInputElement).value = sizeVal;
-  //   if (alphaVal)   (card.querySelector('.alpha-input')    as HTMLInputElement).value = alphaVal;
-  //   if (qualityVal) (card.querySelector('.quality-select') as HTMLSelectElement).value = qualityVal;
-  // }
-
   if (Array.isArray(settingsObj.customRules)) {
     settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
   }
@@ -623,7 +204,6 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // // ---------------------------------------------------------------------------
 // // 5. Preset management
 // // ---------------------------------------------------------------------------
-
 // // let customPresets: Record<string, Preset> = {};
 
 // // function updatePresetDropdown(): void {
@@ -684,69 +264,6 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // // });
 
 // // ---------------------------------------------------------------------------
-// // 6. Export / Import
-// // ---------------------------------------------------------------------------
-
-// document.getElementById('export-json')?.addEventListener('click', () => {
-//   const a = document.createElement('a');
-//   a.setAttribute(
-//     'href',
-//     'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(extractCurrentSettings(), null, 2)),
-//   );
-//   a.setAttribute('download', 'molstar_settings.json');
-//   document.body.appendChild(a);
-//   a.click();
-//   a.remove();
-// });
-
-// document.getElementById('import-json')?.addEventListener('change', (e: Event) => {
-//   const file = (e.target as HTMLInputElement).files?.[0];
-//   if (!file) return;
-//   const reader = new FileReader();
-//   reader.onload = (evt) => {
-//     try {
-//       const parsed = JSON.parse(evt.target?.result as string) as Record<string, unknown>;
-//       const safe   = { ...AppConfig.getDefaults() } as Record<string, unknown>;
-
-//       // FIX F5: Only import keys that exist in the schema (prevents rogue-key injection)
-//       for (const key of Object.keys(safe)) {
-//         if (key in parsed) safe[key] = parsed[key];
-//       }
-
-//       // Validate and cap custom rules array
-//       // if (Array.isArray(parsed.customRules)) {
-//       //   safe.customRules = (parsed.customRules as unknown[])
-//       //     .filter(r => r && typeof r === 'object')
-//       //     .map(r => {
-//       //       const rule = r as Partial<CustomRule>;
-//       //       return {
-//       //         name: rule.name ?? '', rep: rule.rep ?? 'highlight',
-//       //         colorType: rule.colorType ?? 'solid', colorVal: rule.colorVal ?? '#ffffff',
-//       //         size: rule.size ?? '', alpha: rule.alpha ?? '', quality: rule.quality ?? 'auto',
-//       //         mode: rule.mode ?? 'simple', scheme: rule.scheme ?? 'auth',
-//       //         chain: rule.chain ?? '', ranges: rule.ranges ?? '',
-//       //         specific: rule.specific ?? '', atomName: rule.atomName ?? '',
-//       //         element: rule.element ?? '', atomIndex: rule.atomIndex ?? '',
-//       //         label: rule.label ?? '', tooltip: rule.tooltip ?? '',
-//       //         focus: !!rule.focus, rawJson: rule.rawJson ?? '{}',
-//       //         rawParamsJson: rule.rawParamsJson ?? '{}',
-//       //         subParams: (typeof rule.subParams === 'object' && rule.subParams) ? rule.subParams : {},
-//       //       } satisfies CustomRule;
-//       //     })
-//       //     .slice(0, 50);
-//       // }
-
-//       injectSettingsIntoUI(safe as ExtensionSettings);
-//       showStatus('Imported!');
-//     } catch {
-//       showStatus('Invalid JSON file.', true);
-//     }
-//   };
-//   reader.readAsText(file);
-//   (e.target as HTMLInputElement).value = '';
-// });
-
-// // ---------------------------------------------------------------------------
 // // 7. Save button
 // // ---------------------------------------------------------------------------
 
@@ -757,7 +274,6 @@ document.getElementById('save')?.addEventListener('click', () => {
 // // ---------------------------------------------------------------------------
 // // 8. Domain management
 // // ---------------------------------------------------------------------------
-
 // function refreshCustomDomainList(): void {
 //   const list = document.getElementById('custom-domains-list');
 //   if (!list) return;
