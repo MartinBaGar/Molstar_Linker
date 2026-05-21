@@ -1,46 +1,46 @@
 // // src/options.ts
 
-// import { AppConfig } from './config.js';
+import { AppConfig } from './config.js';
 // import { PermissionsManager } from './permissions.js';
 // // import type { ExtensionSettings, CustomRule, Preset } from './types.js';
-// import type { ExtensionSettings, CustomRule } from './types.js';
+import type { ExtensionSettings, CustomRule } from './types.js';
 
-// declare const browser: typeof chrome;
-// const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
+declare const browser: typeof chrome;
+const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 // // ---------------------------------------------------------------------------
 // // Storage helpers
 // // ---------------------------------------------------------------------------
-// const StorageAPI = {
-//   get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
-//     extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
-//   },
-//   set(data: Record<string, unknown>, cb?: () => void): void {
-//     if (cb) {
-//       extApi.storage.sync.set(data, cb);
-//     } else {
-//       extApi.storage.sync.set(data);
-//     }
-//   },
-// };
+const StorageAPI = {
+  get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
+    extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
+  },
+  set(data: Record<string, unknown>, cb?: () => void): void {
+    if (cb) {
+      extApi.storage.sync.set(data, cb);
+    } else {
+      extApi.storage.sync.set(data);
+    }
+  },
+};
 
 // // ---------------------------------------------------------------------------
 // // XSS helper — used whenever injecting user strings into innerHTML
 // // ---------------------------------------------------------------------------
-// function escapeHTML(str: unknown): string {
-//   if (typeof str !== 'string') return '';
-//   return str.replace(/[&<>'"]/g, tag => ({
-//     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
-//   }[tag as '&'] ?? ''));
-// }
+function escapeHTML(str: unknown): string {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>'"]/g, tag => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+  }[tag as '&'] ?? ''));
+}
 
-// function showStatus(message: string, isError = false): void {
-//   const el = document.getElementById('status');
-//   if (!el) return;
-//   el.textContent   = message;
-//   el.style.color   = isError ? 'var(--danger)' : 'var(--success)';
-//   setTimeout(() => { el.textContent = ''; }, 3000);
-// }
+function showStatus(message: string, isError = false): void {
+  const el = document.getElementById('status');
+  if (!el) return;
+  el.textContent   = message;
+  el.style.color   = isError ? 'var(--danger)' : 'var(--success)';
+  setTimeout(() => { el.textContent = ''; }, 3000);
+}
 
 // // ---------------------------------------------------------------------------
 // // Dynamic UI helpers
@@ -152,255 +152,253 @@
 // // 1. Build the main UI (scene settings + per-target cards)
 // // ---------------------------------------------------------------------------
 
-// const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
-// const targetContainer = document.getElementById('settings-container')       as HTMLDivElement;
-// const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
+const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
+const targetContainer = document.getElementById('settings-container')       as HTMLDivElement;
+const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
 
-// function buildUI(): void {
-//   sceneContainer.innerHTML = `
-//     <details class="target-card" id="scene-card">
-//       <summary><span>Canvas &amp; Camera</span><span style="font-size:10px;opacity:.5">▼</span></summary>
-//       <div class="card-content">
-//         <div class="setting-row">
-//           <label>Background Color</label>
-//           <div class="color-input-group">
-//             <input type="color" class="color-picker" id="canvas_color_picker" value="#ffffff">
-//             <input type="text"  class="color-text"   id="canvas_color" placeholder="e.g. white or #ffffff" value="#ffffff">
-//           </div>
-//         </div>
-//         <div class="setting-row">
-//           <label>Camera JSON (optional)</label>
-//           <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
-//         </div>
-//       </div>
-//     </details>`;
+function buildUI(): void {
+  sceneContainer.innerHTML = `
+    <details class="target-card" id="scene-card">
+      <summary><span>Canvas &amp; Camera</span><span style="font-size:10px;opacity:.5">▼</span></summary>
+      <div class="card-content">
+        <div class="setting-row">
+          <label>Background Color</label>
+          <div class="color-input-group">
+            <input type="color" class="color-picker" id="canvas_color_picker" value="#ffffff">
+            <input type="text"  class="color-text"   id="canvas_color" placeholder="e.g. white or #ffffff" value="#ffffff">
+          </div>
+        </div>
+        <div class="setting-row">
+          <label>Camera JSON (optional)</label>
+          <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
+        </div>
+      </div>
+    </details>`;
 
-//   (document.getElementById('canvas_color_picker') as HTMLInputElement)
-//     .addEventListener('input', (e) => {
-//       (document.getElementById('canvas_color') as HTMLInputElement).value =
-//         (e.target as HTMLInputElement).value;
-//     });
+  (document.getElementById('canvas_color_picker') as HTMLInputElement)
+    .addEventListener('input', (e) => {
+      (document.getElementById('canvas_color') as HTMLInputElement).value =
+        (e.target as HTMLInputElement).value;
+    });
 
-//   targetContainer.innerHTML = '';
+  targetContainer.innerHTML = '';
 
-//   // for (const target of AppConfig.targets) {
-//   //   const card = document.createElement('details');
-//   //   card.className = 'target-card';
-//   //   card.id        = `card_${target.id}`;
-//   //   card.innerHTML = `<summary><span>${target.label}</span><span style="font-size:10px;opacity:.5">▼</span></summary><div class="card-content"></div>`;
-//   //   const content  = card.querySelector('.card-content') as HTMLDivElement;
+  // for (const target of AppConfig.targets) {
+  //   const card = document.createElement('details');
+  //   card.className = 'target-card';
+  //   card.id        = `card_${target.id}`;
+  //   card.innerHTML = `<summary><span>${target.label}</span><span style="font-size:10px;opacity:.5">▼</span></summary><div class="card-content"></div>`;
+  //   const content  = card.querySelector('.card-content') as HTMLDivElement;
 
-//   //   // — Representation row
-//   //   const repRow    = document.createElement('div');
-//   //   repRow.className = 'setting-row';
-//   //   repRow.innerHTML = '<label>Style</label>';
-//   //   const repSelect  = buildRepSelect();
-//   //   const repDrawer  = document.createElement('div');
-//   //   repDrawer.className = 'params-drawer target-drawer';
-//   //   repSelect.addEventListener('change', (e) => {
-//   //     updateSubParamsDrawer(repDrawer, (e.target as HTMLSelectElement).value);
-//   //   });
-//   //   repRow.appendChild(repSelect);
-//   //   repRow.appendChild(repDrawer);
-//   //   content.appendChild(repRow);
+  //   // — Representation row
+  //   const repRow    = document.createElement('div');
+  //   repRow.className = 'setting-row';
+  //   repRow.innerHTML = '<label>Style</label>';
+  //   const repSelect  = buildRepSelect();
+  //   const repDrawer  = document.createElement('div');
+  //   repDrawer.className = 'params-drawer target-drawer';
+  //   repSelect.addEventListener('change', (e) => {
+  //     updateSubParamsDrawer(repDrawer, (e.target as HTMLSelectElement).value);
+  //   });
+  //   repRow.appendChild(repSelect);
+  //   repRow.appendChild(repDrawer);
+  //   content.appendChild(repRow);
 
-//   //   // — Color row
-//   //   const colorRow = document.createElement('div');
-//   //   colorRow.className = 'setting-row';
-//   //   colorRow.innerHTML = '<label>Color</label>';
-//   //   colorRow.appendChild(buildColorInput());
-//   //   content.appendChild(colorRow);
+  //   // — Color row
+  //   const colorRow = document.createElement('div');
+  //   colorRow.className = 'setting-row';
+  //   colorRow.innerHTML = '<label>Color</label>';
+  //   colorRow.appendChild(buildColorInput());
+  //   content.appendChild(colorRow);
 
-//   //   // — Size / Alpha / Quality row
-//   //   const modRow = document.createElement('div');
-//   //   modRow.className = 'flex-row';
-//   //   modRow.innerHTML = `
-//   //     <div style="flex:1"><label>Size</label>
-//   //       <input type="number" class="size-input" step="0.5" min="0.5" max="5.0" placeholder="1.0">
-//   //     </div>
-//   //     <div style="flex:1"><label>Opacity</label>
-//   //       <input type="number" class="alpha-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
-//   //     </div>
-//   //     <div style="flex:1.5"><label>Quality</label>
-//   //       <select class="quality-select">
-//   //         <option value="auto">Auto</option>
-//   //         <option value="highest">Highest</option>
-//   //         <option value="high">High</option>
-//   //         <option value="medium">Medium</option>
-//   //         <option value="low">Low</option>
-//   //         <option value="lowest">Lowest</option>
-//   //       </select>
-//   //     </div>`;
-//   //   content.appendChild(modRow);
-//   //   targetContainer.appendChild(card);
-//   // }
-// }
+  //   // — Size / Alpha / Quality row
+  //   const modRow = document.createElement('div');
+  //   modRow.className = 'flex-row';
+  //   modRow.innerHTML = `
+  //     <div style="flex:1"><label>Size</label>
+  //       <input type="number" class="size-input" step="0.5" min="0.5" max="5.0" placeholder="1.0">
+  //     </div>
+  //     <div style="flex:1"><label>Opacity</label>
+  //       <input type="number" class="alpha-input" step="0.1" min="0.0" max="1.0" placeholder="1.0">
+  //     </div>
+  //     <div style="flex:1.5"><label>Quality</label>
+  //       <select class="quality-select">
+  //         <option value="auto">Auto</option>
+  //         <option value="highest">Highest</option>
+  //         <option value="high">High</option>
+  //         <option value="medium">Medium</option>
+  //         <option value="low">Low</option>
+  //         <option value="lowest">Lowest</option>
+  //       </select>
+  //     </div>`;
+  //   content.appendChild(modRow);
+  //   targetContainer.appendChild(card);
+  // }
+}
 
 // // ---------------------------------------------------------------------------
 // // 2. Custom rule cards
 // // ---------------------------------------------------------------------------
 
-// // function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
-// //   const data: CustomRule = {
-// //     name: 'New Rule', rep: 'highlight', colorType: 'solid', colorVal: 'red',
-// //     size: '', alpha: '', quality: 'auto', mode: 'simple', scheme: 'auth',
-// //     chain: '', ranges: '', specific: '', atomName: '', element: '', atomIndex: '',
-// //     label: '', labelTextColor: '#000000', labelSize: '1.0',
-// //     labelBorderWidth: '0.2', labelBorderColor: '#000000', tooltip: '', focus: false,
-// //     rawJson: '{"auth_asym_id":"A"}', rawParamsJson: '{}', subParams: {},
-// //     ...(ruleData ?? {}),
-// //   };
+function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
+  const data: CustomRule = {
+    meta: { id: Date.now().toString(), name: 'New Rule' },
+    repprop: {
+      type: 'cartoon'
+    }
+  };
 
-//   const card = document.createElement('details');
-//   card.className = 'target-card custom-rule-card';
-//   card.open      = true;
+  const card = document.createElement('details');
+  card.className = 'target-card custom-rule-card';
+  card.open      = true;
 
-//   card.innerHTML = `
-//     <summary>
-//       <span class="rule-title-display">${escapeHTML(data.name)}</span>
-//       <div style="display:flex;align-items:center;gap:10px">
-//         <button class="danger-outline delete-rule-btn"
-//           style="padding:2px 8px;width:auto;font-size:11px">Delete</button>
-//         <span style="font-size:10px;opacity:.5">▼</span>
-//       </div>
-//     </summary>
-//     <div class="card-content">
-//       <div class="flex-row">
-//         <div style="flex:2"><label>Rule Name</label>
-//           <input type="text" class="cr-name" value="${escapeHTML(data.name)}">
-//         </div>
-//         <div style="flex:1"><label>Mode</label>
-//           <select class="cr-mode">
-//             <option value="simple">Simple</option>
-//             <option value="expert">Expert</option>
-//           </select>
-//         </div>
-//         <div style="flex:1"><label>Numbering</label>
-//           <select class="cr-scheme">
-//             <option value="auth">auth_*</option>
-//             <option value="label">label_*</option>
-//           </select>
-//         </div>
-//       </div>
+  card.innerHTML = `
+    <summary>
+      <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="danger-outline delete-rule-btn"
+          style="padding:2px 8px;width:auto;font-size:11px">Delete</button>
+        <span style="font-size:10px;opacity:.5">▼</span>
+      </div>
+    </summary>
+    <div class="card-content">
+      <div class="flex-row">
+        <div style="flex:2"><label>Rule Name</label>
+          <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
+        </div>
+        <div style="flex:1"><label>Mode</label>
+          <select class="cr-mode">
+            <option value="simple">Simple</option>
+            <option value="expert">Expert</option>
+          </select>
+        </div>
+        <div style="flex:1"><label>Numbering</label>
+          <select class="cr-scheme">
+            <option value="auth">auth_*</option>
+            <option value="label">label_*</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
 
-//       <div class="rule-section cr-simple-container">
-//         <div class="rule-section-title">Target Selection</div>
-//         <div class="grid-6">
-//           <div><label>Chain</label>
-//             <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"     placeholder="A">
-//           </div>
-//           <div><label>Res Range</label>
-//             <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"    placeholder="5-50">
-//           </div>
-//           <div><label>Specific Res</label>
-//             <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"  placeholder="10,15">
-//           </div>
-//           <div><label>Atom</label>
-//             <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"  placeholder="CA">
-//           </div>
-//           <div><label>Element</label>
-//             <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"   placeholder="FE">
-//           </div>
-//           <div><label>Atom Idx</label>
-//             <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}" placeholder="100">
-//           </div>
-//         </div>
-//       </div>
+    //   <div class="rule-section cr-simple-container">
+    //     <div class="rule-section-title">Target Selection</div>
+    //     <div class="grid-6">
+    //       <div><label>Chain</label>
+    //         <input type="text" class="cr-chain"      value="${escapeHTML(data.chain)}"     placeholder="A">
+    //       </div>
+    //       <div><label>Res Range</label>
+    //         <input type="text" class="cr-ranges"     value="${escapeHTML(data.ranges)}"    placeholder="5-50">
+    //       </div>
+    //       <div><label>Specific Res</label>
+    //         <input type="text" class="cr-specific"   value="${escapeHTML(data.specific)}"  placeholder="10,15">
+    //       </div>
+    //       <div><label>Atom</label>
+    //         <input type="text" class="cr-atom"       value="${escapeHTML(data.atomName)}"  placeholder="CA">
+    //       </div>
+    //       <div><label>Element</label>
+    //         <input type="text" class="cr-element"    value="${escapeHTML(data.element)}"   placeholder="FE">
+    //       </div>
+    //       <div><label>Atom Idx</label>
+    //         <input type="text" class="cr-atom-index" value="${escapeHTML(data.atomIndex)}" placeholder="100">
+    //       </div>
+    //     </div>
+    //   </div>
 
-//       <div class="rule-section cr-expert-container" style="display:none">
-//         <div class="rule-section-title">Raw JSON Selectors (Legacy)</div>
-//         <div class="flex-row">
-//           <div><label>Target Selector</label>
-//             <textarea class="cr-json">${escapeHTML(data.rawJson)}</textarea>
-//           </div>
-//           <div><label>Advanced Rep Params</label>
-//             <textarea class="cr-params-json" placeholder='{"ignore_hydrogens":true}'>${escapeHTML(data.rawParamsJson)}</textarea>
-//           </div>
-//         </div>
-//       </div>
+    //   <div class="rule-section cr-expert-container" style="display:none">
+    //     <div class="rule-section-title">Raw JSON Selectors (Legacy)</div>
+    //     <div class="flex-row">
+    //       <div><label>Target Selector</label>
+    //         <textarea class="cr-json">${escapeHTML(data.rawJson)}</textarea>
+    //       </div>
+    //       <div><label>Advanced Rep Params</label>
+    //         <textarea class="cr-params-json" placeholder='{"ignore_hydrogens":true}'>${escapeHTML(data.rawParamsJson)}</textarea>
+    //       </div>
+    //     </div>
+    //   </div>
 
-//       <div class="rule-section">
-//         <div class="rule-section-title">Appearance</div>
-//         <div class="flex-row">
-//           <div style="flex:1.5" class="cr-rep-container">
-//             <label>Style</label>
-//             <select class="cr-rep">
-//               <option value="highlight">Color Highlight Only</option>
-//               ${Object.keys(AppConfig.RepSchema)
-//                 .filter(k => k !== 'off')
-//                 .map(k => `<option value="${k}">Spawn: ${AppConfig.RepSchema[k].label}</option>`)
-//                 .join('')}
-//             </select>
-//             <div class="params-drawer cr-drawer"></div>
-//           </div>
-//           <div style="flex:1.5" class="cr-color-container"><label>Color</label></div>
-//           <div style="flex:.5">
-//             <label>Size</label>
-//             <input type="number" class="cr-size"    value="${escapeHTML(data.size)}"    step="0.5" min="0.5" max="5.0" placeholder="1.0">
-//           </div>
-//           <div style="flex:.5">
-//             <label>Opacity</label>
-//             <input type="number" class="cr-alpha"   value="${escapeHTML(data.alpha)}"   step="0.1" min="0"   max="1.0" placeholder="1.0">
-//           </div>
-//           <div style="flex:.7">
-//             <label>Quality</label>
-//             <select class="cr-quality">
-//               <option value="auto">Auto</option>
-//               <option value="highest">Highest</option>
-//               <option value="high">High</option>
-//               <option value="medium">Medium</option>
-//               <option value="low">Low</option>
-//               <option value="lowest">Lowest</option>
-//             </select>
-//           </div>
-//         </div>
-//       </div>
+    //   <div class="rule-section">
+    //     <div class="rule-section-title">Appearance</div>
+    //     <div class="flex-row">
+    //       <div style="flex:1.5" class="cr-rep-container">
+    //         <label>Style</label>
+    //         <select class="cr-rep">
+    //           <option value="highlight">Color Highlight Only</option>
+    //           ${Object.keys(AppConfig.RepSchema)
+    //             .filter(k => k !== 'off')
+    //             .map(k => `<option value="${k}">Spawn: ${AppConfig.RepSchema[k].label}</option>`)
+    //             .join('')}
+    //         </select>
+    //         <div class="params-drawer cr-drawer"></div>
+    //       </div>
+    //       <div style="flex:1.5" class="cr-color-container"><label>Color</label></div>
+    //       <div style="flex:.5">
+    //         <label>Size</label>
+    //         <input type="number" class="cr-size"    value="${escapeHTML(data.size)}"    step="0.5" min="0.5" max="5.0" placeholder="1.0">
+    //       </div>
+    //       <div style="flex:.5">
+    //         <label>Opacity</label>
+    //         <input type="number" class="cr-alpha"   value="${escapeHTML(data.alpha)}"   step="0.1" min="0"   max="1.0" placeholder="1.0">
+    //       </div>
+    //       <div style="flex:.7">
+    //         <label>Quality</label>
+    //         <select class="cr-quality">
+    //           <option value="auto">Auto</option>
+    //           <option value="highest">Highest</option>
+    //           <option value="high">High</option>
+    //           <option value="medium">Medium</option>
+    //           <option value="low">Low</option>
+    //           <option value="lowest">Lowest</option>
+    //         </select>
+    //       </div>
+    //     </div>
+    //   </div>
 
-//       <div class="rule-section">
-//         <div class="rule-section-title">Annotations &amp; View</div>
+    //   <div class="rule-section">
+    //     <div class="rule-section-title">Annotations &amp; View</div>
 
-//         <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
-//           <div style="flex:2">
-//             <label>Floating 3D Label</label>
-//             <input type="text" class="cr-label" value="${escapeHTML(data.label)}" placeholder="e.g. Active Site">
-//           </div>
-//           <div style="flex:0.8">
-//             <label>Text Size</label>
-//             <input type="number" class="cr-label-size" value="${escapeHTML(data.labelSize || '1.0')}" step="0.1" min="0.1" max="5.0" placeholder="1.0">
-//           </div>
-//           <div style="flex:0.8">
-//             <label>Text Color</label>
-//             <div style="display:flex; align-items:center;">
-//                <input type="color" class="cr-label-text-color" value="${escapeHTML(data.labelTextColor || '#ffffff')}" style="height:26px; padding:0; cursor:pointer;">
-//             </div>
-//           </div>
-//           <div style="flex:0.8">
-//             <label>Border Size</label>
-//             <input type="number" class="cr-label-border-width" value="${escapeHTML(data.labelBorderWidth)}" step="0.1" min="0" max="1.0" placeholder="0.2">
-//           </div>
-//           <div style="flex:0.8">
-//             <label>Border Color</label>
-//             <div style="display:flex; align-items:center;">
-//                <input type="color" class="cr-label-border-color" value="${escapeHTML(data.labelBorderColor)}" style="height:26px; padding:0; cursor:pointer;">
-//             </div>
-//           </div>
-//         </div>
+    //     <div class="flex-row" style="align-items:flex-end; margin-bottom: 8px;">
+    //       <div style="flex:2">
+    //         <label>Floating 3D Label</label>
+    //         <input type="text" class="cr-label" value="${escapeHTML(data.label)}" placeholder="e.g. Active Site">
+    //       </div>
+    //       <div style="flex:0.8">
+    //         <label>Text Size</label>
+    //         <input type="number" class="cr-label-size" value="${escapeHTML(data.labelSize || '1.0')}" step="0.1" min="0.1" max="5.0" placeholder="1.0">
+    //       </div>
+    //       <div style="flex:0.8">
+    //         <label>Text Color</label>
+    //         <div style="display:flex; align-items:center;">
+    //            <input type="color" class="cr-label-text-color" value="${escapeHTML(data.labelTextColor || '#ffffff')}" style="height:26px; padding:0; cursor:pointer;">
+    //         </div>
+    //       </div>
+    //       <div style="flex:0.8">
+    //         <label>Border Size</label>
+    //         <input type="number" class="cr-label-border-width" value="${escapeHTML(data.labelBorderWidth)}" step="0.1" min="0" max="1.0" placeholder="0.2">
+    //       </div>
+    //       <div style="flex:0.8">
+    //         <label>Border Color</label>
+    //         <div style="display:flex; align-items:center;">
+    //            <input type="color" class="cr-label-border-color" value="${escapeHTML(data.labelBorderColor)}" style="height:26px; padding:0; cursor:pointer;">
+    //         </div>
+    //       </div>
+    //     </div>
 
-//         <div class="flex-row" style="align-items:center">
-//           <div style="flex:4">
-//             <label>Hover Tooltip Badge</label>
-//             <input type="text" class="cr-tooltip" value="${escapeHTML(data.tooltip)}" placeholder="e.g. Binds ATP">
-//           </div>
-//           <div style="flex:1.5; padding-left: 10px;">
-//             <label style="display:inline-flex;align-items:center;cursor:pointer;margin:0;">
-//               <input type="checkbox" class="cr-focus" ${data.focus ? 'checked' : ''} style="width:16px;height:16px;margin:0 8px 0 0">
-//               Focus Camera
-//             </label>
-//           </div>
-//         </div>
-//       </div>
-//       </div>
-//     </div>`;
+    //     <div class="flex-row" style="align-items:center">
+    //       <div style="flex:4">
+    //         <label>Hover Tooltip Badge</label>
+    //         <input type="text" class="cr-tooltip" value="${escapeHTML(data.tooltip)}" placeholder="e.g. Binds ATP">
+    //       </div>
+    //       <div style="flex:1.5; padding-left: 10px;">
+    //         <label style="display:inline-flex;align-items:center;cursor:pointer;margin:0;">
+    //           <input type="checkbox" class="cr-focus" ${data.focus ? 'checked' : ''} style="width:16px;height:16px;margin:0 8px 0 0">
+    //           Focus Camera
+    //         </label>
+    //       </div>
+    //     </div>
+    //   </div>
+    //   </div>
+    // </div>`;
 
 //   // Inject color input widget
 //   (card.querySelector('.cr-color-container') as HTMLDivElement)
@@ -424,15 +422,15 @@
 //     e.preventDefault(); e.stopPropagation(); card.remove();
 //   });
 
-//   // Live-update summary title
-//   (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
-//     (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
-//       (e.target as HTMLInputElement).value || 'Unnamed Rule';
-//   });
+  // Live-update summary title
+  (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
+    (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
+      (e.target as HTMLInputElement).value || 'Unnamed Rule';
+  });
 
 //   // Simple ↔ Expert mode toggle
-//   const modeSelect  = card.querySelector('.cr-mode')             as HTMLSelectElement;
-//   const schemeSelect= card.querySelector('.cr-scheme')           as HTMLSelectElement;
+  // const modeSelect  = card.querySelector('.cr-mode')             as HTMLSelectElement;
+  const schemeSelect= card.querySelector('.cr-scheme')           as HTMLSelectElement;
 //   const simpleDiv   = card.querySelector('.cr-simple-container') as HTMLDivElement;
 //   const expertDiv   = card.querySelector('.cr-expert-container') as HTMLDivElement;
 //   const jsonBox     = card.querySelector('.cr-json')             as HTMLTextAreaElement;
@@ -477,16 +475,16 @@
 //       expertDiv.style.display = 'block';
 //       (schemeSelect.parentElement as HTMLElement).style.display = 'none';
 //     }
-//   };
+  };
 
-//   modeSelect.addEventListener('change',  updateVisibility);
-//   schemeSelect.addEventListener('change', updateVisibility);
-//   updateVisibility();
+  // modeSelect.addEventListener('change',  updateVisibility);
+  // schemeSelect.addEventListener('change', updateVisibility);
+  // updateVisibility();
 
 //   rulesContainer.appendChild(card);
 // }
 
-// document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
+document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
 
 // // ---------------------------------------------------------------------------
 // // 3. Extract current UI state into an ExtensionSettings object
@@ -497,23 +495,6 @@
 
 //   s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
 //   s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
-
-//   for (const target of AppConfig.targets) {
-//     const card = document.getElementById(`card_${target.id}`);
-//     if (!card) continue;
-//     s[`${target.id}_rep`]       = (card.querySelector('.rep-selector')        as HTMLSelectElement).value;
-//     s[`${target.id}_colorType`] = (card.querySelector('.color-type-selector') as HTMLSelectElement).value;
-//     s[`${target.id}_colorVal`]  = (card.querySelector('.color-val-input')     as HTMLInputElement).value;
-//     s[`${target.id}_size`]      = (card.querySelector('.size-input')          as HTMLInputElement).value;
-//     s[`${target.id}_alpha`]     = (card.querySelector('.alpha-input')         as HTMLInputElement).value;
-//     s[`${target.id}_quality`]   = (card.querySelector('.quality-select')      as HTMLSelectElement).value;
-
-//     const subParams: Record<string, unknown> = {};
-//     card.querySelectorAll<HTMLInputElement>('.target-drawer .subparam-input').forEach(input => {
-//       subParams[input.dataset.param!] = input.type === 'checkbox' ? input.checked : input.value;
-//     });
-//     s[`${target.id}_subParams`] = subParams;
-//   }
 
 //   const customRules: CustomRule[] = [];
 //   document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
@@ -572,57 +553,57 @@
 // // 4. Inject a settings object back into the UI
 // // ---------------------------------------------------------------------------
 
-// function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
-//   sceneContainer.innerHTML  = '';
-//   targetContainer.innerHTML = '';
-//   rulesContainer.innerHTML  = '';
-//   buildUI();
+function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
+  sceneContainer.innerHTML  = '';
+  targetContainer.innerHTML = '';
+  rulesContainer.innerHTML  = '';
+  buildUI();
 
-//   const canvasInput = document.getElementById('canvas_color') as HTMLInputElement;
-//   const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement;
-//   if (settingsObj.canvas_color) {
-//     canvasInput.value = settingsObj.canvas_color as string;
-//     if ((settingsObj.canvas_color as string).startsWith('#')) pickerInput.value = settingsObj.canvas_color as string;
-//   }
-//   if (settingsObj.camera_json) {
-//     (document.getElementById('camera_json') as HTMLTextAreaElement).value = settingsObj.camera_json as string;
-//   }
+  const canvasInput = document.getElementById('canvas_color') as HTMLInputElement;
+  const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement;
+  if (settingsObj.canvas_color) {
+    canvasInput.value = settingsObj.canvas_color as string;
+    if ((settingsObj.canvas_color as string).startsWith('#')) pickerInput.value = settingsObj.canvas_color as string;
+  }
+  if (settingsObj.camera_json) {
+    (document.getElementById('camera_json') as HTMLTextAreaElement).value = settingsObj.camera_json as string;
+  }
 
-//   for (const target of AppConfig.targets) {
-//     const card = document.getElementById(`card_${target.id}`);
-//     if (!card) continue;
+  // for (const target of AppConfig.targets) {
+  //   const card = document.getElementById(`card_${target.id}`);
+  //   if (!card) continue;
 
-//     const repVal = settingsObj[`${target.id}_rep`] as string | undefined;
-//     if (repVal) {
-//       const repSel = card.querySelector('.rep-selector') as HTMLSelectElement;
-//       repSel.value = repVal;
-//       updateSubParamsDrawer(
-//         card.querySelector('.target-drawer') as HTMLDivElement,
-//         repVal,
-//         (settingsObj[`${target.id}_subParams`] as Record<string, unknown>) ?? {},
-//       );
-//     }
+  //   const repVal = settingsObj[`${target.id}_rep`] as string | undefined;
+  //   if (repVal) {
+  //     const repSel = card.querySelector('.rep-selector') as HTMLSelectElement;
+  //     repSel.value = repVal;
+  //     updateSubParamsDrawer(
+  //       card.querySelector('.target-drawer') as HTMLDivElement,
+  //       repVal,
+  //       (settingsObj[`${target.id}_subParams`] as Record<string, unknown>) ?? {},
+  //     );
+  //   }
 
-//     const colorType = settingsObj[`${target.id}_colorType`] as string | undefined;
-//     const colorVal  = settingsObj[`${target.id}_colorVal`]  as string | undefined;
-//     if (colorType) {
-//       const existing = card.querySelector('.color-type-selector');
-//       existing?.parentElement?.replaceWith(buildColorInput(colorType, colorVal));
-//     }
+  //   const colorType = settingsObj[`${target.id}_colorType`] as string | undefined;
+  //   const colorVal  = settingsObj[`${target.id}_colorVal`]  as string | undefined;
+  //   if (colorType) {
+  //     const existing = card.querySelector('.color-type-selector');
+  //     existing?.parentElement?.replaceWith(buildColorInput(colorType, colorVal));
+  //   }
 
-//     const sizeVal    = settingsObj[`${target.id}_size`]    as string | undefined;
-//     const alphaVal   = settingsObj[`${target.id}_alpha`]   as string | undefined;
-//     const qualityVal = settingsObj[`${target.id}_quality`] as string | undefined;
+  //   const sizeVal    = settingsObj[`${target.id}_size`]    as string | undefined;
+  //   const alphaVal   = settingsObj[`${target.id}_alpha`]   as string | undefined;
+  //   const qualityVal = settingsObj[`${target.id}_quality`] as string | undefined;
 
-//     if (sizeVal)    (card.querySelector('.size-input')     as HTMLInputElement).value = sizeVal;
-//     if (alphaVal)   (card.querySelector('.alpha-input')    as HTMLInputElement).value = alphaVal;
-//     if (qualityVal) (card.querySelector('.quality-select') as HTMLSelectElement).value = qualityVal;
-//   }
+  //   if (sizeVal)    (card.querySelector('.size-input')     as HTMLInputElement).value = sizeVal;
+  //   if (alphaVal)   (card.querySelector('.alpha-input')    as HTMLInputElement).value = alphaVal;
+  //   if (qualityVal) (card.querySelector('.quality-select') as HTMLSelectElement).value = qualityVal;
+  // }
 
-//   if (Array.isArray(settingsObj.customRules)) {
-//     settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
-//   }
-// }
+  if (Array.isArray(settingsObj.customRules)) {
+    settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
+  }
+}
 
 // // ---------------------------------------------------------------------------
 // // 5. Preset management
@@ -815,24 +796,25 @@
 // // 9. Initialisation
 // // ---------------------------------------------------------------------------
 
-// // document.addEventListener('DOMContentLoaded', () => {
-// //   StorageAPI.get(null, (savedItems) => {
-// //     customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
-// //     updatePresetDropdown();
-// //     injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
-// //   });
+document.addEventListener('DOMContentLoaded', () => {
+  StorageAPI.get(null, (savedItems) => {
+    // customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
+    // updatePresetDropdown();
+    injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
+  });
+});
 
-// //   refreshCustomDomainList();
+//   refreshCustomDomainList();
 
-// //   // If the popup or viewer redirected here with a ?domain= param,
-// //   // pre-fill the manual domain input and scroll to it
-// //   const autoDomain = new URLSearchParams(window.location.search).get('domain');
-// //   if (autoDomain) {
-// //     const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
-// //     if (input) {
-// //       input.value = autoDomain;
-// //       input.focus();
-// //       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-// //     }
-// //   }
-// // });
+//   // If the popup or viewer redirected here with a ?domain= param,
+//   // pre-fill the manual domain input and scroll to it
+//   const autoDomain = new URLSearchParams(window.location.search).get('domain');
+//   if (autoDomain) {
+//     const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
+//     if (input) {
+//       input.value = autoDomain;
+//       input.focus();
+//       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+//     }
+//   }
+// });

@@ -30,7 +30,7 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
     if (!viewerInstance) {
       viewerInstance = await molstar.Viewer.create('app', {
         layoutIsExpanded:    false,
-        layoutShowControls:  false,
+        layoutShowControls:  true,
         layoutShowRemoteState: false,
         layoutShowSequence:  true,
         layoutShowLog:       true,

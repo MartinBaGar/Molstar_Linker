@@ -100,7 +100,7 @@ export const NativeBuilder = {
 
 const testRule: CustomRule = {
   repprop: {
-    type: "gaussian-volume",
+    type: "ball-and-stick",
   }
 };
 
@@ -112,19 +112,7 @@ if (surfaceComponent) {
 }
   },
 };
-    // 5. tryCreateComponentFromExpression returns undefined if the selection finds 0 atoms.
-    // TypeScript requires you to check if it exists before adding a representation.
-    // if (surfaceComponent) {
-    //     await plugin.builders.structure.representation.addRepresentation(
-    //         surfaceComponent,
-    //         {
-    //             type: 'molecular-surface',
-    //             typeParams: { alpha: 0.6 }, // 0.0 is invisible, 1.0 is solid
-    //             color: 'uniform',
-    //             colorParams: { value: Color.fromHexStyle('#00ff00') }
-    //         }
-    //     );
-    // }
+
     // ------------------------------------------------------------------
     // Custom rules
     // ------------------------------------------------------------------
