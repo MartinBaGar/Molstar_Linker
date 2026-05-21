@@ -184,7 +184,7 @@ function buildUI(): void {
   targetContainer.innerHTML = '';
 
   // for (const target of AppConfig.targets) {
-  //   const card = document.createElement('details');
+    const card = document.createElement('details');
   //   card.className = 'target-card';
   //   card.id        = `card_${target.id}`;
   //   card.innerHTML = `<summary><span>${target.label}</span><span style="font-size:10px;opacity:.5">▼</span></summary><div class="card-content"></div>`;
@@ -244,8 +244,10 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
   const data: CustomRule = {
     meta: { id: Date.now().toString(), name: 'New Rule' },
     repprop: {
-      type: 'cartoon'
-    }
+      type: 'cartoon',
+      ...ruleData?.repprop, // Override with provided data (if any)
+    },
+    ...ruleData,
   };
 
   const card = document.createElement('details');
@@ -266,10 +268,10 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
         <div style="flex:2"><label>Rule Name</label>
           <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
         </div>
-        <div style="flex:1"><label>Mode</label>
-          <select class="cr-mode">
-            <option value="simple">Simple</option>
-            <option value="expert">Expert</option>
+        <div style="flex:1"><label>Rep</label>
+          <select class="cr-rep">
+            <option value="ball-and-sticks">Ball and sticks</option>
+            <option value="cartoon">Cartoon</option>
           </select>
         </div>
         <div style="flex:1"><label>Numbering</label>
@@ -404,23 +406,30 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
 //   (card.querySelector('.cr-color-container') as HTMLDivElement)
 //     .appendChild(buildColorInput(data.colorType, data.colorVal));
 
+  (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
+    (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
+      (e.target as HTMLInputElement).value || 'Unnamed Rule';
+  });
+  // (card.querySelector('.cr-rep') as HTMLSelectElement).value = data.repprop.type;
+  // (card.querySelector('.cr-rep') as HTMLSelectElement).value = data.repprop.type;
+
 //   // Restore select values
-//   (card.querySelector('.cr-mode')    as HTMLSelectElement).value = data.mode;
+  // (card.querySelector('.cr-mode')    as HTMLSelectElement).value = data.mode;
 //   (card.querySelector('.cr-scheme')  as HTMLSelectElement).value = data.scheme ?? 'auth';
 //   (card.querySelector('.cr-quality') as HTMLSelectElement).value = data.quality ?? 'auto';
 
-//   const repSelect = card.querySelector('.cr-rep')    as HTMLSelectElement;
-//   const repDrawer = card.querySelector('.cr-drawer') as HTMLDivElement;
-//   repSelect.value = data.rep ?? 'highlight';
+  // const repSelect = card.querySelector('.cr-rep')    as HTMLSelectElement;
+  // const repDrawer = card.querySelector('.cr-drawer') as HTMLDivElement;
+  // repSelect.value = data.rep ?? 'highlight';
 //   repSelect.addEventListener('change', (e) => {
 //     updateSubParamsDrawer(repDrawer, (e.target as HTMLSelectElement).value);
 //   });
 //   updateSubParamsDrawer(repDrawer, repSelect.value, data.subParams as Record<string, unknown>);
 
 //   // Delete button
-//   card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
-//     e.preventDefault(); e.stopPropagation(); card.remove();
-//   });
+  card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation(); card.remove();
+  });
 
   // Live-update summary title
   (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
@@ -430,7 +439,7 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
 
 //   // Simple ↔ Expert mode toggle
   // const modeSelect  = card.querySelector('.cr-mode')             as HTMLSelectElement;
-  const schemeSelect= card.querySelector('.cr-scheme')           as HTMLSelectElement;
+  // const schemeSelect= card.querySelector('.cr-scheme')           as HTMLSelectElement;
 //   const simpleDiv   = card.querySelector('.cr-simple-container') as HTMLDivElement;
 //   const expertDiv   = card.querySelector('.cr-expert-container') as HTMLDivElement;
 //   const jsonBox     = card.querySelector('.cr-json')             as HTMLTextAreaElement;
@@ -475,13 +484,13 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
 //       expertDiv.style.display = 'block';
 //       (schemeSelect.parentElement as HTMLElement).style.display = 'none';
 //     }
-  };
 
   // modeSelect.addEventListener('change',  updateVisibility);
   // schemeSelect.addEventListener('change', updateVisibility);
   // updateVisibility();
 
-//   rulesContainer.appendChild(card);
+  rulesContainer.appendChild(card);
+  };
 // }
 
 document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
@@ -490,64 +499,70 @@ document.getElementById('add-custom-rule')?.addEventListener('click', () => addC
 // // 3. Extract current UI state into an ExtensionSettings object
 // // ---------------------------------------------------------------------------
 
-// function extractCurrentSettings(): ExtensionSettings {
-//   const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
+function extractCurrentSettings(): ExtensionSettings {
+  const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
 
-//   s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
-//   s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
+  s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
+  s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
 
-//   const customRules: CustomRule[] = [];
-//   document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
-//     const rule: CustomRule = {
-//       name:         (card.querySelector('.cr-name')             as HTMLInputElement).value,
-//       rep:          (card.querySelector('.cr-rep')              as HTMLSelectElement).value as CustomRule['rep'],
-//       colorType:    (card.querySelector('.color-type-selector') as HTMLSelectElement).value as 'theme' | 'solid',
-//       colorVal:     (card.querySelector('.color-val-input')     as HTMLInputElement).value,
-//       size:         (card.querySelector('.cr-size')             as HTMLInputElement).value,
-//       alpha:        (card.querySelector('.cr-alpha')            as HTMLInputElement).value,
-//       quality:      (card.querySelector('.cr-quality')          as HTMLSelectElement).value,
-//       mode:         (card.querySelector('.cr-mode')             as HTMLSelectElement).value as 'simple' | 'expert',
-//       scheme:       (card.querySelector('.cr-scheme')           as HTMLSelectElement).value as 'auth' | 'label',
-//       chain:        (card.querySelector('.cr-chain')            as HTMLInputElement).value.trim(),
-//       ranges:       (card.querySelector('.cr-ranges')           as HTMLInputElement).value.trim(),
-//       specific:     (card.querySelector('.cr-specific')         as HTMLInputElement).value.trim(),
-//       atomName:     (card.querySelector('.cr-atom')             as HTMLInputElement).value.trim(),
-//       element:      (card.querySelector('.cr-element')          as HTMLInputElement).value.trim(),
-//       atomIndex:    (card.querySelector('.cr-atom-index')       as HTMLInputElement).value.trim(),
-//       label:            (card.querySelector('.cr-label')               as HTMLInputElement).value.trim(),
-//       labelSize:        (card.querySelector('.cr-label-size')          as HTMLInputElement)?.value || '1.0',
-//       labelTextColor:   (card.querySelector('.cr-label-text-color')    as HTMLInputElement)?.value || '#ffffff',
-//       labelBorderWidth: (card.querySelector('.cr-label-border-width')  as HTMLInputElement)?.value || '0.2',
-//       labelBorderColor: (card.querySelector('.cr-label-border-color')  as HTMLInputElement)?.value || '#000000',
-//       tooltip:          (card.querySelector('.cr-tooltip')             as HTMLInputElement).value.trim(),
-//       focus:        (card.querySelector('.cr-focus')            as HTMLInputElement).checked,
-//       rawJson:      (card.querySelector('.cr-json')             as HTMLTextAreaElement).value,
-//       rawParamsJson:(card.querySelector('.cr-params-json')      as HTMLTextAreaElement).value,
-//       subParams:    {},
-//     };
+  const customRules: CustomRule[] = [];
+  document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
+    const rule: CustomRule = {
+      meta: {
+id: (card.querySelector('.cr-name') as HTMLInputElement).value,
+name: (card.querySelector('.cr-name') as HTMLInputElement).value,
+},
+repprop: {
 
-//     card.querySelectorAll<HTMLInputElement>('.cr-drawer .subparam-input').forEach(input => {
-//       rule.subParams[input.dataset.param!] = input.type === 'checkbox' ? input.checked : input.value;
-//     });
+}
+      // rep:          (card.querySelector('.cr-rep')              as HTMLSelectElement).value as CustomRule['rep'],
+      // colorType:    (card.querySelector('.color-type-selector') as HTMLSelectElement).value as 'theme' | 'solid',
+      // colorVal:     (card.querySelector('.color-val-input')     as HTMLInputElement).value,
+      // size:         (card.querySelector('.cr-size')             as HTMLInputElement).value,
+      // alpha:        (card.querySelector('.cr-alpha')            as HTMLInputElement).value,
+      // quality:      (card.querySelector('.cr-quality')          as HTMLSelectElement).value,
+      // mode:         (card.querySelector('.cr-mode')             as HTMLSelectElement).value as 'simple' | 'expert',
+      // scheme:       (card.querySelector('.cr-scheme')           as HTMLSelectElement).value as 'auth' | 'label',
+      // chain:        (card.querySelector('.cr-chain')            as HTMLInputElement).value.trim(),
+      // ranges:       (card.querySelector('.cr-ranges')           as HTMLInputElement).value.trim(),
+      // specific:     (card.querySelector('.cr-specific')         as HTMLInputElement).value.trim(),
+      // atomName:     (card.querySelector('.cr-atom')             as HTMLInputElement).value.trim(),
+      // element:      (card.querySelector('.cr-element')          as HTMLInputElement).value.trim(),
+      // atomIndex:    (card.querySelector('.cr-atom-index')       as HTMLInputElement).value.trim(),
+      // label:            (card.querySelector('.cr-label')               as HTMLInputElement).value.trim(),
+      // labelSize:        (card.querySelector('.cr-label-size')          as HTMLInputElement)?.value || '1.0',
+      // labelTextColor:   (card.querySelector('.cr-label-text-color')    as HTMLInputElement)?.value || '#ffffff',
+      // labelBorderWidth: (card.querySelector('.cr-label-border-width')  as HTMLInputElement)?.value || '0.2',
+      // labelBorderColor: (card.querySelector('.cr-label-border-color')  as HTMLInputElement)?.value || '#000000',
+      // tooltip:          (card.querySelector('.cr-tooltip')             as HTMLInputElement).value.trim(),
+      // focus:        (card.querySelector('.cr-focus')            as HTMLInputElement).checked,
+      // rawJson:      (card.querySelector('.cr-json')             as HTMLTextAreaElement).value,
+      // rawParamsJson:(card.querySelector('.cr-params-json')      as HTMLTextAreaElement).value,
+      // subParams:    {},
+    };
 
-//     // Compute the structured selector from the active mode
-//     try {
-//       const raw = rule.rawJson.trim();
-//       rule.selector = (raw.startsWith('{') || raw.startsWith('['))
-//         ? JSON.parse(raw) as Record<string, unknown>
-//         : raw;
-//     } catch { rule.selector = {}; }
+    // card.querySelectorAll<HTMLInputElement>('.cr-drawer .subparam-input').forEach(input => {
+    //   rule.subParams[input.dataset.param!] = input.type === 'checkbox' ? input.checked : input.value;
+    // });
 
-//     if (rule.mode === 'expert') {
-//       try { rule.advancedParams = JSON.parse(rule.rawParamsJson); } catch { rule.advancedParams = {}; }
-//     }
+    // Compute the structured selector from the active mode
+    // try {
+    //   const raw = rule.rawJson.trim();
+    //   rule.selector = (raw.startsWith('{') || raw.startsWith('['))
+    //     ? JSON.parse(raw) as Record<string, unknown>
+    //     : raw;
+    // } catch { rule.selector = {}; }
 
-//     customRules.push(rule);
-//   });
+    // if (rule.mode === 'expert') {
+    //   try { rule.advancedParams = JSON.parse(rule.rawParamsJson); } catch { rule.advancedParams = {}; }
+    // }
 
-//   s.customRules = customRules;
-//   return s as ExtensionSettings;
-// }
+    customRules.push(rule);
+  });
+
+  s.customRules = customRules;
+  return s as ExtensionSettings;
+}
 
 // // ---------------------------------------------------------------------------
 // // 4. Inject a settings object back into the UI
@@ -735,9 +750,9 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // // 7. Save button
 // // ---------------------------------------------------------------------------
 
-// document.getElementById('save')?.addEventListener('click', () => {
-//   StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
-// });
+document.getElementById('save')?.addEventListener('click', () => {
+  StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
+});
 
 // // ---------------------------------------------------------------------------
 // // 8. Domain management
