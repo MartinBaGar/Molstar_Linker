@@ -1,19 +1,14 @@
 // src/native-builder.ts
-
 import type { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
-import { StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 import { Script } from "molstar/lib/mol-script/script";
-import { StateObjectRef } from "molstar/lib/mol-state";
-import { PluginStateObject } from "molstar/lib/mol-plugin-state/objects";
-import { StructureElement, Structure } from 'molstar/lib/mol-model/structure';
+import { Structure, StructureElement } from 'molstar/lib/mol-model/structure';
+import { StateObjectRef } from 'molstar/lib/mol-state';
+import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
 import type { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { Color } from 'molstar/lib/mol-util/color';
-import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
 import { AppConfig } from './config.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
-// import type { ExtensionSettings, CustomRule, CartoonRule } from './types.js';
-import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 
 // ---------------------------------------------------------------------------
 // Per-plugin tooltip state — stored on plugin.customState so each viewer
@@ -25,18 +20,58 @@ type TooltipEntry = { loci: StructureElement.Loci; text: string };
 // At the top of native-builder.ts, add:
 let _lastComponent: any = null;
 let _lastPlugin: PluginContext | null = null;
+let _lastStructure: any  = null;
 
-export function getLastComponent() { return { plugin: _lastPlugin, component: _lastComponent }; }
+export function getLastComponent() {
+    return {
+        plugin: _lastPlugin,
+        component: _lastComponent,
+        structure: _lastStructure,
+        };
+}
+
+export async function customRuleToRep(
+  plugin: PluginContext,
+  settings: ExtensionSettings,
+) {
+  for (const rule of settings.customRules || []) {
+  // Handle undefined expression
+    if (!rule.selection?.script) {  // Check for `script` (not `expression`)
+    throw new Error("Selection script is required");
+    }
+
+    const script: Script = rule.selection.script;  // Use `script` (not `expression`)
+    const expression = Script.toExpression(script);
+
+  // Create component from expression
+  const component = await plugin.builders.structure.tryCreateComponentFromExpression(
+    _lastStructure,
+    expression,
+    `custom-rule-${Math.random().toString(36).substring(2, 9)}`,
+    { label: rule.meta?.name || "Custom Rule" }
+  );
+
+  if (component) {
+    await plugin.builders.structure.representation.addRepresentation(
+      component,
+      { type: "ball-and-stick" } // Customize as needed
+    );
+    return component;
+  } else {
+    throw new Error("Failed to create component from selection");
+  }
+  }
+}
 
 function getTooltipState(plugin: PluginContext): {
-  activeTooltips: TooltipEntry[];
-  isRegistered: boolean;
-} {
-  const cs = plugin.customState as any;
-  if (!cs.__nativeBuilder) {
-    cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
-  }
-  return cs.__nativeBuilder;
+    activeTooltips: TooltipEntry[];
+    isRegistered: boolean;
+    } {
+    const cs = plugin.customState as any;
+    if (!cs.__nativeBuilder) {
+        cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
+    }
+    return cs.__nativeBuilder;
 }
 
 // Helper function to convert CustomRule to Molstar props
@@ -102,25 +137,26 @@ export const NativeBuilder = {
         { label: 'Residues 30-45' }
     );
 
-const testRule: CustomRule = {
-  repprop: {
-    type: "ball-and-stick",
-  }
-};
+    const testRule: CustomRule = {
+        repprop: {
+            type: "ball-and-stick",
+        }
+    };
 
-if (surfaceComponent) {
-  await plugin.builders.structure.representation.addRepresentation(
-    surfaceComponent,
-    toMolstarProps(testRule) as StructureRepresentationBuiltInProps
-  );
+    if (surfaceComponent) {
+        await plugin.builders.structure.representation.addRepresentation(
+            surfaceComponent,
+            toMolstarProps(testRule) as StructureRepresentationBuiltInProps
+        );
 
-  _lastPlugin    = plugin;
-  _lastComponent = surfaceComponent;
-  console.log('[NativeBuilder] ✓ _lastComponent set', _lastComponent); // ← ADD
-} else {
-  console.warn('[NativeBuilder] ✗ surfaceComponent is null — residues 30-45 not found in this structure');
-  // ← ADD: this is the most likely silent failure point
-}
+        _lastPlugin    = plugin;
+        _lastStructure  = modelStructure;
+        _lastComponent = surfaceComponent;
+        console.log('[NativeBuilder] ✓ _lastComponent set', _lastComponent); // ← ADD
+    } else {
+        console.warn('[NativeBuilder] ✗ surfaceComponent is null — residues 30-45 not found in this structure');
+    }
+
   },
 };
 

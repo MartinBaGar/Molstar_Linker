@@ -116,6 +116,14 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
                     <option value="cartoon">Cartoon</option>
                 </select>
             </div>
+            <div>
+                <select class="cr-lang">
+                    <option value="pymol">PyMOL</option>
+                    <option value="vmd">VMD</option>
+                </select>
+                <label for="cr-expression">Selection Rule:</label>
+                <input type="text" class="cr-expression" id="selection-rule" name="selection-rule">
+            </div>
         </div>
     </div>`;
 
@@ -154,12 +162,18 @@ function extractCurrentSettings(): ExtensionSettings {
     document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
     const rule: CustomRule = {
         meta: {
-        id: (card.querySelector('.cr-name') as HTMLInputElement).value,
-        name: (card.querySelector('.cr-name') as HTMLInputElement).value,
+            id: (card.querySelector('.cr-name') as HTMLInputElement).value,
+            name: (card.querySelector('.cr-name') as HTMLInputElement).value,
         },
         repprop: {
-        type: (card.querySelector('.cr-rep') as HTMLSelectElement).value as StructureRepresentationRegistry.BuiltIn,
-        }
+            type: (card.querySelector('.cr-rep') as HTMLSelectElement).value as StructureRepresentationRegistry.BuiltIn,
+        },
+        selection: {
+            script: {
+                expression: (card.querySelector('.cr-expression') as HTMLInputElement).value,
+                language: (card.querySelector('.cr-lang') as HTMLSelectElement).value as 'mol-script' | 'pymol' | 'vmd' | 'jmol',
+            },
+        },
     };
     customRules.push(rule);
     });
@@ -257,10 +271,6 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // ---------------------------------------------------------------------------
 // 7. Save button
 // ---------------------------------------------------------------------------
-// document.getElementById('save')?.addEventListener('click', () => {
-//   StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
-// });
-
 document.getElementById('save')?.addEventListener('click', () => {
   const settings = extractCurrentSettings();
   StorageAPI.set(

@@ -1,7 +1,7 @@
 // src/sandbox.ts
 // import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
-import { NativeBuilder, getLastComponent } from './native-builder.js';
+import { NativeBuilder, getLastComponent, customRuleToRep } from './native-builder.js';
 
 
 declare const molstar: any; // Using any for simplicity during rewrite
@@ -78,10 +78,6 @@ window.addEventListener('message', async (event: MessageEvent) => {
   if (!plugin || !component) return;
 
   const settings = msg.settings;
-  const repType = settings.customRules?.[0]?.repprop?.type ?? 'ball-and-stick';
 
-  await plugin.builders.structure.representation.addRepresentation(
-    component,
-    { type: repType }
-  );
+  customRuleToRep(plugin, settings);
 });

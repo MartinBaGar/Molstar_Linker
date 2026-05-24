@@ -1,5 +1,7 @@
 // src/types.ts
 
+
+import { Script } from 'molstar/lib/mol-script/types';
 import { ColorTheme } from 'molstar/lib/mol-theme/color';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
@@ -27,13 +29,14 @@ export interface RuleMetadata {
 // Block B: Where to apply the rule
 export interface SelectionCriteria {
   // mode: "simple" | "expert";
-  scheme: "auth" | "label";
+  scheme?: "auth" | "label";
   chain?: string;
   ranges?: string;
   specific?: string;
   atomName?: string;
   element?: string;
-  selector?: Record<string, unknown> | Record<string, unknown>[] | string; // What is it ?
+  prompt?: string;
+  script?: Script;
 }
 
 // Block C: 3D Label specific settings
