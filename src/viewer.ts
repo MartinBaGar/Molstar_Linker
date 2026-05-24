@@ -324,12 +324,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // At module top-level, after extApi declaration:
 extApi.runtime.onMessage.addListener((message) => {
-  console.log('[viewer] runtime message received:', message.action);
   if (message.action !== 'SETTINGS_UPDATED') return;
   if (!currentIframe?.contentWindow) return;
 
   currentIframe.contentWindow.postMessage(
-    { action: 'APPLY_REPRESENTATION', repType: 'cartoon' },
+    {
+      action: 'APPLY_REPRESENTATION',
+      settings: message.settings,   // ← forward it
+    },
     '*'
   );
 });

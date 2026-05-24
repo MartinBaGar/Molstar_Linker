@@ -74,18 +74,14 @@ window.addEventListener('message', async (event: MessageEvent) => {
   const msg = event.data;
   if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
 
-  console.log('[sandbox] APPLY_REPRESENTATION received'); // ← ADD
   const { plugin, component } = getLastComponent();
-  console.log('[sandbox] plugin:', !!plugin, '| component:', !!component); // ← ADD
+  if (!plugin || !component) return;
 
-  if (!plugin || !component) {
-    console.warn('[sandbox] ✗ aborting — nothing loaded yet');
-    return;
-  }
+  const settings = msg.settings;
+  const repType = settings.customRules?.[0]?.repprop?.type ?? 'ball-and-stick';
 
   await plugin.builders.structure.representation.addRepresentation(
     component,
-    { type: msg.repType ?? 'cartoon' }
+    { type: repType }
   );
-  console.log('[sandbox] ✓ addRepresentation called'); // ← ADD
 });

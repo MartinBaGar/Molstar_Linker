@@ -262,15 +262,19 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // });
 
 document.getElementById('save')?.addEventListener('click', () => {
+  const settings = extractCurrentSettings();
   StorageAPI.set(
-    extractCurrentSettings() as unknown as Record<string, unknown>,
+    settings as unknown as Record<string, unknown>,
     () => {
       showStatus('Applied!');
-      // ADD: notify any open viewer tabs
-      extApi.runtime.sendMessage({ action: 'SETTINGS_UPDATED' }).catch(() => {});
+      extApi.runtime.sendMessage({
+        action: 'SETTINGS_UPDATED',
+        settings: settings,        // ← ADD
+      }).catch(() => {});
     }
   );
 });
+
 // // ---------------------------------------------------------------------------
 // // 8. Domain management
 // // ---------------------------------------------------------------------------
