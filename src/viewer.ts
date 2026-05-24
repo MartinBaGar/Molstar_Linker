@@ -321,3 +321,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SCENARIO 5: Known format + authorized domain → boot instantly
   bootWorkspace(rawUrl, format);
 });
+
+// At module top-level, after extApi declaration:
+extApi.runtime.onMessage.addListener((message) => {
+  console.log('[viewer] runtime message received:', message.action);
+  if (message.action !== 'SETTINGS_UPDATED') return;
+  if (!currentIframe?.contentWindow) return;
+
+  currentIframe.contentWindow.postMessage(
+    { action: 'APPLY_REPRESENTATION', repType: 'cartoon' },
+    '*'
+  );
+});

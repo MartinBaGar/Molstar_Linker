@@ -22,7 +22,11 @@ import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 // ---------------------------------------------------------------------------
 type TooltipEntry = { loci: StructureElement.Loci; text: string };
 
-const defaultCartoonParams = PD.getDefaultValues(CartoonParams);
+// At the top of native-builder.ts, add:
+let _lastComponent: any = null;
+let _lastPlugin: PluginContext | null = null;
+
+export function getLastComponent() { return { plugin: _lastPlugin, component: _lastComponent }; }
 
 function getTooltipState(plugin: PluginContext): {
   activeTooltips: TooltipEntry[];
@@ -109,6 +113,13 @@ if (surfaceComponent) {
     surfaceComponent,
     toMolstarProps(testRule) as StructureRepresentationBuiltInProps
   );
+
+  _lastPlugin    = plugin;
+  _lastComponent = surfaceComponent;
+  console.log('[NativeBuilder] ✓ _lastComponent set', _lastComponent); // ← ADD
+} else {
+  console.warn('[NativeBuilder] ✗ surfaceComponent is null — residues 30-45 not found in this structure');
+  // ← ADD: this is the most likely silent failure point
 }
   },
 };

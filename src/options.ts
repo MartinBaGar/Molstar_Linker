@@ -257,10 +257,20 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // ---------------------------------------------------------------------------
 // 7. Save button
 // ---------------------------------------------------------------------------
-document.getElementById('save')?.addEventListener('click', () => {
-  StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
-});
+// document.getElementById('save')?.addEventListener('click', () => {
+//   StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
+// });
 
+document.getElementById('save')?.addEventListener('click', () => {
+  StorageAPI.set(
+    extractCurrentSettings() as unknown as Record<string, unknown>,
+    () => {
+      showStatus('Applied!');
+      // ADD: notify any open viewer tabs
+      extApi.runtime.sendMessage({ action: 'SETTINGS_UPDATED' }).catch(() => {});
+    }
+  );
+});
 // // ---------------------------------------------------------------------------
 // // 8. Domain management
 // // ---------------------------------------------------------------------------

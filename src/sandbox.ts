@@ -1,6 +1,7 @@
 // src/sandbox.ts
-import { NativeBuilder } from './native-builder.js';
+// import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
+import { NativeBuilder, getLastComponent } from './native-builder.js';
 
 
 declare const molstar: any; // Using any for simplicity during rewrite
@@ -67,4 +68,24 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
   } catch (err) {
     console.error('Mol* Sandbox: failed to load structure natively', err);
   }
+});
+
+window.addEventListener('message', async (event: MessageEvent) => {
+  const msg = event.data;
+  if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
+
+  console.log('[sandbox] APPLY_REPRESENTATION received'); // ← ADD
+  const { plugin, component } = getLastComponent();
+  console.log('[sandbox] plugin:', !!plugin, '| component:', !!component); // ← ADD
+
+  if (!plugin || !component) {
+    console.warn('[sandbox] ✗ aborting — nothing loaded yet');
+    return;
+  }
+
+  await plugin.builders.structure.representation.addRepresentation(
+    component,
+    { type: msg.repType ?? 'cartoon' }
+  );
+  console.log('[sandbox] ✓ addRepresentation called'); // ← ADD
 });
