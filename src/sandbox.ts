@@ -2,10 +2,6 @@
 import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
 
-// Import the tools you want to use in the console
-import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
-import { Color } from 'molstar/lib/mol-util/color';
 
 declare const molstar: any; // Using any for simplicity during rewrite
 
@@ -43,9 +39,6 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
       // =======================================================================
       (window as any).molPlugin = viewerInstance.plugin;
       (window as any).viewerInstance = viewerInstance;
-      (window as any).MS = MS;
-      (window as any).StateTransforms = StateTransforms;
-      (window as any).Color = Color;
       // =======================================================================
     }
 
@@ -70,13 +63,6 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
       format!,
       settings
     );
-
-    // Optional: If you want to grab the current structure for the console
-    // after the builder finishes, you can do this:
-    const structures = viewerInstance.plugin.managers.structure.hierarchy.current.structures;
-    if (structures.length > 0) {
-        (window as any).molStructure = structures[0].cell;
-    }
 
   } catch (err) {
     console.error('Mol* Sandbox: failed to load structure natively', err);

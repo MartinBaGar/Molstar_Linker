@@ -3,202 +3,193 @@
 import { AppConfig } from './config.js';
 // import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
+import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
-// // ---------------------------------------------------------------------------
-// // Storage helpers
-// // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Storage helpers
+// ---------------------------------------------------------------------------
 const StorageAPI = {
-  get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
+    get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
     extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
-  },
-  set(data: Record<string, unknown>, cb?: () => void): void {
-    if (cb) {
-      extApi.storage.sync.set(data, cb);
-    } else {
-      extApi.storage.sync.set(data);
-    }
-  },
+    },
+    set(data: Record<string, unknown>, cb?: () => void): void {
+        if (cb) {
+            extApi.storage.sync.set(data, cb);
+        } else {
+            extApi.storage.sync.set(data);
+        }
+    },
 };
 
-// // ---------------------------------------------------------------------------
-// // XSS helper — used whenever injecting user strings into innerHTML
-// // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// XSS helper — used whenever injecting user strings into innerHTML
+// ---------------------------------------------------------------------------
 function escapeHTML(str: unknown): string {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[&<>'"]/g, tag => ({
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>'"]/g, tag => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
-  }[tag as '&'] ?? ''));
+    }[tag as '&'] ?? ''));
 }
 
 function showStatus(message: string, isError = false): void {
-  const el = document.getElementById('status');
-  if (!el) return;
-  el.textContent   = message;
-  el.style.color   = isError ? 'var(--danger)' : 'var(--success)';
-  setTimeout(() => { el.textContent = ''; }, 3000);
+    const el = document.getElementById('status');
+    if (!el) return;
+    el.textContent   = message;
+    el.style.color   = isError ? 'var(--danger)' : 'var(--success)';
+    setTimeout(() => { el.textContent = ''; }, 3000);
 }
 
-// // ---------------------------------------------------------------------------
-// // Dynamic UI helpers
-// // ---------------------------------------------------------------------------
-// // ---------------------------------------------------------------------------
-// // 1. Build the main UI (scene settings + per-target cards)
-// // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Dynamic UI helpers
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 1. Build the main UI (scene settings + per-target cards)
+// ---------------------------------------------------------------------------
 const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
 const targetContainer = document.getElementById('settings-container')       as HTMLDivElement;
 const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
 
 function buildUI(): void {
-  sceneContainer.innerHTML = `
-    <details class="target-card" id="scene-card">
-      <summary><span>Canvas &amp; Camera</span><span style="font-size:10px;opacity:.5">▼</span></summary>
-      <div class="card-content">
-        <div class="setting-row">
-          <label>Background Color</label>
-          <div class="color-input-group">
-            <input type="color" class="color-picker" id="canvas_color_picker" value="#ffffff">
-            <input type="text"  class="color-text"   id="canvas_color" placeholder="e.g. white or #ffffff" value="#ffffff">
-          </div>
+sceneContainer.innerHTML = `
+<details class="target-card" id="scene-card">
+    <summary><span>Canvas &amp; Camera</span><span style="font-size:10px;opacity:.5">▼</span></summary>
+    <div class="card-content">
+    <div class="setting-row">
+        <label>Background Color</label>
+        <div class="color-input-group">
+        <input type="color" class="color-picker" id="canvas_color_picker" value="#ffffff">
+        <input type="text"  class="color-text"   id="canvas_color" placeholder="e.g. white or #ffffff" value="#ffffff">
         </div>
-        <div class="setting-row">
-          <label>Camera JSON (optional)</label>
-          <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
-        </div>
-      </div>
-    </details>`;
+    </div>
+    <div class="setting-row">
+        <label>Camera JSON (optional)</label>
+        <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
+    </div>
+    </div>
+</details>`;
 
-  (document.getElementById('canvas_color_picker') as HTMLInputElement)
-    .addEventListener('input', (e) => {
-      (document.getElementById('canvas_color') as HTMLInputElement).value =
-        (e.target as HTMLInputElement).value;
-    });
+(document.getElementById('canvas_color_picker') as HTMLInputElement)
+.addEventListener('input', (e) => {
+    (document.getElementById('canvas_color') as HTMLInputElement).value =
+    (e.target as HTMLInputElement).value;
+});
 
-  targetContainer.innerHTML = '';
+targetContainer.innerHTML = '';
 }
 
-// // ---------------------------------------------------------------------------
-// // 2. Custom rule cards
-// // ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------
+// 2. Custom rule cards
+// ---------------------------------------------------------------------------
 function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
-  const data: CustomRule = {
-    meta: { id: Date.now().toString(), name: 'New Rule' },
-    repprop: {
-      type: 'cartoon',
-      ...ruleData?.repprop,
-    },
-    ...ruleData,
-  };
+    const data: CustomRule = {
+        meta: { id: Date.now().toString(), name: 'New Rule' },
+        repprop: {
+            ...ruleData?.repprop,
+        },
+        ...ruleData,
+    };
 
-  const card = document.createElement('details');
-  card.className = 'target-card custom-rule-card';
-  card.open      = true;
+    const card = document.createElement('details');
+    card.className = 'target-card custom-rule-card';
+    card.open      = true;
 
-  card.innerHTML = `
+    card.innerHTML = `
     <summary>
-      <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
-      <div style="display:flex;align-items:center;gap:10px">
+        <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
+        <div style="display:flex;align-items:center;gap:10px">
         <button class="danger-outline delete-rule-btn"
-          style="padding:2px 8px;width:auto;font-size:11px">Delete</button>
+            style="padding:2px 8px;width:auto;font-size:11px">Delete</button>
         <span style="font-size:10px;opacity:.5">▼</span>
-      </div>
+        </div>
     </summary>
     <div class="card-content">
-      <div class="flex-row">
-        <div style="flex:2"><label>Rule Name</label>
-          <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
+        <div class="flex-row">
+            <div style="flex:2"><label>Rule Name</label>
+                <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
+            </div>
+            <div style="flex:1"><label>Rep</label>
+                <select class="cr-rep">
+                    <option value="ball-and-stick">Ball and sticks</option>
+                    <option value="cartoon">Cartoon</option>
+                </select>
+            </div>
         </div>
-        <div style="flex:1"><label>Rep</label>
-          <select class="cr-rep">
-            <option value="ball-and-sticks">Ball and sticks</option>
-            <option value="cartoon">Cartoon</option>
-          </select>
-        </div>
-        <div style="flex:1"><label>Numbering</label>
-          <select class="cr-scheme">
-            <option value="auth">auth_*</option>
-            <option value="label">label_*</option>
-          </select>
-        </div>
-      </div>
     </div>`;
 
-  (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
+    (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
     (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
-      (e.target as HTMLInputElement).value || 'Unnamed Rule';
-  });
+        (e.target as HTMLInputElement).value || 'Unnamed Rule';
+    });
 
-//   // Delete button
-  card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
+    // Delete button
+    card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
     e.preventDefault(); e.stopPropagation(); card.remove();
-  });
+    });
 
-  // Live-update summary title
-  (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
+    // Live-update summary title
+    (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
     (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
-      (e.target as HTMLInputElement).value || 'Unnamed Rule';
-  });
+        (e.target as HTMLInputElement).value || 'Unnamed Rule';
+    });
 
-  rulesContainer.appendChild(card);
-  };
+    rulesContainer.appendChild(card);
+};
 // }
 
 document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
 
-// // ---------------------------------------------------------------------------
-// // 3. Extract current UI state into an ExtensionSettings object
-// // ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------
+// 3. Extract current UI state into an ExtensionSettings object
+// ---------------------------------------------------------------------------
 function extractCurrentSettings(): ExtensionSettings {
-  const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
+    const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
 
-  s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
-  s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
+    s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
+    s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
 
-  const customRules: CustomRule[] = [];
-  document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
+    const customRules: CustomRule[] = [];
+    document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
     const rule: CustomRule = {
-      meta: {
-id: (card.querySelector('.cr-name') as HTMLInputElement).value,
-name: (card.querySelector('.cr-name') as HTMLInputElement).value,
-},
-repprop: {
-
-}
+        meta: {
+        id: (card.querySelector('.cr-name') as HTMLInputElement).value,
+        name: (card.querySelector('.cr-name') as HTMLInputElement).value,
+        },
+        repprop: {
+        type: (card.querySelector('.cr-rep') as HTMLSelectElement).value as StructureRepresentationRegistry.BuiltIn,
+        }
     };
     customRules.push(rule);
-  });
+    });
 
-  s.customRules = customRules;
-  return s as ExtensionSettings;
+    s.customRules = customRules;
+    return s as ExtensionSettings;
 }
 
-// // ---------------------------------------------------------------------------
-// // 4. Inject a settings object back into the UI
-// // ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------
+// 4. Inject a settings object back into the UI
+// ---------------------------------------------------------------------------
 function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
-  sceneContainer.innerHTML  = '';
-  targetContainer.innerHTML = '';
-  rulesContainer.innerHTML  = '';
-  buildUI();
+    sceneContainer.innerHTML  = '';
+    targetContainer.innerHTML = '';
+    rulesContainer.innerHTML  = '';
+    buildUI();
 
-  const canvasInput = document.getElementById('canvas_color') as HTMLInputElement;
-  const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement;
-  if (settingsObj.canvas_color) {
+    const canvasInput = document.getElementById('canvas_color') as HTMLInputElement;
+    const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement;
+    if (settingsObj.canvas_color) {
     canvasInput.value = settingsObj.canvas_color as string;
     if ((settingsObj.canvas_color as string).startsWith('#')) pickerInput.value = settingsObj.canvas_color as string;
-  }
-  if (settingsObj.camera_json) {
+    }
+    if (settingsObj.camera_json) {
     (document.getElementById('camera_json') as HTMLTextAreaElement).value = settingsObj.camera_json as string;
-  }
+    }
 
-  if (Array.isArray(settingsObj.customRules)) {
+    if (Array.isArray(settingsObj.customRules)) {
     settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
-  }
+    }
 }
 
 // // ---------------------------------------------------------------------------
@@ -263,10 +254,9 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
 // //   });
 // // });
 
-// // ---------------------------------------------------------------------------
-// // 7. Save button
-// // ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------
+// 7. Save button
+// ---------------------------------------------------------------------------
 document.getElementById('save')?.addEventListener('click', () => {
   StorageAPI.set(extractCurrentSettings() as unknown as Record<string, unknown>, () => showStatus('Applied!'));
 });
