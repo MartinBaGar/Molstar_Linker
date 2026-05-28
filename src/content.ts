@@ -1,19 +1,20 @@
 // src/content.ts
-//
-// IMPORTANT: No ES module imports. Content scripts are injected as classic
-// scripts; AppConfig is loaded via a separate script tag listed earlier in
-// the manifest (config.js) and is available as a global.
-//
-/// <reference types="chrome" />
 
+import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registry';
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const SUPPORTED_EXT = new Set([
-  '.pdb', '.cif', '.mmcif', '.bcif', '.gro',
-  '.mol', '.mol2', '.sdf', '.xyz', '.ent',
+const formatRegistry = new DataFormatRegistry();
+
+const allExtensions = new Set([
+  ...Array.from(formatRegistry.extensions),
+  ...Array.from(formatRegistry.binaryExtensions)
 ]);
+
+const SUPPORTED_EXT = new Set<string>(
+  Array.from(allExtensions).map(ext => `.${ext}`)
+);
 
 const MAX_URL_LENGTH = 2048;
 
