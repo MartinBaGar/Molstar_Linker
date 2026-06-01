@@ -1,7 +1,7 @@
-// // src/options.ts
+// src/options.ts
 
 import { AppConfig } from './config.js';
-// import { PermissionsManager } from './permissions.js';
+import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 
@@ -288,78 +288,72 @@ document.getElementById('save')?.addEventListener('click', () => {
 // // ---------------------------------------------------------------------------
 // // 8. Domain management
 // // ---------------------------------------------------------------------------
-// function refreshCustomDomainList(): void {
-//   const list = document.getElementById('custom-domains-list');
-//   if (!list) return;
+function refreshCustomDomainList(): void {
+  const list = document.getElementById('custom-domains-list');
+  if (!list) return;
 
-//   StorageAPI.get({ customDomains: [] }, (data) => {
-//     const domains = (data.customDomains as string[]) ?? [];
+  StorageAPI.get({ customDomains: [] }, (data) => {
+    const domains = (data.customDomains as string[]) ?? [];
 
-//     if (domains.length === 0) {
-//       list.innerHTML = '<p style="color:#57606a;font-style:italic;font-size:13px">No custom domains authorized yet.</p>';
-//       return;
-//     }
+    if (domains.length === 0) {
+      list.innerHTML = '<p style="color:#57606a;font-style:italic;font-size:13px">No custom domains authorized yet.</p>';
+      return;
+    }
 
-//     list.innerHTML = '';
-//     for (const domain of domains) {
-//       const row = document.createElement('div');
-//       row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;margin-bottom:8px';
-//       // escapeHTML used for domain before injecting into innerHTML
-//       row.innerHTML = `
-//         <div style="display:flex;align-items:center;gap:10px">
-//           <span>🌐</span><span style="font-weight:500">${escapeHTML(domain)}</span>
-//         </div>
-//         <button class="danger-outline remove-domain-btn"
-//           data-domain="${escapeHTML(domain)}"
-//           style="padding:4px 10px;font-size:12px">Remove</button>`;
-//       list.appendChild(row);
-//     }
+    list.innerHTML = '';
+    for (const domain of domains) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;margin-bottom:8px';
+      // escapeHTML used for domain before injecting into innerHTML
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px">
+          <span>🌐</span><span style="font-weight:500">${escapeHTML(domain)}</span>
+        </div>
+        <button class="danger-outline remove-domain-btn"
+          data-domain="${escapeHTML(domain)}"
+          style="padding:4px 10px;font-size:12px">Remove</button>`;
+      list.appendChild(row);
+    }
 
-//     list.querySelectorAll<HTMLButtonElement>('.remove-domain-btn').forEach(btn => {
-//       btn.addEventListener('click', async (e) => {
-//         const dom = (e.target as HTMLButtonElement).dataset.domain!;
-//         if (confirm(`Revoke access for ${dom}?`)) {
-//           await PermissionsManager.revokeAndUnregister(dom);
-//           refreshCustomDomainList();
-//         }
-//       });
-//     });
-//   });
-// }
+    list.querySelectorAll<HTMLButtonElement>('.remove-domain-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const dom = (e.target as HTMLButtonElement).dataset.domain!;
+        if (confirm(`Revoke access for ${dom}?`)) {
+          await PermissionsManager.revokeAndUnregister(dom);
+          refreshCustomDomainList();
+        }
+      });
+    });
+  });
+}
 
-// document.getElementById('add-manual-domain')?.addEventListener('click', async () => {
-//   const input = document.getElementById('manual-domain-input') as HTMLInputElement;
-//   const dom   = input.value.trim();
-//   if (!dom) return;
-//   if (await PermissionsManager.requestAndRegister(dom)) {
-//     input.value = '';
-//     refreshCustomDomainList();
-//   }
-// });
+document.getElementById('add-manual-domain')?.addEventListener('click', async () => {
+  const input = document.getElementById('manual-domain-input') as HTMLInputElement;
+  const dom   = input.value.trim();
+  if (!dom) return;
+  if (await PermissionsManager.requestAndRegister(dom)) {
+    input.value = '';
+    refreshCustomDomainList();
+  }
+});
 
 // // ---------------------------------------------------------------------------
 // // 9. Initialisation
 // // ---------------------------------------------------------------------------
-
 document.addEventListener('DOMContentLoaded', () => {
   StorageAPI.get(null, (savedItems) => {
     // customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
     // updatePresetDropdown();
     injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
+
+  const autoDomain = new URLSearchParams(window.location.search).get('domain');
+  if (autoDomain) {
+    const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
+    if (input) {
+      input.value = autoDomain;
+      input.focus();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  }
   });
 });
-
-//   refreshCustomDomainList();
-
-//   // If the popup or viewer redirected here with a ?domain= param,
-//   // pre-fill the manual domain input and scroll to it
-//   const autoDomain = new URLSearchParams(window.location.search).get('domain');
-//   if (autoDomain) {
-//     const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
-//     if (input) {
-//       input.value = autoDomain;
-//       input.focus();
-//       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-//     }
-//   }
-// });
