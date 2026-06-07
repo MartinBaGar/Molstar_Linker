@@ -5,8 +5,6 @@ import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registr
 // =============================================================================
 // SHARED — Extension registry & helpers
 // =============================================================================
-// Nothing to change here. Mol* tells us which extensions it supports.
-// EXT_REGEX is the single regex used by every adapter to detect extensions.
 
 const _reg = new DataFormatRegistry();
 
@@ -15,7 +13,6 @@ const ALL_EXTENSIONS = [
   ...Array.from(_reg.binaryExtensions),
 ];
 
-// Where Mol*'s internal format name differs from the bare extension string
 const FORMAT_EXCEPTIONS: Record<string, string> = {
   cif:   'mmcif',
   mmcif: 'mmcif',
@@ -61,6 +58,10 @@ interface SiteAdapter {
   // Return the direct download URL for this link.
   // If no transformation is needed just return parsed.href.
   resolveUrl(parsed: URL): string;
+  // Per-link placement — called after shouldIgnore passes.
+  // Return 'afterend' to inject the badge after the link (default),
+  // or 'beforebegin' to inject it before.
+  getPlacement(anchor: HTMLAnchorElement): InsertPosition;
 }
 
 
@@ -72,19 +73,14 @@ const GitHubAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'github.com' || hostname.endsWith('.github.com'),
 
-  // TODO: add selectors for UI elements that should never get a badge
-  // e.g. breadcrumb links, commit author links, tab headers...
-  // Hint: use anchor.closest('.your-selector') to check parent containers
-  shouldIgnore: (_anchor, _parsed) => {
-    return false;
+  shouldIgnore: (anchor, _parsed) => {
+    const isFileTreeLink = anchor.classList.contains('Link--primary');
+    const isRawButton    = anchor.dataset.testid === 'raw-button';
+    return !isFileTreeLink && !isRawButton;
   },
 
-  // TODO: decide which signals you trust on GitHub to detect a structure file
-  // Available helpers: findExtInText(string)
-  // Available inputs:  parsed.pathname, parsed.search, anchor.textContent,
-  //                    anchor.title, anchor.getAttribute('download'), ...
-  findExt: (_anchor, _parsed) => {
-    return null;
+  findExt: (_anchor, parsed) => {
+    return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
   },
 
   // GitHub viewer URLs need rewriting to raw.githubusercontent.com
@@ -99,6 +95,11 @@ const GitHubAdapter: SiteAdapter = {
     }
     return base.replace('github.com', 'raw.githubusercontent.com');
   },
+
+  getPlacement: (anchor) => {
+    if (anchor.dataset.testid === 'raw-button') return 'beforebegin';
+    return 'afterend';
+  },
 };
 
 
@@ -112,14 +113,15 @@ const GitLabAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'gitlab.com' || hostname.includes('gitlab'),
 
-  // TODO: add selectors for UI elements that should never get a badge
-  shouldIgnore: (_anchor, _parsed) => {
-    return false;
+  shouldIgnore: (anchor, _parsed) => {
+    const isFileTreeLink = anchor.classList.contains('tree-item-link');
+    // const isRawButton    = anchor.dataset.testid === 'raw-button';
+    // return !isFileTreeLink && !isRawButton;
+    return !isFileTreeLink;
   },
 
-  // TODO: decide which signals you trust on GitLab to detect a structure file
-  findExt: (_anchor, _parsed) => {
-    return null;
+  findExt: (_anchor, parsed) => {
+    return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
   },
 
   // GitLab viewer URLs need rewriting to the repository files API.
@@ -135,6 +137,8 @@ const GitLabAdapter: SiteAdapter = {
       `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
     );
   },
+
+  getPlacement: (_anchor) => 'afterend',
 };
 
 
@@ -146,19 +150,17 @@ const FigshareAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'figshare.com' || hostname.endsWith('.figshare.com'),
 
-  // TODO: anything to exclude on Figshare?
   shouldIgnore: (_anchor, _parsed) => {
     return false;
   },
 
-  // TODO: Figshare URLs are opaque — the extension won't be in the pathname.
-  // You will likely need to look at surrounding DOM. Explore the page and
-  // decide which signals are reliable before filling this in.
   findExt: (_anchor, _parsed) => {
     return null;
   },
 
   resolveUrl: (parsed) => parsed.href,
+
+  getPlacement: (_anchor) => 'afterend',
 };
 
 
@@ -170,18 +172,17 @@ const ZenodoAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'zenodo.org' || hostname.endsWith('.zenodo.org'),
 
-  // TODO: anything to exclude on Zenodo?
   shouldIgnore: (_anchor, _parsed) => {
     return false;
   },
 
-  // TODO: explore a Zenodo record page and decide which signal is most reliable.
-  // Is it the link text? The URL? An attribute? Fill in once you know.
   findExt: (_anchor, _parsed) => {
     return null;
   },
 
   resolveUrl: (parsed) => parsed.href,
+
+  getPlacement: (_anchor) => 'afterend',
 };
 
 
@@ -209,6 +210,8 @@ const GenericAdapter: SiteAdapter = {
   },
 
   resolveUrl: (parsed) => parsed.href,
+
+  getPlacement: (_anchor) => 'afterend',
 };
 
 
@@ -239,6 +242,7 @@ function getAdapter(hostname: string): SiteAdapter {
 interface StructureInfo {
   rawUrl:    string;
   formatStr: string;
+  adapter:   SiteAdapter;
 }
 
 function analyseLink(anchor: HTMLAnchorElement): StructureInfo | null {
@@ -259,7 +263,7 @@ function analyseLink(anchor: HTMLAnchorElement): StructureInfo | null {
   const formatStr = FORMAT_EXCEPTIONS[ext] ?? ext;
   const rawUrl    = adapter.resolveUrl(parsed);
 
-  return { rawUrl, formatStr };
+  return { rawUrl, formatStr, adapter };
 }
 
 
@@ -276,6 +280,7 @@ function ensureStyles(): void {
     .${BADGE_CLASS} {
       display: inline-block; vertical-align: middle;
       margin-left: 6px; padding: 2px 6px;
+      margin-right: 6px; padding: 2px 6px;
       font-size: 10px; font-weight: bold; line-height: normal;
       border: none; border-radius: 3px;
       color: white; cursor: pointer;
@@ -300,7 +305,7 @@ function createBadge(info: StructureInfo, originalHref: string): HTMLButtonEleme
 
 
 // =============================================================================
-// SHARED — Click handling (single delegated listener for all badges)
+// SHARED — Click handling
 // =============================================================================
 
 document.addEventListener('click', (event: MouseEvent) => {
@@ -348,13 +353,14 @@ function processLink(anchor: HTMLAnchorElement): void {
 
   // Skip pure numeric text (e.g. GitHub line-number anchors)
   if (/^\d+$/.test(anchor.textContent?.trim() ?? '')) return;
-
   if (hasProcessedAncestor(anchor)) return;
 
   const info = analyseLink(anchor);
   if (!info) return;
 
-  anchor.insertAdjacentElement('afterend', createBadge(info, anchor.href));
+  // adapter is now available via info — no undefined reference
+  const placement = info.adapter.getPlacement(anchor);
+  anchor.insertAdjacentElement(placement, createBadge(info, anchor.href));
 }
 
 const OBS_OPTIONS = { childList: true, subtree: true };
