@@ -214,25 +214,17 @@ document.querySelector('.container')?.addEventListener('input', () => {
 document.getElementById('save')?.addEventListener('click', () => {
   const settings = extractCurrentSettings();
 
-  // Show a saving state
-  if (statusText) statusText.textContent = 'Saving...';
+  if (statusText) statusText.textContent = '✓ Applied to Mol*!';
 
-  StorageAPI.set(
-    settings as unknown as Record<string, unknown>,
-    () => {
-      // Change text to applied, wait a couple seconds, then slide the bar down
-      if (statusText) statusText.textContent = '✓ Applied successfully!';
+  setTimeout(() => {
+    if (actionBar) actionBar.classList.remove('visible');
+  }, 2000);
 
-      setTimeout(() => {
-        if (actionBar) actionBar.classList.remove('visible');
-      }, 2000);
-
-      extApi.runtime.sendMessage({
-        action: 'SETTINGS_UPDATED',
-        settings: settings,
-      }).catch(() => {});
-    }
-  );
+  // Send settings to other tabs (no storage persistence)
+  extApi.runtime.sendMessage({
+    action: 'SETTINGS_UPDATED',
+    settings: settings,
+  }).catch(() => {});
 });
 
 // ---------------------------------------------------------------------------
