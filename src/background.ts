@@ -87,3 +87,26 @@ chrome.permissions.onAdded.addListener((permissions) => {
     runAt:   'document_end',
   }]).catch(err => console.error('Mol* Linker — dynamic script registration failed:', err));
 });
+
+chrome.runtime.onStartup.addListener(reRegisterCustomDomains);
+chrome.runtime.onInstalled.addListener(reRegisterCustomDomains);
+
+async function reRegisterCustomDomains(): Promise<void> {
+  const data = await chrome.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
+  if (data.customDomains.length === 0) return;
+
+  for (const domain of data.customDomains) {
+    const pattern = `*://${domain}/*`;
+    const id      = `ms-script-${domain.replace(/\./g, '-')}`;
+    try {
+      const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [id] });
+      if (existing.length === 0) {
+        await chrome.scripting.registerContentScripts([{
+          id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
+        }]);
+      }
+    } catch (err) {
+      console.warn(`Mol* Linker — failed to re-register ${domain}:`, err);
+    }
+  }
+}
