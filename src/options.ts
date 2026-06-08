@@ -206,67 +206,6 @@ function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
     }
 }
 
-// // ---------------------------------------------------------------------------
-// // 5. Preset management
-// // ---------------------------------------------------------------------------
-// // let customPresets: Record<string, Preset> = {};
-
-// // function updatePresetDropdown(): void {
-// //   const select = document.getElementById('template-select') as HTMLSelectElement;
-// //   select.innerHTML = '';
-
-// //   // Built-in presets
-// //   for (const [key, preset] of Object.entries(AppConfig.builtInPresets)) {
-// //     select.add(new Option(`[Built-in] ${preset.name}`, `builtin_${key}`));
-// //   }
-
-// //   // Custom presets
-// //   for (const [key, preset] of Object.entries(customPresets)) {
-// //     select.add(new Option(`[Custom] ${preset.name}`, `custom_${key}`));
-// //   }
-// // }
-
-// // document.getElementById('load-template')?.addEventListener('click', () => {
-// //   const val = (document.getElementById('template-select') as HTMLSelectElement).value;
-// //   const allPresets = AppConfig.getAllPresets(customPresets);
-// //   const overrides = val.startsWith('builtin_')
-// //     ? AppConfig.builtInPresets[val.replace('builtin_', '')]?.settings ?? {}
-// //     : allPresets[val.replace('custom_', '')]?.settings ?? {};
-// //   injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...overrides });
-// //   showStatus('Preset loaded!');
-// // });
-
-// // document.getElementById('delete-template')?.addEventListener('click', () => {
-// //   const val = (document.getElementById('template-select') as HTMLSelectElement).value;
-// //   if (val.startsWith('builtin_')) { alert('Cannot delete built-in presets.'); return; }
-// //   const id = val.replace('custom_', '');
-// //   if (confirm(`Delete "${customPresets[id]?.name}"?`)) {
-// //     delete customPresets[id];
-// //     StorageAPI.set({ customPresets: customPresets as unknown as Record<string, unknown> }, () => {
-// //       updatePresetDropdown();
-// //       showStatus('Deleted.');
-// //     });
-// //   }
-// // });
-
-// // document.getElementById('save-template')?.addEventListener('click', () => {
-// //   const name = (document.getElementById('new-template-name') as HTMLInputElement).value.trim();
-// //   if (!name) { alert('A preset name is required.'); return; }
-
-// //   const current = extractCurrentSettings();
-// //   const existingId = Object.keys(customPresets).find(
-// //     k => customPresets[k].name.toLowerCase() === name.toLowerCase(),
-// //   );
-// //   if (existingId && !confirm(`Overwrite "${name}"?`)) return;
-
-// //   const id = existingId ?? `user_preset_${Date.now()}`;
-// //   customPresets[id] = { name, settings: current };
-// //   StorageAPI.set({ customPresets: customPresets as unknown as Record<string, unknown> }, () => {
-// //     updatePresetDropdown();
-// //     (document.getElementById('new-template-name') as HTMLInputElement).value = '';
-// //     showStatus('Saved!');
-// //   });
-// // });
 
 // ---------------------------------------------------------------------------
 // 7. Save button
@@ -279,7 +218,7 @@ document.getElementById('save')?.addEventListener('click', () => {
       showStatus('Applied!');
       extApi.runtime.sendMessage({
         action: 'SETTINGS_UPDATED',
-        settings: settings,        // ← ADD
+        settings: settings,
       }).catch(() => {});
     }
   );
