@@ -13,7 +13,7 @@ const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chr
 // ---------------------------------------------------------------------------
 const StorageAPI = {
     get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
-    extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
+        extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
     },
     set(data: Record<string, unknown>, cb?: () => void): void {
         if (cb) {
@@ -34,54 +34,40 @@ function escapeHTML(str: unknown): string {
     }[tag as '&'] ?? ''));
 }
 
-function showStatus(message: string, isError = false): void {
-    const el = document.getElementById('status');
-    if (!el) return;
-    el.textContent   = message;
-    el.style.color   = isError ? 'var(--danger)' : 'var(--success)';
-    setTimeout(() => { el.textContent = ''; }, 3000);
-}
-
 // ---------------------------------------------------------------------------
 // Dynamic UI helpers
 // ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// 1. Build the main UI (scene settings + per-target cards)
-// ---------------------------------------------------------------------------
 const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
-const targetContainer = document.getElementById('settings-container')       as HTMLDivElement;
 const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
 
 function buildUI(): void {
-sceneContainer.innerHTML = `
-<details class="target-card" id="scene-card">
-    <summary><span>Canvas &amp; Camera</span><span style="font-size:10px;opacity:.5">▼</span></summary>
-    <div class="card-content">
-    <div class="setting-row">
+  if (!sceneContainer) return;
+
+  sceneContainer.innerHTML = `
+    <div class="form-grid">
+      <div class="form-group">
         <label>Background Color</label>
-        <div class="color-input-group">
-        <input type="color" class="color-picker" id="canvas_color_picker" value="#ffffff">
-        <input type="text"  class="color-text"   id="canvas_color" placeholder="e.g. white or #ffffff" value="#ffffff">
+        <div style="display:flex; gap:10px;">
+          <input type="color" id="canvas_color_picker" value="#ffffff" style="width:50px; padding:0;">
+          <input type="text" id="canvas_color" placeholder="#ffffff" value="#ffffff">
         </div>
-    </div>
-    <div class="setting-row">
+      </div>
+      <div class="form-group">
         <label>Camera JSON (optional)</label>
         <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
+      </div>
     </div>
-    </div>
-</details>`;
+  `;
 
-(document.getElementById('canvas_color_picker') as HTMLInputElement)
-.addEventListener('input', (e) => {
-    (document.getElementById('canvas_color') as HTMLInputElement).value =
-    (e.target as HTMLInputElement).value;
-});
-
-targetContainer.innerHTML = '';
+  (document.getElementById('canvas_color_picker') as HTMLInputElement)
+    .addEventListener('input', (e) => {
+      (document.getElementById('canvas_color') as HTMLInputElement).value =
+        (e.target as HTMLInputElement).value;
+    });
 }
 
 // ---------------------------------------------------------------------------
-// 2. Custom rule cards
+// Custom rule cards
 // ---------------------------------------------------------------------------
 function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     const data: CustomRule = {
@@ -93,89 +79,89 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     };
 
     const card = document.createElement('details');
-    card.className = 'target-card custom-rule-card';
+    card.className = 'target-card custom-rule-card rule-card'; // Added rule-card class
     card.open      = true;
 
     card.innerHTML = `
     <summary>
-        <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
-        <div style="display:flex;align-items:center;gap:10px">
-        <button class="danger-outline delete-rule-btn"
-            style="padding:2px 8px;width:auto;font-size:11px">Delete</button>
-        <span style="font-size:10px;opacity:.5">▼</span>
-        </div>
+      <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
+      <button class="btn-danger delete-rule-btn" style="padding:2px 8px; font-size:12px;">Delete</button>
     </summary>
-    <div class="card-content">
-        <div class="flex-row">
-            <div style="flex:2"><label>Rule Name</label>
-                <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
-            </div>
-            <div style="flex:1"><label>Rep</label>
-                <select class="cr-rep">
-                    <option value="ball-and-stick">Ball and sticks</option>
-                    <option value="cartoon">Cartoon</option>
-                </select>
-            </div>
-            <div>
-                <select class="cr-lang">
-                    <option value="pymol">PyMOL</option>
-                    <option value="vmd">VMD</option>
-                </select>
-                <label for="cr-expression">Selection Rule:</label>
-                <input type="text" class="cr-expression" id="selection-rule" name="selection-rule">
-            </div>
-        </div>
-    </div>`;
-
-    (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
-    (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
-        (e.target as HTMLInputElement).value || 'Unnamed Rule';
-    });
+    <div class="card-content form-grid">
+      <div class="form-group">
+        <label>Rule Name</label>
+        <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
+      </div>
+      <div class="form-group">
+        <label>Representation</label>
+        <select class="cr-rep">
+          <option value="ball-and-stick" ${data.repprop.type === 'ball-and-stick' ? 'selected' : ''}>Ball and sticks</option>
+          <option value="cartoon" ${data.repprop.type === 'cartoon' ? 'selected' : ''}>Cartoon</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Language</label>
+        <select class="cr-lang">
+          <option value="pymol" ${data.selection?.script?.language === 'pymol' ? 'selected' : ''}>PyMOL</option>
+          <option value="vmd" ${data.selection?.script?.language === 'vmd' ? 'selected' : ''}>VMD</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label>Selection Expression</label>
+        <input type="text" class="cr-expression" value="${escapeHTML(data.selection?.script?.expression)}" placeholder="e.g., chain A and resi 10-20">
+      </div>
+    </div>
+  `;
 
     // Delete button
     card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
-    e.preventDefault(); e.stopPropagation(); card.remove();
+        e.preventDefault(); e.stopPropagation(); card.remove();
+        // Trigger the "Unsaved changes" bar
+        document.querySelector('.container')?.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
     // Live-update summary title
     (card.querySelector('.cr-name') as HTMLInputElement).addEventListener('input', (e) => {
-    (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
-        (e.target as HTMLInputElement).value || 'Unnamed Rule';
+        (card.querySelector('.rule-title-display') as HTMLSpanElement).textContent =
+            (e.target as HTMLInputElement).value || 'Unnamed Rule';
     });
 
     rulesContainer.appendChild(card);
-};
-// }
+}
 
 document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
 
 // ---------------------------------------------------------------------------
-// 3. Extract current UI state into an ExtensionSettings object
+// Extract current UI state into an ExtensionSettings object
 // ---------------------------------------------------------------------------
 function extractCurrentSettings(): ExtensionSettings {
     const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
 
-    s.canvas_color = (document.getElementById('canvas_color') as HTMLInputElement).value;
-    s.camera_json  = (document.getElementById('camera_json')  as HTMLTextAreaElement).value;
+    // Safely get values, fallback to empty string if DOM element is missing
+    const canvasColorEl = document.getElementById('canvas_color') as HTMLInputElement | null;
+    const cameraJsonEl = document.getElementById('camera_json') as HTMLTextAreaElement | null;
+
+    s.canvas_color = canvasColorEl ? canvasColorEl.value : "#ffffff";
+    s.camera_json  = cameraJsonEl ? cameraJsonEl.value : "";
 
     const customRules: CustomRule[] = [];
     document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
-    const rule: CustomRule = {
-        meta: {
-            id: (card.querySelector('.cr-name') as HTMLInputElement).value,
-            name: (card.querySelector('.cr-name') as HTMLInputElement).value,
-        },
-        repprop: {
-            type: (card.querySelector('.cr-rep') as HTMLSelectElement).value as StructureRepresentationRegistry.BuiltIn,
-        },
-        selection: {
-            script: {
-                expression: (card.querySelector('.cr-expression') as HTMLInputElement).value,
-                language: (card.querySelector('.cr-lang') as HTMLSelectElement).value as 'mol-script' | 'pymol' | 'vmd' | 'jmol',
+        const rule: CustomRule = {
+            meta: {
+                id: (card.querySelector('.cr-name') as HTMLInputElement).value,
+                name: (card.querySelector('.cr-name') as HTMLInputElement).value,
             },
-        },
-    };
-    customRules.push(rule);
+            repprop: {
+                type: (card.querySelector('.cr-rep') as HTMLSelectElement).value as StructureRepresentationRegistry.BuiltIn,
+            },
+            selection: {
+                script: {
+                    expression: (card.querySelector('.cr-expression') as HTMLInputElement).value,
+                    language: (card.querySelector('.cr-lang') as HTMLSelectElement).value as 'mol-script' | 'pymol' | 'vmd' | 'jmol',
+                },
+            },
+        };
+        customRules.push(rule);
     });
 
     s.customRules = customRules;
@@ -183,39 +169,64 @@ function extractCurrentSettings(): ExtensionSettings {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Inject a settings object back into the UI
+// Inject a settings object back into the UI
 // ---------------------------------------------------------------------------
 function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
-    sceneContainer.innerHTML  = '';
-    targetContainer.innerHTML = '';
-    rulesContainer.innerHTML  = '';
+    if (sceneContainer) sceneContainer.innerHTML  = '';
+    if (rulesContainer) rulesContainer.innerHTML  = '';
+
     buildUI();
 
-    const canvasInput = document.getElementById('canvas_color') as HTMLInputElement;
-    const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement;
-    if (settingsObj.canvas_color) {
-    canvasInput.value = settingsObj.canvas_color as string;
-    if ((settingsObj.canvas_color as string).startsWith('#')) pickerInput.value = settingsObj.canvas_color as string;
+    const canvasInput = document.getElementById('canvas_color') as HTMLInputElement | null;
+    const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement | null;
+
+    if (settingsObj.canvas_color && canvasInput && pickerInput) {
+        canvasInput.value = settingsObj.canvas_color as string;
+        if ((settingsObj.canvas_color as string).startsWith('#')) {
+            pickerInput.value = settingsObj.canvas_color as string;
+        }
     }
-    if (settingsObj.camera_json) {
-    (document.getElementById('camera_json') as HTMLTextAreaElement).value = settingsObj.camera_json as string;
+
+    const cameraInput = document.getElementById('camera_json') as HTMLTextAreaElement | null;
+    if (settingsObj.camera_json && cameraInput) {
+        cameraInput.value = settingsObj.camera_json as string;
     }
 
     if (Array.isArray(settingsObj.customRules)) {
-    settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
+        settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
     }
 }
 
+// ---------------------------------------------------------------------------
+// Action Bar Slide-Up & Save Logic
+// ---------------------------------------------------------------------------
+const actionBar = document.getElementById('action-bar');
+const statusText = document.getElementById('status');
 
-// ---------------------------------------------------------------------------
-// 7. Save button
-// ---------------------------------------------------------------------------
+// Listen for any form changes inside the main container to show the slide-up bar
+document.querySelector('.container')?.addEventListener('input', () => {
+  if (actionBar && !actionBar.classList.contains('visible')) {
+    actionBar.classList.add('visible');
+    if (statusText) statusText.textContent = 'Unsaved changes';
+  }
+});
+
 document.getElementById('save')?.addEventListener('click', () => {
   const settings = extractCurrentSettings();
+
+  // Show a saving state
+  if (statusText) statusText.textContent = 'Saving...';
+
   StorageAPI.set(
     settings as unknown as Record<string, unknown>,
     () => {
-      showStatus('Applied!');
+      // Change text to applied, wait a couple seconds, then slide the bar down
+      if (statusText) statusText.textContent = '✓ Applied successfully!';
+
+      setTimeout(() => {
+        if (actionBar) actionBar.classList.remove('visible');
+      }, 2000);
+
       extApi.runtime.sendMessage({
         action: 'SETTINGS_UPDATED',
         settings: settings,
@@ -224,9 +235,9 @@ document.getElementById('save')?.addEventListener('click', () => {
   );
 });
 
-// // ---------------------------------------------------------------------------
-// // 8. Domain management
-// // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Domain management
+// ---------------------------------------------------------------------------
 function refreshCustomDomainList(): void {
   const list = document.getElementById('custom-domains-list');
   if (!list) return;
@@ -235,22 +246,18 @@ function refreshCustomDomainList(): void {
     const domains = (data.customDomains as string[]) ?? [];
 
     if (domains.length === 0) {
-      list.innerHTML = '<p style="color:#57606a;font-style:italic;font-size:13px">No custom domains authorized yet.</p>';
+      list.innerHTML = '<p class="empty-state">No custom domains authorized yet.</p>';
       return;
     }
 
     list.innerHTML = '';
     for (const domain of domains) {
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;margin-bottom:8px';
-      // escapeHTML used for domain before injecting into innerHTML
+      row.className = 'domain-row';
       row.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px">
-          <span>🌐</span><span style="font-weight:500">${escapeHTML(domain)}</span>
-        </div>
-        <button class="danger-outline remove-domain-btn"
-          data-domain="${escapeHTML(domain)}"
-          style="padding:4px 10px;font-size:12px">Remove</button>`;
+        <span>🌐 <strong>${escapeHTML(domain)}</strong></span>
+        <button class="btn-danger remove-domain-btn" data-domain="${escapeHTML(domain)}">Remove</button>
+      `;
       list.appendChild(row);
     }
 
@@ -277,12 +284,10 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
 });
 
 // ---------------------------------------------------------------------------
-// 9. Initialisation
+// Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   StorageAPI.get(null, (savedItems) => {
-    // customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
-    // updatePresetDropdown();
     injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
   });
 
