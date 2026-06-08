@@ -1,7 +1,7 @@
 // src/sandbox.ts
 // import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
-import { NativeBuilder, getLastComponent, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
+import { NativeBuilder, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
 
 
 declare const molstar: any; // Using any for simplicity during rewrite
@@ -17,7 +17,7 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
   const msg = event.data;
   if (!msg || msg.action !== 'INIT_MOLSTAR') return;
 
-  const { url, format, settings, originalUrl } = msg;
+  const { url, format, originalUrl } = msg;
 
   try {
     if (!viewerInstance) {
@@ -45,10 +45,11 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
     const response = await fetch(url);
     const blob = await response.blob();
     let shortBlobUrl = URL.createObjectURL(blob);
+    let filename: string | undefined;  // Declare at a higher scope
 
     if (originalUrl) {
       try {
-        const filename = new URL(originalUrl).pathname.split('/').pop();
+        filename = new URL(originalUrl).pathname.split('/').pop();
         if (filename) shortBlobUrl += `#${filename}`;
       } catch {}
     }
@@ -58,7 +59,7 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
       viewerInstance.plugin,
       shortBlobUrl,
       format!,
-      settings
+      filename!
     );
 
   } catch (err) {
@@ -70,9 +71,7 @@ window.addEventListener('message', async (event: MessageEvent) => {
   const msg = event.data;
   if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
 
-  const { plugin, component } = getLastComponent();
-  if (!plugin || !component) return;
-
+  const plugin = viewerInstance.plugin
   const settings = msg.settings;
 
   customRuleToRep(plugin, settings);

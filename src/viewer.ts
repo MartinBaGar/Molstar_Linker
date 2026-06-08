@@ -108,6 +108,7 @@ function spawnIframe(
         format:      format,
         settings:    finalSettings,
         originalUrl: rawUrl,
+        // TODO Pass filename so it is correctly labelled in the tree
       };
       iframe.contentWindow!.postMessage(payload, '*');
     };
