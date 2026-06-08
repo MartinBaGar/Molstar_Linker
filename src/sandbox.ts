@@ -13,10 +13,6 @@ let viewerInstance: any = null;
 (window.history as any).replaceState = () => {};
 (window.history as any).pushState    = () => {};
 
-if ('xr' in navigator) {
-  Object.defineProperty(navigator, 'xr', { value: undefined, configurable: true });
-}
-
 window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage>) => {
   const msg = event.data;
   if (!msg || msg.action !== 'INIT_MOLSTAR') return;

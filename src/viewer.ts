@@ -91,7 +91,6 @@ function spawnIframe(
 
     const iframe = document.createElement('iframe');
     iframe.src = 'sandbox.html';
-    // iframe.allow = 'xr-spatial-tracking';
     iframe.style.cssText = 'width:100%; height:100%; border:none;';
 
     // FIX F1: Sandboxed extension pages report origin 'null' (the string).
