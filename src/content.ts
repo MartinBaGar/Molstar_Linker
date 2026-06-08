@@ -160,12 +160,22 @@ const FigshareAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'figshare.com' || hostname.endsWith('.figshare.com'),
 
-  shouldIgnore: (_anchor, _parsed) => {
-    return false;
+  shouldIgnore: (anchor, _parsed) => {
+    const isThumbnailDownload = anchor.dataset.controlId?.startsWith('thumbnail-download-item-');
+    return !isThumbnailDownload;
   },
 
-  findExt: (_anchor, _parsed) => {
-    return null;
+  findExt: (anchor, _parsed) => {
+    // Try standard URL first
+    let ext = findExtInText(_parsed.pathname) ?? findExtInText(_parsed.search);
+    if (ext) return ext;
+
+    // Fallback: Get filename from parent's title attribute
+    const parent = anchor.closest('.usB-L');
+    if (parent) {
+      ext = findExtInText(parent.getAttribute('title'));
+    }
+    return ext;
   },
 
   resolveUrl: (parsed) => parsed.href,
@@ -182,12 +192,15 @@ const ZenodoAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'zenodo.org' || hostname.endsWith('.zenodo.org'),
 
-  shouldIgnore: (_anchor, _parsed) => {
-    return false;
+  shouldIgnore: (anchor, _parsed) => {
+    const isFileLink = anchor.closest('td.ten.wide')
+    return !isFileLink;
   },
 
-  findExt: (_anchor, _parsed) => {
-    return null;
+  findExt: (_anchor, parsed) => {
+    console.log(findExtInText(parsed.pathname))
+    console.log(findExtInText(parsed.search))
+    return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
   },
 
   resolveUrl: (parsed) => parsed.href,
