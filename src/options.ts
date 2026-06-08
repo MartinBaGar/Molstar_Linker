@@ -337,14 +337,17 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
   }
 });
 
-// // ---------------------------------------------------------------------------
-// // 9. Initialisation
-// // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 9. Initialisation
+// ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   StorageAPI.get(null, (savedItems) => {
     // customPresets = (savedItems.customPresets as Record<string, Preset>) ?? {};
     // updatePresetDropdown();
     injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
+  });
+
+  refreshCustomDomainList();
 
   const autoDomain = new URLSearchParams(window.location.search).get('domain');
   if (autoDomain) {
@@ -355,5 +358,4 @@ document.addEventListener('DOMContentLoaded', () => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
   }
-  });
 });

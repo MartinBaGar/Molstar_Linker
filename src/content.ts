@@ -69,6 +69,10 @@ interface SiteAdapter {
 // SITE — GitHub
 // =============================================================================
 
+// =============================================================================
+// SITE — GitHub
+// =============================================================================
+
 const GitHubAdapter: SiteAdapter = {
 
   matches: (hostname) => hostname === 'github.com' || hostname.endsWith('.github.com'),
@@ -83,16 +87,23 @@ const GitHubAdapter: SiteAdapter = {
     return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
   },
 
-  // GitHub viewer URLs need rewriting to raw.githubusercontent.com
-  // This is the only part that is filled in because it is mechanical,
-  // not a targeting decision.
   resolveUrl: (parsed) => {
     const base = parsed.origin + parsed.pathname;
+
+    // 1. Handle file tree links (removes /blob/)
     if (base.includes('/blob/')) {
       return base
         .replace('github.com', 'raw.githubusercontent.com')
         .replace('/blob/', '/');
     }
+
+    // 2. Handle "Raw" button links (removes /raw/)
+    if (base.includes('/raw/')) {
+      return base
+        .replace('github.com', 'raw.githubusercontent.com')
+        .replace('/raw/', '/');
+    }
+
     return base.replace('github.com', 'raw.githubusercontent.com');
   },
 
@@ -285,6 +296,8 @@ function ensureStyles(): void {
       border: none; border-radius: 3px;
       color: white; cursor: pointer;
       background: #2da44e;
+      position: relative;
+      z-index: 9999;
     }
     .${BADGE_CLASS}:hover { opacity: 0.85; }
   `;
