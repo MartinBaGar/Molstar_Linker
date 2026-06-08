@@ -126,9 +126,8 @@ const GitLabAdapter: SiteAdapter = {
 
   shouldIgnore: (anchor, _parsed) => {
     const isFileTreeLink = anchor.classList.contains('tree-item-link');
-    // const isRawButton    = anchor.dataset.testid === 'raw-button';
-    // return !isFileTreeLink && !isRawButton;
-    return !isFileTreeLink;
+    const isDownloadButton    = anchor.dataset.testid === 'download-button';
+    return !isFileTreeLink && !isDownloadButton;
   },
 
   findExt: (_anchor, parsed) => {
