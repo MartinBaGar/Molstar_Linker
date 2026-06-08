@@ -329,7 +329,7 @@ extApi.runtime.onMessage.addListener((message) => {
   currentIframe.contentWindow.postMessage(
     {
       action: 'APPLY_REPRESENTATION',
-      settings: message.settings,   // ← forward it
+      settings: message.settings,
     },
     '*'
   );

@@ -63,16 +63,25 @@ export async function customRuleToRep(
   }
 }
 
-function getTooltipState(plugin: PluginContext): {
-    activeTooltips: TooltipEntry[];
-    isRegistered: boolean;
-    } {
-    const cs = plugin.customState as any;
-    if (!cs.__nativeBuilder) {
-        cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
-    }
-    return cs.__nativeBuilder;
+export async function globalSettingsUpdate(
+  plugin: PluginContext,
+  settings: ExtensionSettings,
+) {
+    plugin.canvas3d?.setProps({
+        renderer: { backgroundColor: Color.fromHexStyle(settings.canvas_color as string) },
+    });
 }
+
+// function getTooltipState(plugin: PluginContext): {
+//     activeTooltips: TooltipEntry[];
+//     isRegistered: boolean;
+//     } {
+//     const cs = plugin.customState as any;
+//     if (!cs.__nativeBuilder) {
+//         cs.__nativeBuilder = { activeTooltips: [], isRegistered: false };
+//     }
+//     return cs.__nativeBuilder;
+// }
 
 // Helper function to convert CustomRule to Molstar props
 function toMolstarProps(rule: CustomRule) {

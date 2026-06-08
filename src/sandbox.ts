@@ -1,7 +1,7 @@
 // src/sandbox.ts
 // import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
-import { NativeBuilder, getLastComponent, customRuleToRep } from './native-builder.js';
+import { NativeBuilder, getLastComponent, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
 
 
 declare const molstar: any; // Using any for simplicity during rewrite
@@ -76,4 +76,5 @@ window.addEventListener('message', async (event: MessageEvent) => {
   const settings = msg.settings;
 
   customRuleToRep(plugin, settings);
+  globalSettingsUpdate(plugin, settings);
 });
