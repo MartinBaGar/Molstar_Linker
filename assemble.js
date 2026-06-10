@@ -17,6 +17,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const COMPILED = [
   'background.js',
   'content.js',
+  'extensions.js',
   'sandbox.js',
   'viewer.js',
   'popup.js',

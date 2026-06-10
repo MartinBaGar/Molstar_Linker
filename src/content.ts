@@ -1,18 +1,9 @@
 // src/content.ts
-import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registry';
-
+import { ALL_EXTENSIONS } from './extensions';
 
 // =============================================================================
 // SHARED — Extension registry & helpers
 // =============================================================================
-
-const _reg = new DataFormatRegistry();
-
-const ALL_EXTENSIONS = [
-  ...Array.from(_reg.extensions),
-  ...Array.from(_reg.binaryExtensions),
-];
-
 const FORMAT_EXCEPTIONS: Record<string, string> = {
   cif:   'mmcif',
   mmcif: 'mmcif',
@@ -21,7 +12,7 @@ const FORMAT_EXCEPTIONS: Record<string, string> = {
 };
 
 // One pre-compiled regex, reused everywhere — never rebuilt per link
-const EXT_REGEX = new RegExp(`\\.(${ALL_EXTENSIONS.join('|')})(?:[?#&]|$)`, 'i');
+const EXT_REGEX = new RegExp(`\\.(${[...ALL_EXTENSIONS].join('|')})(?:[?#&]|$)`, 'i');
 
 // Searches any string for a supported extension. Returns e.g. "pdb" or null.
 function findExtInText(text: string | null | undefined): string | null {

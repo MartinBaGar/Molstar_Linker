@@ -4,6 +4,7 @@ await esbuild.build({
   entryPoints: [
     'src/background.ts',
     'src/content.ts',
+    'src/extensions.ts',
     'src/sandbox.ts',
     'src/viewer.ts',
     'src/popup.ts',
