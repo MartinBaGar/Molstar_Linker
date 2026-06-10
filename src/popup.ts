@@ -1,73 +1,11 @@
 // src/popup.ts
 
-import { AppConfig } from './config.js';
 import { PermissionsManager } from './permissions.js';
-// import type { Preset } from './types.js';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 document.addEventListener('DOMContentLoaded', async () => {
-
-  const presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
-  // let customPresets: Record<string, Preset> = {};
-
-  // -------------------------------------------------------------------------
-  // 1. Populate the preset dropdown with built-ins + custom presets
-  // -------------------------------------------------------------------------
-  // extApi.storage.sync.get(
-  //   ['customPresets'],
-  //   (result: { customPresets?: Record<string, Preset> }) => {
-  //     customPresets = result.customPresets ?? {};
-  //     const allPresets = AppConfig.getAllPresets(customPresets);
-
-  //     // Built-in presets
-  //     const groupBuiltIn = document.createElement('optgroup');
-  //     groupBuiltIn.label = 'Built-in Presets';
-  //     for (const [key, preset] of Object.entries(AppConfig.builtInPresets)) {
-  //       const opt = document.createElement('option');
-  //       opt.value       = `builtin_${key}`;
-  //       opt.textContent = preset.name;
-  //       groupBuiltIn.appendChild(opt);
-  //     }
-  //     presetSelect.appendChild(groupBuiltIn);
-
-  //     // Custom presets
-  //     if (Object.keys(customPresets).length > 0) {
-  //       const groupCustom = document.createElement('optgroup');
-  //       groupCustom.label = 'My Custom Presets';
-  //       for (const [key, preset] of Object.entries(customPresets)) {
-  //         const opt = document.createElement('option');
-  //         opt.value       = `custom_${key}`;
-  //         opt.textContent = preset.name;
-  //         groupCustom.appendChild(opt);
-  //       }
-  //       presetSelect.appendChild(groupCustom);
-  //     }
-  //   },
-  // );
-
-  // -------------------------------------------------------------------------
-  // 2. Apply Preset — merges preset overrides into storage, reloads active tab
-  // -------------------------------------------------------------------------
-  // document.getElementById('apply-preset')?.addEventListener('click', () => {
-  //   const val = presetSelect.value;
-  //   const allPresets = AppConfig.getAllPresets(customPresets);
-  //   const presetOverrides = val.startsWith('builtin_')
-  //     ? AppConfig.builtInPresets[val.replace('builtin_', '')]?.settings ?? {}
-  //     : allPresets[val.replace('custom_', '')]?.settings ?? {};
-
-  //   const newSettings = { ...AppConfig.getDefaults(), ...presetOverrides };
-
-  //   extApi.storage.sync.set(newSettings, () => {
-  //     extApi.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //       const id = tabs[0]?.id;
-  //       if (id !== undefined) extApi.tabs.reload(id);
-  //     });
-  //     window.close();
-  //   });
-  // });
-
   // -------------------------------------------------------------------------
   // 3. Open the Advanced Options page
   // -------------------------------------------------------------------------

@@ -2,9 +2,7 @@
 
 
 import { Script } from 'molstar/lib/mol-script/types';
-import { ColorTheme } from 'molstar/lib/mol-theme/color';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
-import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
 import type { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 
 // ---------------------------------------------------------------------------

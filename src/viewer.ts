@@ -1,7 +1,6 @@
 // src/viewer.ts
 
-import { PermissionsManager } from './permissions.js';
-import type { ExtensionSettings, InitMolstarMessage } from './types.js';
+import type { InitMolstarMessage } from './types.js';
 import { ALL_EXTENSIONS } from './extensions';
 
 declare const browser: typeof chrome;
