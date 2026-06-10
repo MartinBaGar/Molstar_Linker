@@ -1,11 +1,10 @@
 // src/config.ts
-
-import { CartoonParams } from 'molstar/lib/mol-repr/structure/representation/cartoon';
-// import { PD } from 'molstar/lib/mol-util/param-definition';
-// import type { TargetDefinition, Preset, ExtensionSettings } from './types.js';
 import type { ExtensionSettings } from './types.js';
-import { ColorTheme } from 'molstar/lib/mol-theme/color';
 
+
+export const ViewerConfig = {
+  viewerUrl: "viewer.html", // Relative to extension root
+};
 
 // ---------------------------------------------------------------------------
 // getDefaults — generates the full settings object with sensible default values.

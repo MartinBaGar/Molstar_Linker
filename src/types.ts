@@ -91,7 +91,7 @@ export interface InitMolstarMessage {
   url: string | null;
   /** Mol* format string, or null for an empty workspace */
   format: string | null;
-  settings: ExtensionSettings;
+  // settings: ExtensionSettings;
   /** The original remote URL, used to extract a filename for the blob URL hash */
   originalUrl: string | null;
 }

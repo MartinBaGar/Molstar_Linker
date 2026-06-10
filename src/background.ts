@@ -1,7 +1,8 @@
 // src/background.ts
 
 /// <reference types="chrome" />
-
+import { ViewerConfig } from "./config.js";
+import { ALL_EXTENSIONS } from './extensions';
 import type { OpenViewerMessage } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -16,10 +17,6 @@ function isSafeUrl(urlStr: string): boolean {
     return false;
   }
 }
-
-const ALLOWED_FORMATS = new Set([
-  'pdb', 'cif', 'mmcif', 'bcif', 'gro', 'mol', 'mol2', 'sdf', 'xyz',
-]);
 
 // ---------------------------------------------------------------------------
 // FEATURE 1: Context menu — "Open in Mol* Workspace"
@@ -44,7 +41,7 @@ chrome.contextMenus.onClicked.addListener((info, _tab) => {
 
   // Pass format=unknown so the viewer shows the manual format selector
   const viewerUrl = chrome.runtime.getURL(
-    `viewer.html?fileUrl=${encodeURIComponent(info.linkUrl)}&format=unknown`,
+    `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(info.linkUrl)}&format=unknown`,
   );
   chrome.tabs.create({ url: viewerUrl });
 });
@@ -61,10 +58,11 @@ chrome.runtime.onMessage.addListener(
 
     // Validate URL and format before building the viewer URL
     if (!message.url || !isSafeUrl(message.url)) return;
-    if (!ALLOWED_FORMATS.has(message.format)) return;
+    // if (!ALLOWED_FORMATS.has(message.format)) return;
+    if (!ALL_EXTENSIONS.has(message.format)) return;
 
     const viewerUrl = chrome.runtime.getURL(
-      `viewer.html?fileUrl=${encodeURIComponent(message.url)}&format=${encodeURIComponent(message.format)}`,
+      `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(message.url)}&format=${encodeURIComponent(message.format)}`,
     );
     chrome.tabs.create({ url: viewerUrl });
   },

@@ -1,8 +1,8 @@
 // src/viewer.ts
 
-import { AppConfig } from './config.js';
 import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, InitMolstarMessage } from './types.js';
+import { ALL_EXTENSIONS } from './extensions';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
@@ -10,13 +10,7 @@ const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chr
 // ---------------------------------------------------------------------------
 // Security constants
 // ---------------------------------------------------------------------------
-
 const ALLOWED_URL_SCHEMES = new Set(['https:']);
-
-// Canonical format allowlist — the single source of truth for this page
-const ALLOWED_FORMATS = new Set([
-  'pdb', 'cif', 'mmcif', 'bcif', 'gro', 'mol', 'mol2', 'sdf', 'xyz',
-]);
 
 // SSRF protection: block requests to private/loopback/link-local ranges
 const BLOCKED_RANGES = [
@@ -35,10 +29,9 @@ const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
 function isSafeUrl(urlStr: string): boolean {
   try {
-    const u = new URL(urlStr);
-    if (!ALLOWED_URL_SCHEMES.has(u.protocol)) return false;
-    if (BLOCKED_RANGES.some(r => r.test(u.hostname))) return false;
-    return true;
+    const { protocol, hostname } = new URL(urlStr);
+    return ALLOWED_URL_SCHEMES.has(protocol) &&
+           !BLOCKED_RANGES.some(r => r.test(hostname));
   } catch {
     return false;
   }
@@ -72,23 +65,6 @@ function spawnIframe(
     currentIframe = null;
   }
 
-  extApi.storage.sync.get(AppConfig.getDefaults(), (storedSettings) => {
-    const defaults   = AppConfig.getDefaults();
-    const VALID_KEYS = new Set(Object.keys(defaults));
-
-    // FIX F6: Only copy keys that exist in the schema — never let rogue keys
-    // (e.g. injected via a crafted settings import) flow into the native builder.
-    const finalSettings: ExtensionSettings = { ...defaults };
-    for (const key of Object.keys(storedSettings as Record<string, unknown>)) {
-      if (VALID_KEYS.has(key)) {
-        finalSettings[key] = (storedSettings as Record<string, unknown>)[key];
-      }
-    }
-    // customRules is allowed to be an array even if not in the schema keys
-    if (Array.isArray((storedSettings as Record<string, unknown>).customRules)) {
-      finalSettings.customRules = (storedSettings as Record<string, unknown>).customRules as ExtensionSettings['customRules'];
-    }
-
     const iframe = document.createElement('iframe');
     iframe.src = 'sandbox.html';
     iframe.style.cssText = 'width:100%; height:100%; border:none;';
@@ -106,7 +82,6 @@ function spawnIframe(
         action:      'INIT_MOLSTAR',
         url:         dataUri,
         format:      format,
-        settings:    finalSettings,
         originalUrl: rawUrl,
         // TODO Pass filename so it is correctly labelled in the tree
       };
@@ -118,7 +93,6 @@ function spawnIframe(
     window.addEventListener('message', messageListener);
     document.body.appendChild(iframe);
     currentIframe = iframe;
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -284,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // SCENARIO 3: URL present but format unknown (context-menu path)
-  if (!ALLOWED_FORMATS.has(format)) {
+  if (!ALL_EXTENSIONS.has(format)) {
     const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
     const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
     const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
@@ -302,21 +276,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (loadingDiv) showFormatSelectorUI(loadingDiv, rawUrl);
     return;
   }
-
-  // SCENARIO 4: Authorization gatekeeper for known-format URLs on custom domains
-  // const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
-  // const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
-  // const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
-
-  // if (!isDefault) {
-  //   const storageData = await new Promise<{ customDomains: string[] }>(
-  //     resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
-  //   );
-  //   if (!storageData.customDomains.includes(targetDomain)) {
-  //     if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
-  //     return;
-  //   }
-  // }
 
   // SCENARIO 5: Known format + authorized domain → boot instantly
   bootWorkspace(rawUrl, format);
