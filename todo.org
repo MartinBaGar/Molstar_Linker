@@ -1,0 +1,15 @@
+* Inbox
+** TODO Create an utils directory to gather shared elements
+*** TODO Unify url safety check function
+
+[[file:~/git-repos/molstar_linker/src/viewer.ts::if (!isSafeUrl(rawUrl)) {]]
+[[file:~/git-repos/molstar_linker/src/background.ts::function isSafeUrl(urlStr: string): boolean {]]
+*** TODO Unify default domain check
+
+[[file:~/git-repos/molstar_linker/src/viewer.ts::const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));]]
+[[file:~/git-repos/molstar_linker/src/popup.ts::const DEFAULT_DOMAINS = \['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'\];]]
+*** TODO Update default domains
+
+[[file:~/git-repos/molstar_linker/src/viewer.ts::// SCENARIO 3: URL present but format unknown (context-menu path)]]
+** TODO Annoying page reload
+When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
