@@ -1,6 +1,7 @@
 // src/popup.ts
 
 import { PermissionsManager } from './permissions.js';
+import { isDefaultDomain } from './utils/domains.js';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
@@ -34,8 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (tab?.url?.startsWith('http')) {
       const currentDomain = PermissionsManager.cleanDomain(tab.url);
-      const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
-      const isDefault = DEFAULT_DOMAINS.some(d => currentDomain.includes(d));
+      const isDefault = isDefaultDomain(currentDomain);
 
       const storage = await new Promise<{ customDomains: string[] }>(
         resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),

@@ -2,6 +2,7 @@
 
 import type { InitMolstarMessage } from './types.js';
 import { ALL_EXTENSIONS } from './extensions';
+import { isDefaultDomain } from './utils/domains.js';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
@@ -259,8 +260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SCENARIO 3: URL present but format unknown (context-menu path)
   if (!ALL_EXTENSIONS.has(format)) {
     const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
-    const DEFAULT_DOMAINS = ['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'];
-    const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));
+    const isDefault = isDefaultDomain(targetDomain);
 
     if (!isDefault) {
       const storageData = await new Promise<{ customDomains: string[] }>(
