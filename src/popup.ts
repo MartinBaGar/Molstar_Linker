@@ -2,30 +2,31 @@
 
 import { PermissionsManager } from './permissions.js';
 import { isDefaultDomain } from './utils/domains.js';
+import { ViewerConfig } from './config.js';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 document.addEventListener('DOMContentLoaded', async () => {
   // -------------------------------------------------------------------------
-  // 3. Open the Advanced Options page
+  // Open the Advanced Options page
   // -------------------------------------------------------------------------
   document.getElementById('open-options')?.addEventListener('click', () => {
     extApi.runtime.openOptionsPage();
   });
 
   // -------------------------------------------------------------------------
-  // 4. Open an empty Mol* workspace in a new tab
+  // Open an empty Mol* workspace in a new tab
   // -------------------------------------------------------------------------
   document.getElementById('open-empty-viewer')?.addEventListener('click', () => {
-    extApi.tabs.create({ url: extApi.runtime.getURL('viewer.html') });
+    extApi.tabs.create({ url: extApi.runtime.getURL(ViewerConfig.viewerUrl) });
     window.close();
   });
 
   // -------------------------------------------------------------------------
-  // 5. Custom domain detection
-  //    If the current tab's domain is neither a default nor an authorized
-  //    custom domain, show the "Authorize in Studio" prompt.
+  // Custom domain detection
+  // If the current tab's domain is neither a default nor an authorized
+  // custom domain, show the "Authorize in Studio" prompt.
   // -------------------------------------------------------------------------
   try {
     const tabs = await new Promise<chrome.tabs.Tab[]>(
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           enableBtn.textContent     = 'Authorize in Studio';
           enableBtn.style.backgroundColor = 'var(--primary)';
 
+          // TODO: See rewrite in todo.org
           enableBtn.addEventListener('click', () => {
             extApi.tabs.create({
               url: `options.html?domain=${encodeURIComponent(currentDomain)}`,

@@ -15,7 +15,6 @@ function getDefaults(): ExtensionSettings {
     canvas_color:  "#ffffff",
     camera_json:   "",
     customRules:   [],
-    customPresets: {},
   };
   defaults.customRules
 
