@@ -14,27 +14,27 @@ const ALLOWED_URL_SCHEMES = new Set(['https:']);
 
 // SSRF protection: block requests to private/loopback/link-local ranges
 const BLOCKED_RANGES = [
-  /^10\.\d+\.\d+\.\d+$/,
-  /^192\.168\.\d+\.\d+$/,
-  /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
-  /^169\.254\.\d+\.\d+$/,
-  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
-  /^127\.\d+\.\d+\.\d+$/,
-  /^\[?::1\]?$/,
-  /^\[?fc[0-9a-f]{2}:/i,
-  /^localhost$/i,
+    /^10\.\d+\.\d+\.\d+$/,
+    /^192\.168\.\d+\.\d+$/,
+    /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
+    /^169\.254\.\d+\.\d+$/,
+    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
+    /^127\.\d+\.\d+\.\d+$/,
+    /^\[?::1\]?$/,
+    /^\[?fc[0-9a-f]{2}:/i,
+    /^localhost$/i,
 ];
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
 function isSafeUrl(urlStr: string): boolean {
-  try {
-    const { protocol, hostname } = new URL(urlStr);
-    return ALLOWED_URL_SCHEMES.has(protocol) &&
-           !BLOCKED_RANGES.some(r => r.test(hostname));
-  } catch {
-    return false;
-  }
+    try {
+        const { protocol, hostname } = new URL(urlStr);
+        return ALLOWED_URL_SCHEMES.has(protocol) &&
+            !BLOCKED_RANGES.some(r => r.test(hostname));
+    } catch {
+        return false;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -52,18 +52,18 @@ let currentIframe: HTMLIFrameElement | null = null;
  * @param rawUrl   original remote URL (used to extract filename for blob hash)
  */
 function spawnIframe(
-  dataUri: string | null,
-  format:  string | null,
-  rawUrl:  string | null,
+    dataUri: string | null,
+    format: string | null,
+    rawUrl: string | null,
 ): void {
-  const loadingDiv = document.getElementById('loading');
-  if (loadingDiv) loadingDiv.remove();
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) loadingDiv.remove();
 
-  // Replace any existing iframe (e.g. user drops a second file)
-  if (currentIframe) {
-    currentIframe.remove();
-    currentIframe = null;
-  }
+    // Replace any existing iframe (e.g. user drops a second file)
+    if (currentIframe) {
+        currentIframe.remove();
+        currentIframe = null;
+    }
 
     const iframe = document.createElement('iframe');
     iframe.src = 'sandbox.html';
@@ -74,18 +74,18 @@ function spawnIframe(
     // target origin but guard strictly on e.source === iframe.contentWindow
     // so only our own sandbox can trigger the INIT_MOLSTAR branch.
     const messageListener = (e: MessageEvent): void => {
-      if (e.data?.action !== 'SANDBOX_READY' || e.source !== iframe.contentWindow) return;
-      // Remove before sending so a second SANDBOX_READY doesn't re-init
-      window.removeEventListener('message', messageListener);
+        if (e.data?.action !== 'SANDBOX_READY' || e.source !== iframe.contentWindow) return;
+        // Remove before sending so a second SANDBOX_READY doesn't re-init
+        window.removeEventListener('message', messageListener);
 
-      const payload: InitMolstarMessage = {
-        action:      'INIT_MOLSTAR',
-        url:         dataUri,
-        format:      format,
-        originalUrl: rawUrl,
-        // TODO Pass filename so it is correctly labelled in the tree
-      };
-      iframe.contentWindow!.postMessage(payload, '*');
+        const payload: InitMolstarMessage = {
+            action: 'INIT_MOLSTAR',
+            url: dataUri,
+            format: format,
+            originalUrl: rawUrl,
+            // TODO Pass filename so it is correctly labelled in the tree
+        };
+        iframe.contentWindow!.postMessage(payload, '*');
     };
 
     // Listener must be registered BEFORE the iframe is appended so we never
@@ -100,53 +100,53 @@ function spawnIframe(
 // ---------------------------------------------------------------------------
 
 async function bootWorkspace(rawUrl: string, safeFormat: string): Promise<void> {
-  const loadingDiv = document.getElementById('loading');
-  if (loadingDiv) loadingDiv.innerText = 'Downloading structure securely…';
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) loadingDiv.innerText = 'Downloading structure securely…';
 
-  try {
-    const response = await fetch(rawUrl);
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    try {
+        const response = await fetch(rawUrl);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
 
-    const contentLength = response.headers.get('Content-Length');
-    if (contentLength && parseInt(contentLength, 10) > MAX_BYTES) {
-      throw new Error('File exceeds the 25 MB size limit.');
-    }
+        const contentLength = response.headers.get('Content-Length');
+        if (contentLength && parseInt(contentLength, 10) > MAX_BYTES) {
+            throw new Error('File exceeds the 25 MB size limit.');
+        }
 
-    const blob = await response.blob();
-    if (blob.size > MAX_BYTES) throw new Error('File exceeds the 25 MB size limit.');
+        const blob = await response.blob();
+        if (blob.size > MAX_BYTES) throw new Error('File exceeds the 25 MB size limit.');
 
-    // Firefox privacy-protection sanity check: an XML error page instead of
-    // the actual file is a sign that tracking-protection blocked the request.
-    const preview = await blob.slice(0, 150).text();
-    if (preview.trim().startsWith('<?xml') || preview.includes('<Error>')) {
-      throw new Error(
-        'Download blocked by browser tracking protection. ' +
-        'Please authorize this domain in the Studio settings.',
-      );
-    }
+        // Firefox privacy-protection sanity check: an XML error page instead of
+        // the actual file is a sign that tracking-protection blocked the request.
+        const preview = await blob.slice(0, 150).text();
+        if (preview.trim().startsWith('<?xml') || preview.includes('<Error>')) {
+            throw new Error(
+                'Download blocked by browser tracking protection. ' +
+                'Please authorize this domain in the Studio settings.',
+            );
+        }
 
-    const dataUri = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(blob);
-    });
+        const dataUri = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+        });
 
-    spawnIframe(dataUri, safeFormat, rawUrl);
+        spawnIframe(dataUri, safeFormat, rawUrl);
 
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Workspace fetch error:', error);
-    const ld = document.getElementById('loading');
-    if (ld) {
-      ld.innerHTML = `
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Workspace fetch error:', error);
+        const ld = document.getElementById('loading');
+        if (ld) {
+            ld.innerHTML = `
         <div style="background:white;padding:20px 30px;border-radius:8px;
                     box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;
                     color:#333;max-width:400px;margin:0 auto">
           <h3 style="margin-top:0;color:#d73a49">Download Blocked</h3>
           <p style="font-size:14px;color:#555;margin-bottom:0;line-height:1.5">${message}</p>
         </div>`;
+        }
     }
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -154,10 +154,10 @@ async function bootWorkspace(rawUrl: string, safeFormat: string): Promise<void> 
 // ---------------------------------------------------------------------------
 
 function showUnauthorizedDomainUI(
-  loadingDiv: HTMLElement,
-  targetDomain: string,
+    loadingDiv: HTMLElement,
+    targetDomain: string,
 ): void {
-  loadingDiv.innerHTML = `
+    loadingDiv.innerHTML = `
     <div style="background:white;padding:20px 30px;border-radius:8px;
                 box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;
                 color:#333;max-width:400px;margin:0 auto">
@@ -180,26 +180,26 @@ function showUnauthorizedDomainUI(
       </div>
     </div>`;
 
-  document.getElementById('auth-confirm')?.addEventListener('click', () => {
-    extApi.tabs.create({ url: `options.html?domain=${encodeURIComponent(targetDomain)}` });
-    window.close();
-  });
-  document.getElementById('auth-cancel')?.addEventListener('click', () => {
-    loadingDiv.innerHTML = `
+    document.getElementById('auth-confirm')?.addEventListener('click', () => {
+        extApi.tabs.create({ url: `options.html?domain=${encodeURIComponent(targetDomain)}` });
+        window.close();
+    });
+    document.getElementById('auth-cancel')?.addEventListener('click', () => {
+        loadingDiv.innerHTML = `
       <div style="background:white;padding:20px 30px;border-radius:8px;
                   box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;
                   color:#d73a49;max-width:400px;margin:0 auto;
                   font-weight:bold;font-size:16px">
         Not authorized. Operation cancelled.
       </div>`;
-  });
+    });
 }
 
 function showFormatSelectorUI(
-  loadingDiv: HTMLElement,
-  rawUrl: string,
+    loadingDiv: HTMLElement,
+    rawUrl: string,
 ): void {
-  loadingDiv.innerHTML = `
+    loadingDiv.innerHTML = `
     <div style="background:white;padding:20px 30px;border-radius:8px;
                 box-shadow:0 4px 12px rgba(0,0,0,.15);text-align:center;
                 color:#333;max-width:400px;margin:0 auto">
@@ -227,10 +227,10 @@ function showFormatSelectorUI(
       </button>
     </div>`;
 
-  document.getElementById('format-confirm')?.addEventListener('click', () => {
-    const sel = document.getElementById('format-select') as HTMLSelectElement;
-    bootWorkspace(rawUrl, sel.value);
-  });
+    document.getElementById('format-confirm')?.addEventListener('click', () => {
+        const sel = document.getElementById('format-select') as HTMLSelectElement;
+        bootWorkspace(rawUrl, sel.value);
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -239,57 +239,57 @@ function showFormatSelectorUI(
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  const urlParams  = new URLSearchParams(window.location.search);
-  const rawUrl     = urlParams.get('fileUrl');
-  const format     = urlParams.get('format') ?? '';
-  const loadingDiv = document.getElementById('loading');
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawUrl = urlParams.get('fileUrl');
+    const format = urlParams.get('format') ?? '';
+    const loadingDiv = document.getElementById('loading');
 
-  // SCENARIO 1: No URL → open an empty workspace
-  if (!rawUrl) {
-    if (loadingDiv) loadingDiv.innerText = 'Loading empty workspace…';
-    spawnIframe(null, null, null);
-    return;
-  }
-
-  // SCENARIO 2: URL present but unsafe
-  if (!isSafeUrl(rawUrl)) {
-    if (loadingDiv) loadingDiv.innerText = 'Error: request to unsafe or restricted URL blocked.';
-    return;
-  }
-
-  // SCENARIO 3: URL present but format unknown (context-menu path)
-  if (!ALL_EXTENSIONS.has(format)) {
-    const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
-    const isDefault = isDefaultDomain(targetDomain);
-
-    if (!isDefault) {
-      const storageData = await new Promise<{ customDomains: string[] }>(
-        resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
-      );
-      if (!storageData.customDomains.includes(targetDomain)) {
-        if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
+    // SCENARIO 1: No URL → open an empty workspace
+    if (!rawUrl) {
+        if (loadingDiv) loadingDiv.innerText = 'Loading empty workspace…';
+        spawnIframe(null, null, null);
         return;
-      }
     }
 
-    if (loadingDiv) showFormatSelectorUI(loadingDiv, rawUrl);
-    return;
-  }
+    // SCENARIO 2: URL present but unsafe
+    if (!isSafeUrl(rawUrl)) {
+        if (loadingDiv) loadingDiv.innerText = 'Error: request to unsafe or restricted URL blocked.';
+        return;
+    }
 
-  // SCENARIO 5: Known format + authorized domain → boot instantly
-  bootWorkspace(rawUrl, format);
+    // SCENARIO 3: URL present but format unknown (context-menu path)
+    if (!ALL_EXTENSIONS.has(format)) {
+        const targetDomain = new URL(rawUrl).hostname.replace(/^www\./, '');
+        const isDefault = isDefaultDomain(targetDomain);
+
+        if (!isDefault) {
+            const storageData = await new Promise<{ customDomains: string[] }>(
+                resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
+            );
+            if (!storageData.customDomains.includes(targetDomain)) {
+                if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
+                return;
+            }
+        }
+
+        if (loadingDiv) showFormatSelectorUI(loadingDiv, rawUrl);
+        return;
+    }
+
+    // SCENARIO 5: Known format + authorized domain → boot instantly
+    bootWorkspace(rawUrl, format);
 });
 
 // At module top-level, after extApi declaration:
 extApi.runtime.onMessage.addListener((message) => {
-  if (message.action !== 'SETTINGS_UPDATED') return;
-  if (!currentIframe?.contentWindow) return;
+    if (message.action !== 'SETTINGS_UPDATED') return;
+    if (!currentIframe?.contentWindow) return;
 
-  currentIframe.contentWindow.postMessage(
-    {
-      action: 'APPLY_REPRESENTATION',
-      settings: message.settings,
-    },
-    '*'
-  );
+    currentIframe.contentWindow.postMessage(
+        {
+            action: 'APPLY_REPRESENTATION',
+            settings: message.settings,
+        },
+        '*'
+    );
 });

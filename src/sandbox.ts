@@ -10,70 +10,70 @@ window.parent.postMessage({ action: 'SANDBOX_READY' }, '*');
 
 let viewerInstance: any = null;
 
-(window.history as any).replaceState = () => {};
-(window.history as any).pushState    = () => {};
+(window.history as any).replaceState = () => { };
+(window.history as any).pushState = () => { };
 
 window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage>) => {
-  const msg = event.data;
-  if (!msg || msg.action !== 'INIT_MOLSTAR') return;
+    const msg = event.data;
+    if (!msg || msg.action !== 'INIT_MOLSTAR') return;
 
-  const { url, format, originalUrl } = msg;
+    const { url, format, originalUrl } = msg;
 
-  try {
-    if (!viewerInstance) {
-      viewerInstance = await molstar.Viewer.create('app', {
-        layoutIsExpanded:    false,
-        layoutShowControls:  true,
-        layoutShowRemoteState: false,
-        layoutShowSequence:  true,
-        layoutShowLog:       true,
-        layoutShowLeftPanel: true,
-      });
+    try {
+        if (!viewerInstance) {
+            viewerInstance = await molstar.Viewer.create('app', {
+                layoutIsExpanded: false,
+                layoutShowControls: true,
+                layoutShowRemoteState: false,
+                layoutShowSequence: true,
+                layoutShowLog: true,
+                layoutShowLeftPanel: true,
+            });
 
-      // =======================================================================
-      // REPL / CONSOLE SETUP
-      // Expose globally exactly ONCE when the viewer is instantiated
-      // =======================================================================
-      (window as any).molPlugin = viewerInstance.plugin;
-      (window as any).viewerInstance = viewerInstance;
-      // =======================================================================
+            // =======================================================================
+            // REPL / CONSOLE SETUP
+            // Expose globally exactly ONCE when the viewer is instantiated
+            // =======================================================================
+            (window as any).molPlugin = viewerInstance.plugin;
+            (window as any).viewerInstance = viewerInstance;
+            // =======================================================================
+        }
+
+        if (url === null) return; // Empty workspace
+
+        // Anti-lag fix: convert base64 to blob URL
+        const response = await fetch(url);
+        const blob = await response.blob();
+        let shortBlobUrl = URL.createObjectURL(blob);
+        let filename: string | undefined;  // Declare at a higher scope
+
+        if (originalUrl) {
+            try {
+                filename = new URL(originalUrl).pathname.split('/').pop();
+                if (filename) shortBlobUrl += `#${filename}`;
+            } catch { }
+        }
+
+        // --- Call the Native Builder ---
+        await NativeBuilder.buildNativeScene(
+            viewerInstance.plugin,
+            shortBlobUrl,
+            format!,
+            filename!
+        );
+
+    } catch (err) {
+        console.error('Mol* Sandbox: failed to load structure natively', err);
     }
-
-    if (url === null) return; // Empty workspace
-
-    // Anti-lag fix: convert base64 to blob URL
-    const response = await fetch(url);
-    const blob = await response.blob();
-    let shortBlobUrl = URL.createObjectURL(blob);
-    let filename: string | undefined;  // Declare at a higher scope
-
-    if (originalUrl) {
-      try {
-        filename = new URL(originalUrl).pathname.split('/').pop();
-        if (filename) shortBlobUrl += `#${filename}`;
-      } catch {}
-    }
-
-    // --- Call the Native Builder ---
-    await NativeBuilder.buildNativeScene(
-      viewerInstance.plugin,
-      shortBlobUrl,
-      format!,
-      filename!
-    );
-
-  } catch (err) {
-    console.error('Mol* Sandbox: failed to load structure natively', err);
-  }
 });
 
 window.addEventListener('message', async (event: MessageEvent) => {
-  const msg = event.data;
-  if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
+    const msg = event.data;
+    if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
 
-  const plugin = viewerInstance.plugin
-  const settings = msg.settings;
+    const plugin = viewerInstance.plugin
+    const settings = msg.settings;
 
-  customRuleToRep(plugin, settings);
-  globalSettingsUpdate(plugin, settings);
+    customRuleToRep(plugin, settings);
+    globalSettingsUpdate(plugin, settings);
 });

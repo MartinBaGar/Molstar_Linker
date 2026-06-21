@@ -30,20 +30,20 @@ const StorageAPI = {
 function escapeHTML(str: unknown): string {
     if (typeof str !== 'string') return '';
     return str.replace(/[&<>'"]/g, tag => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
     }[tag as '&'] ?? ''));
 }
 
 // ---------------------------------------------------------------------------
 // Dynamic UI helpers
 // ---------------------------------------------------------------------------
-const sceneContainer  = document.getElementById('scene-settings-container') as HTMLDivElement;
-const rulesContainer  = document.getElementById('custom-rules-container')   as HTMLDivElement;
+const sceneContainer = document.getElementById('scene-settings-container') as HTMLDivElement;
+const rulesContainer = document.getElementById('custom-rules-container') as HTMLDivElement;
 
 function buildUI(): void {
-  if (!sceneContainer) return;
+    if (!sceneContainer) return;
 
-  sceneContainer.innerHTML = `
+    sceneContainer.innerHTML = `
     <div class="form-grid">
       <div class="form-group">
         <label>Background Color</label>
@@ -59,11 +59,11 @@ function buildUI(): void {
     </div>
   `;
 
-  (document.getElementById('canvas_color_picker') as HTMLInputElement)
-    .addEventListener('input', (e) => {
-      (document.getElementById('canvas_color') as HTMLInputElement).value =
-        (e.target as HTMLInputElement).value;
-    });
+    (document.getElementById('canvas_color_picker') as HTMLInputElement)
+        .addEventListener('input', (e) => {
+            (document.getElementById('canvas_color') as HTMLInputElement).value =
+                (e.target as HTMLInputElement).value;
+        });
 }
 
 // ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
 
     const card = document.createElement('details');
     card.className = 'target-card custom-rule-card rule-card'; // Added rule-card class
-    card.open      = true;
+    card.open = true;
 
     card.innerHTML = `
     <summary>
@@ -142,7 +142,7 @@ function extractCurrentSettings(): ExtensionSettings {
     const cameraJsonEl = document.getElementById('camera_json') as HTMLTextAreaElement | null;
 
     s.canvas_color = canvasColorEl ? canvasColorEl.value : "#ffffff";
-    s.camera_json  = cameraJsonEl ? cameraJsonEl.value : "";
+    s.camera_json = cameraJsonEl ? cameraJsonEl.value : "";
 
     const customRules: CustomRule[] = [];
     document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
@@ -172,8 +172,8 @@ function extractCurrentSettings(): ExtensionSettings {
 // Inject a settings object back into the UI
 // ---------------------------------------------------------------------------
 function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
-    if (sceneContainer) sceneContainer.innerHTML  = '';
-    if (rulesContainer) rulesContainer.innerHTML  = '';
+    if (sceneContainer) sceneContainer.innerHTML = '';
+    if (rulesContainer) rulesContainer.innerHTML = '';
 
     buildUI();
 
@@ -205,93 +205,93 @@ const statusText = document.getElementById('status');
 
 // Listen for any form changes inside the main container to show the slide-up bar
 document.querySelector('.container')?.addEventListener('input', () => {
-  if (actionBar && !actionBar.classList.contains('visible')) {
-    actionBar.classList.add('visible');
-    if (statusText) statusText.textContent = 'Unsaved changes';
-  }
+    if (actionBar && !actionBar.classList.contains('visible')) {
+        actionBar.classList.add('visible');
+        if (statusText) statusText.textContent = 'Unsaved changes';
+    }
 });
 
 document.getElementById('save')?.addEventListener('click', () => {
-  const settings = extractCurrentSettings();
+    const settings = extractCurrentSettings();
 
-  if (statusText) statusText.textContent = '✓ Applied to Mol*!';
+    if (statusText) statusText.textContent = '✓ Applied to Mol*!';
 
-  setTimeout(() => {
-    if (actionBar) actionBar.classList.remove('visible');
-  }, 2000);
+    setTimeout(() => {
+        if (actionBar) actionBar.classList.remove('visible');
+    }, 2000);
 
-  // Send settings to other tabs (no storage persistence)
-  extApi.runtime.sendMessage({
-    action: 'SETTINGS_UPDATED',
-    settings: settings,
-  }).catch(() => {});
+    // Send settings to other tabs (no storage persistence)
+    extApi.runtime.sendMessage({
+        action: 'SETTINGS_UPDATED',
+        settings: settings,
+    }).catch(() => { });
 });
 
 // ---------------------------------------------------------------------------
 // Domain management
 // ---------------------------------------------------------------------------
 function refreshCustomDomainList(): void {
-  const list = document.getElementById('custom-domains-list');
-  if (!list) return;
+    const list = document.getElementById('custom-domains-list');
+    if (!list) return;
 
-  StorageAPI.get({ customDomains: [] }, (data) => {
-    const domains = (data.customDomains as string[]) ?? [];
+    StorageAPI.get({ customDomains: [] }, (data) => {
+        const domains = (data.customDomains as string[]) ?? [];
 
-    if (domains.length === 0) {
-      list.innerHTML = '<p class="empty-state">No custom domains authorized yet.</p>';
-      return;
-    }
+        if (domains.length === 0) {
+            list.innerHTML = '<p class="empty-state">No custom domains authorized yet.</p>';
+            return;
+        }
 
-    list.innerHTML = '';
-    for (const domain of domains) {
-      const row = document.createElement('div');
-      row.className = 'domain-row';
-      row.innerHTML = `
+        list.innerHTML = '';
+        for (const domain of domains) {
+            const row = document.createElement('div');
+            row.className = 'domain-row';
+            row.innerHTML = `
         <span>🌐 <strong>${escapeHTML(domain)}</strong></span>
         <button class="btn-danger remove-domain-btn" data-domain="${escapeHTML(domain)}">Remove</button>
       `;
-      list.appendChild(row);
-    }
-
-    list.querySelectorAll<HTMLButtonElement>('.remove-domain-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const dom = (e.target as HTMLButtonElement).dataset.domain!;
-        if (confirm(`Revoke access for ${dom}?`)) {
-          await PermissionsManager.revokeAndUnregister(dom);
-          refreshCustomDomainList();
+            list.appendChild(row);
         }
-      });
+
+        list.querySelectorAll<HTMLButtonElement>('.remove-domain-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const dom = (e.target as HTMLButtonElement).dataset.domain!;
+                if (confirm(`Revoke access for ${dom}?`)) {
+                    await PermissionsManager.revokeAndUnregister(dom);
+                    refreshCustomDomainList();
+                }
+            });
+        });
     });
-  });
 }
 
 document.getElementById('add-manual-domain')?.addEventListener('click', async () => {
-  const input = document.getElementById('manual-domain-input') as HTMLInputElement;
-  const dom   = input.value.trim();
-  if (!dom) return;
-  if (await PermissionsManager.requestAndRegister(dom)) {
-    input.value = '';
-    refreshCustomDomainList();
-  }
+    const input = document.getElementById('manual-domain-input') as HTMLInputElement;
+    const dom = input.value.trim();
+    if (!dom) return;
+    if (await PermissionsManager.requestAndRegister(dom)) {
+        input.value = '';
+        refreshCustomDomainList();
+    }
 });
 
 // ---------------------------------------------------------------------------
 // Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  StorageAPI.get(null, (savedItems) => {
-    injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
-  });
+    StorageAPI.get(null, (savedItems) => {
+        injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
+    });
 
-  refreshCustomDomainList();
+    refreshCustomDomainList();
 
-  const autoDomain = new URLSearchParams(window.location.search).get('domain');
-  if (autoDomain) {
-    const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
-    if (input) {
-      input.value = autoDomain;
-      input.focus();
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    const autoDomain = new URLSearchParams(window.location.search).get('domain');
+    if (autoDomain) {
+        const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
+        if (input) {
+            input.value = autoDomain;
+            input.focus();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
     }
-  }
 });

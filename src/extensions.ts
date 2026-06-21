@@ -3,6 +3,6 @@ import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registr
 const _reg = new DataFormatRegistry();
 
 export const ALL_EXTENSIONS = new Set([
-  ...Array.from(_reg.extensions),
-  ...Array.from(_reg.binaryExtensions),
+    ...Array.from(_reg.extensions),
+    ...Array.from(_reg.binaryExtensions),
 ]);

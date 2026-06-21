@@ -1,5 +1,11 @@
 * Inbox
-** TODO Need conveninece rewrite
+** TODO Enhance loading div handling
+Currently, the loading div is displayed by default even when there is nothing to load (empty viewer). I am not even sure it it even needed in any cases. I have to inspect that.
+
+[[file:~/git-repos/molstar_linker/src/viewer.ts::function spawnIframe(]]
+** TODO Context-Menu upgrade
+Currently, right-clicking a link in a web page summons the format selector everytime. It should do so only if none of the allowed are clearly indentifiable in the url
+** TODO Need convenience rewrite
 Currently it opens the extension options page in a new tab and proposes to register the domain there by click. Instead it could simply update the extension settings, then update the popup with visual confirmation and update any existing options tabs with the new domain.
 
 [[file:~/git-repos/molstar_linker/src/popup.ts::enableBtn.addEventListener('click', () => {]]

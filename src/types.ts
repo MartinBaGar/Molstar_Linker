@@ -19,79 +19,79 @@ export type RuleRepType = RepType | "highlight";
 // ---------------------------------------------------------------------------
 // Block A: Base info every rule must have
 export interface RuleMetadata {
-  id: string;
-  name: string;
-  tooltip?: string;
+    id: string;
+    name: string;
+    tooltip?: string;
 }
 
 // Block B: Where to apply the rule
 export interface SelectionCriteria {
-  // mode: "simple" | "expert";
-  scheme?: "auth" | "label";
-  chain?: string;
-  ranges?: string;
-  specific?: string;
-  atomName?: string;
-  element?: string;
-  prompt?: string;
-  script?: Script;
+    // mode: "simple" | "expert";
+    scheme?: "auth" | "label";
+    chain?: string;
+    ranges?: string;
+    specific?: string;
+    atomName?: string;
+    element?: string;
+    prompt?: string;
+    script?: Script;
 }
 
 // Block C: 3D Label specific settings
 export interface LabelConfig {
-  text: string;
-  size?: string;
-  textColor?: string;
-  borderWidth?: string;
-  borderColor?: string;
+    text: string;
+    size?: string;
+    textColor?: string;
+    borderWidth?: string;
+    borderColor?: string;
 }
 
 export interface CustomRuleBase {
-  meta?: RuleMetadata;
-  selection?: SelectionCriteria;
-  label?: LabelConfig;
-  focus?: boolean;
+    meta?: RuleMetadata;
+    selection?: SelectionCriteria;
+    label?: LabelConfig;
+    focus?: boolean;
 }
 
 export interface CustomRule extends CustomRuleBase {
-  repprop: StructureRepresentationBuiltInProps;
+    repprop: StructureRepresentationBuiltInProps;
 }
 
 // ---------------------------------------------------------------------------
 // 4. Extension settings — stored in chrome.storage.sync
 // ---------------------------------------------------------------------------
 export interface ExtensionSettings {
-  canvas_color: string;
-  camera_json: string;
-  customRules: CustomRule[];
-  [key: string]: unknown;
+    canvas_color: string;
+    camera_json: string;
+    customRules: CustomRule[];
+    [key: string]: unknown;
 }
 
 // ---------------------------------------------------------------------------
 // 6. Message protocol: content script → background
 // ---------------------------------------------------------------------------
 export interface OpenViewerMessage {
-  action: "open_viewer";
-  url: string;
-  format: string;
+    action: "open_viewer";
+    url: string;
+    format: string;
 }
 
 // ---------------------------------------------------------------------------
 // 7. Message protocol: viewer ↔ sandbox iframe
 // ---------------------------------------------------------------------------
 export interface SandboxReadyMessage {
-  action: "SANDBOX_READY";
+    action: "SANDBOX_READY";
 }
 
 export interface InitMolstarMessage {
-  action: "INIT_MOLSTAR";
-  /** data: URI string, or null for an empty workspace */
-  url: string | null;
-  /** Mol* format string, or null for an empty workspace */
-  format: string | null;
-  // settings: ExtensionSettings;
-  /** The original remote URL, used to extract a filename for the blob URL hash */
-  originalUrl: string | null;
+    action: "INIT_MOLSTAR";
+    /** data: URI string, or null for an empty workspace */
+    url: string | null;
+    /** Mol* format string, or null for an empty workspace */
+    format: string | null;
+    // settings: ExtensionSettings;
+    /** The original remote URL, used to extract a filename for the blob URL hash */
+    originalUrl: string | null;
 }
 
 // export type SandboxInboundMessage = InitMolstarMessage;
