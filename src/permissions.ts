@@ -52,11 +52,20 @@ export const PermissionsManager = {
 
             // ② Register the content script if not already registered
             if (this.core.scripting?.registerContentScripts) {
+                // Chrome MV3 path
                 const existing = await this.core.scripting.getRegisteredContentScripts({ ids: [id] });
                 if (existing.length === 0) {
                     await this.core.scripting.registerContentScripts([{
                         id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
                     }]);
+                }
+            } else if (typeof browser !== 'undefined') {
+                // Firefox MV2 path — inject into all matching tabs right now
+                const tabs = await browser.tabs.query({ url: pattern });
+                for (const tab of tabs) {
+                    if (tab.id) {
+                        await browser.tabs.executeScript(tab.id, { file: 'content.js' });
+                    }
                 }
             }
 
