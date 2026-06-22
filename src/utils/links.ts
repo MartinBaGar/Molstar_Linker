@@ -9,9 +9,25 @@ export const ALL_EXTENSIONS = new Set([
 
 // One pre-compiled regex, reused everywhere — never rebuilt per link
 export const EXT_REGEX = new RegExp(`\\.(${[...ALL_EXTENSIONS].join('|')})(?:[?#&]|$)`, 'i');
+export const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 export const MAX_URL_LENGTH = 2048; // chars
 export const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+
+// For development/testing, you might allow HTTP:
+const ALLOWED_PROTOCOLS = new Set(['https:', 'http:']);
+
+const BLOCKED_IP_RANGES = [
+    /^10\.\d+\.\d+\.\d+$/,
+    /^192\.168\.\d+\.\d+$/,
+    /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
+    /^169\.254\.\d+\.\d+$/,
+    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
+    /^127\.\d+\.\d+\.\d+$/,
+    /^\[?::1\]?$/,
+    /^\[?fc[0-9a-f]{2}:/i,
+    /^localhost$/i,
+];
 
 /**
  * Normalizes a domain (e.g., strips `https://` or `www.`).
@@ -35,21 +51,17 @@ export function cleanDomain(url: string): string {
 export function isSafeUrl(urlStr: string): boolean {
     try {
         const { protocol, hostname } = new URL(urlStr);
-        if (protocol !== 'https:') return false;
 
-        // Block private/loopback IPs and localhost
-        const blockedRanges = [
-            /^10\.\d+\.\d+\.\d+$/,
-            /^192\.168\.\d+\.\d+$/,
-            /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
-            /^169\.254\.\d+\.\d+$/,
-            /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
-            /^127\.\d+\.\d+\.\d+$/,
-            /^\[?::1\]?$/,
-            /^\[?fc[0-9a-f]{2}:/i,
-            /^localhost$/i,
-        ];
-        return !blockedRanges.some(r => r.test(hostname));
+        if (!ALLOWED_PROTOCOLS.has(protocol) || !hostname) {
+            return false;
+        }
+
+        // Block private/loopback IPs
+        if (BLOCKED_IP_RANGES.some(regex => regex.test(hostname))) {
+            return false;
+        }
+
+        return true;
     } catch {
         return false;
     }
@@ -76,4 +88,35 @@ export function getMatchPattern(domain: string): string {
     return `*://${cleanDomain(domain)}/*`;
 }
 
-// export function
+export function resolveUrl(parsed: URL): string {
+    if (parsed.hostname === "github.com") {
+        const base = parsed.href
+        // 1. Handle file tree links (removes /blob/)
+        if (base.includes('/blob/')) {
+            return base
+                .replace('github.com', 'raw.githubusercontent.com')
+                .replace('/blob/', '/');
+        }
+
+        // 2. Handle "Raw" button links (removes /raw/)
+        if (base.includes('/raw/')) {
+            return base
+                .replace('github.com', 'raw.githubusercontent.com')
+                .replace('/raw/', '/');
+        }
+
+        return base.replace('github.com', 'raw.githubusercontent.com');
+    } else if (parsed.hostname.includes("gitlab")) {
+        const base = parsed.href.split('?')[0].split('#')[0];
+        const m = GITLAB_URL_RE.exec(base);
+        if (!m) return parsed.href;
+        const [, domain, project, ref, filePath] = m;
+        return (
+            `https://${domain}/api/v4/projects/` +
+            `${encodeURIComponent(project)}/repository/files/` +
+            `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
+        );
+    } else {
+        return parsed.href
+    }
+}

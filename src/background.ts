@@ -5,19 +5,7 @@ import { ViewerConfig } from "./config.js";
 import { ALL_EXTENSIONS } from './extensions';
 // import { ALL_EXTENSIONS } from './extensions';
 import type { OpenViewerMessage } from './types.js';
-
-// ---------------------------------------------------------------------------
-// Security helpers
-// ---------------------------------------------------------------------------
-
-/** Only HTTPS links are permitted — no http, file, javascript, data, etc. */
-function isSafeUrl(urlStr: string): boolean {
-    try {
-        return new URL(urlStr).protocol === 'https:';
-    } catch {
-        return false;
-    }
-}
+import { isSafeUrl } from './utils/links.js';
 
 // ---------------------------------------------------------------------------
 // FEATURE 1: Context menu — "Open in Mol* Workspace"
@@ -40,10 +28,23 @@ chrome.contextMenus.onClicked.addListener((info, _tab) => {
         return;
     }
 
+    console.log("before:", info.linkUrl)
+
+    let finalUrl = info.linkUrl;
+    if (info.linkUrl.includes('/blob/')) {
+        finalUrl = info.linkUrl
+            .replace('github.com', 'raw.githubusercontent.com')
+            .replace('/blob/', '/');
+    }
+
+    console.log("after:", info.linkUrl);
+
     // Pass format=unknown so the viewer shows the manual format selector
     const viewerUrl = chrome.runtime.getURL(
-        `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(info.linkUrl)}&format=unknown`,
+        `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(finalUrl)}&format=unknown`,
     );
+
+    // NOTE: need url transformation for github and gitlab
     chrome.tabs.create({ url: viewerUrl });
 });
 

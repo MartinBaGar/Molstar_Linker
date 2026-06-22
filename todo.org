@@ -1,4 +1,8 @@
 * Inbox
+** TODO Context menu incompatible with github and gitlab
+Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
+
+[[file:~/git-repos/molstar_linker/src/background.ts::// NOTE: need url transformation for github and gitlab]]
 ** TODO Enhance loading div handling
 Currently, the loading div is displayed by default even when there is nothing to load (empty viewer). I am not even sure it it even needed in any cases. I have to inspect that.
 

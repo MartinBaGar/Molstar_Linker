@@ -1,5 +1,5 @@
 // src/content.ts
-import { findExtInText, MAX_URL_LENGTH } from './utils/links';
+import { findExtInText, MAX_URL_LENGTH, resolveUrl } from './utils/links';
 
 // =============================================================================
 // SHARED — Extension registry & helpers
@@ -7,7 +7,6 @@ import { findExtInText, MAX_URL_LENGTH } from './utils/links';
 
 const PROCESSED = 'data-ms-processed';
 const BADGE_CLASS = 'ms-badge';
-
 
 // =============================================================================
 // SHARED — Adapter interface
@@ -56,25 +55,7 @@ const GitHubAdapter: SiteAdapter = {
         return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
     },
 
-    resolveUrl: (parsed) => {
-        const base = parsed.origin + parsed.pathname;
-
-        // 1. Handle file tree links (removes /blob/)
-        if (base.includes('/blob/')) {
-            return base
-                .replace('github.com', 'raw.githubusercontent.com')
-                .replace('/blob/', '/');
-        }
-
-        // 2. Handle "Raw" button links (removes /raw/)
-        if (base.includes('/raw/')) {
-            return base
-                .replace('github.com', 'raw.githubusercontent.com')
-                .replace('/raw/', '/');
-        }
-
-        return base.replace('github.com', 'raw.githubusercontent.com');
-    },
+    resolveUrl: (parsed) => resolveUrl(parsed),
 
     getPlacement: (anchor) => {
         if (anchor.dataset.testid === 'raw-button') return 'beforebegin';
@@ -86,8 +67,6 @@ const GitHubAdapter: SiteAdapter = {
 // =============================================================================
 // SITE — GitLab
 // =============================================================================
-
-const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 const GitLabAdapter: SiteAdapter = {
 
@@ -103,19 +82,7 @@ const GitLabAdapter: SiteAdapter = {
         return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
     },
 
-    // GitLab viewer URLs need rewriting to the repository files API.
-    // Filled in for the same reason as GitHub — it is mechanical.
-    resolveUrl: (parsed) => {
-        const base = parsed.origin + parsed.pathname;
-        const m = GITLAB_URL_RE.exec(base);
-        if (!m) return parsed.href;
-        const [, domain, project, ref, filePath] = m;
-        return (
-            `https://${domain}/api/v4/projects/` +
-            `${encodeURIComponent(project)}/repository/files/` +
-            `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
-        );
-    },
+    resolveUrl: (parsed) => resolveUrl(parsed),
 
     getPlacement: (_anchor) => 'afterend',
 };
@@ -147,7 +114,7 @@ const FigshareAdapter: SiteAdapter = {
         return ext;
     },
 
-    resolveUrl: (parsed) => parsed.href,
+    resolveUrl: (parsed) => resolveUrl(parsed),
 
     getPlacement: (_anchor) => 'afterend',
 };
@@ -167,8 +134,6 @@ const ZenodoAdapter: SiteAdapter = {
     },
 
     findExt: (_anchor, parsed) => {
-        console.log(findExtInText(parsed.pathname))
-        console.log(findExtInText(parsed.search))
         return findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
     },
 
@@ -248,7 +213,6 @@ function analyseLink(anchor: HTMLAnchorElement): StructureInfo | null {
     const adapter = getAdapter(parsed.hostname);
 
     if (adapter.shouldIgnore(anchor, parsed)) return null;
-
     const formatStr = adapter.findExt(anchor, parsed);
     if (!formatStr) return null;
 

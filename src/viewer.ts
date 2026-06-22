@@ -3,39 +3,12 @@
 import type { InitMolstarMessage } from './types.js';
 import { ALL_EXTENSIONS } from './extensions';
 import { isDefaultDomain } from './utils/domains.js';
+import { isSafeUrl } from './utils/links.js';
 
 declare const browser: typeof chrome;
 const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
-// ---------------------------------------------------------------------------
-// Security constants
-// ---------------------------------------------------------------------------
-const ALLOWED_URL_SCHEMES = new Set(['https:']);
-
-// SSRF protection: block requests to private/loopback/link-local ranges
-const BLOCKED_RANGES = [
-    /^10\.\d+\.\d+\.\d+$/,
-    /^192\.168\.\d+\.\d+$/,
-    /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
-    /^169\.254\.\d+\.\d+$/,
-    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
-    /^127\.\d+\.\d+\.\d+$/,
-    /^\[?::1\]?$/,
-    /^\[?fc[0-9a-f]{2}:/i,
-    /^localhost$/i,
-];
-
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
-
-function isSafeUrl(urlStr: string): boolean {
-    try {
-        const { protocol, hostname } = new URL(urlStr);
-        return ALLOWED_URL_SCHEMES.has(protocol) &&
-            !BLOCKED_RANGES.some(r => r.test(hostname));
-    } catch {
-        return false;
-    }
-}
 
 // ---------------------------------------------------------------------------
 // Iframe management
@@ -131,6 +104,7 @@ async function bootWorkspace(rawUrl: string, safeFormat: string): Promise<void> 
             reader.readAsDataURL(blob);
         });
 
+        console.log(dataUri, "\n", safeFormat, "\n", rawUrl)
         spawnIframe(dataUri, safeFormat, rawUrl);
 
     } catch (error: unknown) {
