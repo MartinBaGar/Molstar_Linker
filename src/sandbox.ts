@@ -1,5 +1,3 @@
-// src/sandbox.ts
-// import { NativeBuilder } from './native-builder.js';
 import type { InitMolstarMessage } from './types.js';
 import { NativeBuilder, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
 

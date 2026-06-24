@@ -1,5 +1,3 @@
-// src/background.ts
-
 /// <reference types="chrome" />
 import { ViewerConfig } from "./config.js";
 import { ALL_EXTENSIONS } from './extensions';

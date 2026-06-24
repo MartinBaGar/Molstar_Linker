@@ -1,4 +1,8 @@
 * Inbox
+** TODO Molecule naming
+Currently, the URL used. In figshare, the URL file is not the same as the uploaded file (xxx.pdb becomes 12345678). In =content.ts=, the some logic retrieves the original name associated to the URL so a solution can be inspired from that BUT it must be compatible with the Context Menu. Solution might have to intervene before each.
+
+[[file:~/git-repos/molstar_linker/src/native-builder.ts::const data = await plugin.builders.data.download({ url, label: filename, isBinary });]]
 ** DONE Context menu incompatible with github and gitlab
 CLOSED: [2026-06-24 Wed 20:16]
 Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
@@ -31,6 +35,7 @@ CLOSED: [2026-06-19 Fri 13:06]
 [[file:~/git-repos/molstar_linker/src/viewer.ts::// SCENARIO 3: URL present but format unknown (context-menu path)]]
 ** TODO Annoying page reload
 When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
+Happends only on github
 ** TODO Review each file before release
 The following scripts were the only existing in =./src/= at the moment of this file writing (<2026-06-19 Fri>). Anything else present in =./src/= were added later on.
 - [ ] background.ts

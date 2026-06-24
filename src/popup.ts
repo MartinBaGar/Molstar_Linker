@@ -1,5 +1,3 @@
-// src/popup.ts
-
 import { PermissionsManager } from './permissions.js';
 import { isDefaultDomain } from './utils/domains.js';
 import { ViewerConfig } from './config.js';

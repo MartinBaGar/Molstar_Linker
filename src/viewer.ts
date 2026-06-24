@@ -1,5 +1,3 @@
-// src/viewer.ts
-
 import type { InitMolstarMessage } from './types.js';
 import { ALL_EXTENSIONS } from './extensions';
 import { isDefaultDomain } from './utils/domains.js';

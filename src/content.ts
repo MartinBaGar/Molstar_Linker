@@ -1,4 +1,3 @@
-// src/content.ts
 import { findExtInText, MAX_URL_LENGTH, resolveUrl } from './utils/links';
 
 const PROCESSED = 'data-ms-processed';

@@ -1,5 +1,3 @@
-// src/options.ts
-
 import { AppConfig } from './config.js';
 import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, CustomRule } from './types.js';

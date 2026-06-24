@@ -1,6 +1,3 @@
-// src/types.ts
-
-
 import { Script } from 'molstar/lib/mol-script/types';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import type { StructureRepresentationBuiltInProps } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';

@@ -1,4 +1,3 @@
-// src/config.ts
 import type { ExtensionSettings } from './types.js';
 
 

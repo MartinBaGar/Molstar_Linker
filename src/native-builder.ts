@@ -1,4 +1,3 @@
-// src/native-builder.ts
 import { Script } from "molstar/lib/mol-script/script";
 import type { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { Color } from 'molstar/lib/mol-util/color';
