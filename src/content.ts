@@ -101,17 +101,26 @@ const FigshareAdapter: SiteAdapter = {
         const isTooltipDownload = anchor.getAttribute('tooltip') === 'Download file';
         return !isThumbnailDownload && !isTooltipDownload;
     },
-
     findExt: (anchor, _parsed) => {
         let ext = findExtInText(_parsed.pathname) ?? findExtInText(_parsed.search);
         if (ext) return ext;
 
-        const parent = anchor.parentElement;
-        if (parent) {
-            const fileInfo = parent.querySelector('[title]');
-            if (fileInfo) {
-                ext = findExtInText(fileInfo.getAttribute('title'));
+        // Only look within immediate vicinity — max 3 levels up
+        let el = anchor.parentElement;
+        let depth = 0;
+        while (el && depth < 3) {
+            const title = el.getAttribute('title');
+            if (title) {
+                ext = findExtInText(title);
+                if (ext) break;
             }
+            const titledSibling = el.querySelector(':scope > [title]');
+            if (titledSibling) {
+                ext = findExtInText(titledSibling.getAttribute('title'));
+                if (ext) break;
+            }
+            el = el.parentElement;
+            depth++;
         }
 
         return ext;
@@ -308,15 +317,31 @@ function hasProcessedAncestor(anchor: HTMLAnchorElement): boolean {
 }
 
 function processLink(anchor: HTMLAnchorElement): void {
-    if (anchor.hasAttribute(PROCESSED)) return;
-    anchor.setAttribute(PROCESSED, 'true');
+    const previousHref = anchor.getAttribute(PROCESSED);
+    const currentHref = anchor.href;
+
+    // Stale or missing badge — remove it and reset
+    if (previousHref !== currentHref) {
+        anchor.parentElement
+            ?.querySelectorAll(`.${BADGE_CLASS}`)
+            .forEach(b => b.remove());
+        anchor.removeAttribute(PROCESSED);
+    }
+
+    // Already up to date
+    if (previousHref === currentHref) return;
+
+    const info = analyseLink(anchor);
+    if (!info) {
+        // Stamp even on failure so we don't retry endlessly on non-structure links
+        anchor.setAttribute(PROCESSED, currentHref);
+        return;
+    }
+
+    anchor.setAttribute(PROCESSED, currentHref);
 
     if (hasProcessedAncestor(anchor)) return;
 
-    const info = analyseLink(anchor);
-    if (!info) return;
-
-    // adapter is now available via info — no undefined reference
     const placement = info.adapter.getPlacement(anchor);
     anchor.insertAdjacentElement(placement, createBadge(info, anchor.href));
 }
@@ -333,7 +358,7 @@ function scanAllLinks(): void {
     observer.disconnect();
     try {
         document
-            .querySelectorAll<HTMLAnchorElement>(`a[href]:not([${PROCESSED}])`)
+            .querySelectorAll<HTMLAnchorElement>('a[href]')
             .forEach(processLink);
     } catch (err) {
         console.warn('[Mol* Linker]', err);
