@@ -98,19 +98,22 @@ const FigshareAdapter: SiteAdapter = {
 
     shouldIgnore: (anchor, _parsed) => {
         const isThumbnailDownload = anchor.dataset.controlId?.startsWith('thumbnail-download-item-');
-        return !isThumbnailDownload;
+        const isTooltipDownload = anchor.getAttribute('tooltip') === 'Download file';
+        return !isThumbnailDownload && !isTooltipDownload;
     },
 
     findExt: (anchor, _parsed) => {
-        // Try standard URL first
         let ext = findExtInText(_parsed.pathname) ?? findExtInText(_parsed.search);
         if (ext) return ext;
 
-        // Fallback: Get filename from parent's title attribute
-        const parent = anchor.closest('.usB-L');
+        const parent = anchor.parentElement;
         if (parent) {
-            ext = findExtInText(parent.getAttribute('title'));
+            const fileInfo = parent.querySelector('[title]');
+            if (fileInfo) {
+                ext = findExtInText(fileInfo.getAttribute('title'));
+            }
         }
+
         return ext;
     },
 

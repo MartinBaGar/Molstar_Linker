@@ -5,7 +5,7 @@ import { ViewerConfig } from "./config.js";
 import { ALL_EXTENSIONS } from './extensions';
 // import { ALL_EXTENSIONS } from './extensions';
 import type { OpenViewerMessage } from './types.js';
-import { isSafeUrl } from './utils/links.js';
+import { isSafeUrl, resolveUrl, findExtInText } from './utils/links.js';
 
 // ---------------------------------------------------------------------------
 // FEATURE 1: Context menu — "Open in Mol* Workspace"
@@ -28,24 +28,15 @@ chrome.contextMenus.onClicked.addListener((info, _tab) => {
         return;
     }
 
-    console.log("before:", info.linkUrl)
+    const extension = findExtInText(info.linkUrl) || "unknown";
+    const url = new URL(info.linkUrl);
+    const resolvedUrl = resolveUrl(url);
 
-    let finalUrl = info.linkUrl;
-    if (info.linkUrl.includes('/blob/')) {
-        finalUrl = info.linkUrl
-            .replace('github.com', 'raw.githubusercontent.com')
-            .replace('/blob/', '/');
-    }
+    const viewerUrl = new URL(chrome.runtime.getURL(ViewerConfig.viewerUrl));
+    viewerUrl.searchParams.append('fileUrl', resolvedUrl);
+    viewerUrl.searchParams.append('format', extension);
 
-    console.log("after:", info.linkUrl);
-
-    // Pass format=unknown so the viewer shows the manual format selector
-    const viewerUrl = chrome.runtime.getURL(
-        `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(finalUrl)}&format=unknown`,
-    );
-
-    // NOTE: need url transformation for github and gitlab
-    chrome.tabs.create({ url: viewerUrl });
+    chrome.tabs.create({ url: viewerUrl.toString() });
 });
 
 // ---------------------------------------------------------------------------

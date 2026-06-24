@@ -1,5 +1,6 @@
 * Inbox
-** TODO Context menu incompatible with github and gitlab
+** DONE Context menu incompatible with github and gitlab
+CLOSED: [2026-06-24 Wed 20:16]
 Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
 
 [[file:~/git-repos/molstar_linker/src/background.ts::// NOTE: need url transformation for github and gitlab]]
@@ -7,14 +8,16 @@ Currently, url is passed as is and cannot be read by molstar as a transformation
 Currently, the loading div is displayed by default even when there is nothing to load (empty viewer). I am not even sure it it even needed in any cases. I have to inspect that.
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::function spawnIframe(]]
-** TODO Context-Menu upgrade
+** DONE Context-Menu upgrade
+CLOSED: [2026-06-24 Wed 23:19]
 Currently, right-clicking a link in a web page summons the format selector everytime. It should do so only if none of the allowed are clearly indentifiable in the url
 ** TODO Need convenience rewrite
 Currently it opens the extension options page in a new tab and proposes to register the domain there by click. Instead it could simply update the extension settings, then update the popup with visual confirmation and update any existing options tabs with the new domain.
 
 [[file:~/git-repos/molstar_linker/src/popup.ts::enableBtn.addEventListener('click', () => {]]
 ** TODO Create an utils directory to gather shared elements
-*** TODO Unify url safety check function
+*** DONE Unify url safety check function
+CLOSED: [2026-06-24 Wed 23:19]
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::if (!isSafeUrl(rawUrl)) {]]
 [[file:~/git-repos/molstar_linker/src/background.ts::function isSafeUrl(urlStr: string): boolean {]]
@@ -44,5 +47,6 @@ The following scripts were the only existing in =./src/= at the moment of this f
 - [ ] viewer.ts
 ** TODO Ensure Firefox compatibiliy
 - Rewrite was done with testing on Chrome only, checks must be done with Firefox.
+  Was partly done to register scripts but might have to be consolidated
 - browser api must be changed to general instead of using =chrome=.
 ** TODO Add unit tests
