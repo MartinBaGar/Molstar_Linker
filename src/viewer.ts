@@ -2,9 +2,8 @@ import type { InitMolstarMessage } from './types.js';
 import { ALL_EXTENSIONS } from './extensions';
 import { isDefaultDomain } from './utils/domains.js';
 import { isSafeUrl } from './utils/links.js';
+import { browser } from './utils/browser.js';
 
-declare const browser: typeof chrome;
-const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
@@ -153,7 +152,7 @@ function showUnauthorizedDomainUI(
     </div>`;
 
     document.getElementById('auth-confirm')?.addEventListener('click', () => {
-        extApi.tabs.create({ url: `options.html?domain=${encodeURIComponent(targetDomain)}` });
+        browser.tabs.create({ url: `options.html?domain=${encodeURIComponent(targetDomain)}` });
         window.close();
     });
     document.getElementById('auth-cancel')?.addEventListener('click', () => {
@@ -236,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!isDefault) {
             const storageData = await new Promise<{ customDomains: string[] }>(
-                resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
+                resolve => browser.storage.sync.get({ customDomains: [] }, resolve),
             );
             if (!storageData.customDomains.includes(targetDomain)) {
                 if (loadingDiv) showUnauthorizedDomainUI(loadingDiv, targetDomain);
@@ -252,8 +251,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     bootWorkspace(rawUrl, format);
 });
 
-// At module top-level, after extApi declaration:
-extApi.runtime.onMessage.addListener((message) => {
+// At module top-level, after browser declaration:
+browser.runtime.onMessage.addListener((message) => {
     if (message.action !== 'SETTINGS_UPDATED') return;
     if (!currentIframe?.contentWindow) return;
 

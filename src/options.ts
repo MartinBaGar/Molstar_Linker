@@ -2,22 +2,20 @@ import { AppConfig } from './config.js';
 import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
-
-declare const browser: typeof chrome;
-const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
+import { browser } from './utils/browser.js';
 
 // ---------------------------------------------------------------------------
 // Storage helpers
 // ---------------------------------------------------------------------------
 const StorageAPI = {
     get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
-        extApi.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
+        browser.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
     },
     set(data: Record<string, unknown>, cb?: () => void): void {
         if (cb) {
-            extApi.storage.sync.set(data, cb);
+            browser.storage.sync.set(data, cb);
         } else {
-            extApi.storage.sync.set(data);
+            browser.storage.sync.set(data);
         }
     },
 };
@@ -219,7 +217,7 @@ document.getElementById('save')?.addEventListener('click', () => {
     }, 2000);
 
     // Send settings to other tabs (no storage persistence)
-    extApi.runtime.sendMessage({
+    browser.runtime.sendMessage({
         action: 'SETTINGS_UPDATED',
         settings: settings,
     }).catch(() => { });

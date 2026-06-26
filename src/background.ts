@@ -1,24 +1,21 @@
-/// <reference types="chrome" />
 import { ViewerConfig } from "./config.js";
-import { ALL_EXTENSIONS } from './extensions';
-// import { ALL_EXTENSIONS } from './extensions';
-import type { OpenViewerMessage } from './types.js';
 import { isSafeUrl, resolveUrl, findExtInText } from './utils/links.js';
+import { browser } from './utils/browser.js';
 
 // ---------------------------------------------------------------------------
 // FEATURE 1: Context menu — "Open in Mol* Workspace"
 // Created once on install; clicking opens the viewer with format=unknown so
 // the viewer's format-selector UI is triggered automatically.
 // ---------------------------------------------------------------------------
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
+browser.runtime.onInstalled.addListener(() => {
+    browser.contextMenus.create({
         id: 'open-molstar',
         title: 'Open in Mol* Workspace',
         contexts: ['link'],
     });
 });
 
-chrome.contextMenus.onClicked.addListener((info, _tab) => {
+browser.contextMenus.onClicked.addListener((info, _tab) => {
     if (info.menuItemId !== 'open-molstar' || !info.linkUrl) return;
 
     if (!isSafeUrl(info.linkUrl)) {
@@ -30,69 +27,39 @@ chrome.contextMenus.onClicked.addListener((info, _tab) => {
     const url = new URL(info.linkUrl);
     const resolvedUrl = resolveUrl(url);
 
-    const viewerUrl = new URL(chrome.runtime.getURL(ViewerConfig.viewerUrl));
+    const viewerUrl = new URL(browser.runtime.getURL(ViewerConfig.viewerUrl));
     viewerUrl.searchParams.append('fileUrl', resolvedUrl);
     viewerUrl.searchParams.append('format', extension);
 
-    chrome.tabs.create({ url: viewerUrl.toString() });
+    browser.tabs.create({ url: viewerUrl.toString() });
 });
 
-// ---------------------------------------------------------------------------
-// FEATURE 2: Message router — handles "open_viewer" from content scripts
-// ---------------------------------------------------------------------------
-chrome.runtime.onMessage.addListener(
-    (message: OpenViewerMessage, sender: chrome.runtime.MessageSender) => {
-        if (message.action !== 'open_viewer') return;
-
-        // Must come from a real tab
-        if (!sender.tab?.id) return;
-
-        // Validate URL and format before building the viewer URL
-        if (!message.url || !isSafeUrl(message.url)) return;
-        // if (!ALLOWED_FORMATS.has(message.format)) return;
-        if (!ALL_EXTENSIONS.has(message.format)) return;
-
-        const viewerUrl = chrome.runtime.getURL(
-            `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(message.url)}&format=${encodeURIComponent(message.format)}`,
-        );
-        chrome.tabs.create({ url: viewerUrl });
-    },
-);
-
-// ---------------------------------------------------------------------------
-// FEATURE 3: Dynamic permissions injector
-// When the user authorizes a new custom domain via the Options page, this
-// listener fires and registers the content script for that domain on the fly
-// so the user doesn't have to restart the browser or reload the extension.
-// ---------------------------------------------------------------------------
-chrome.permissions.onAdded.addListener((permissions) => {
-    const origins = permissions.origins ?? [];
-    if (origins.length === 0 || !chrome.scripting?.registerContentScripts) return;
-
-    chrome.scripting.registerContentScripts([{
-        id: `dynamic-molstar-${Date.now()}`,
-        matches: origins,
-        js: ['config.js', 'content.js'],
-        runAt: 'document_end',
-    }]).catch(err => console.error('Mol* Linker — dynamic script registration failed:', err));
-});
-
-chrome.runtime.onStartup.addListener(reRegisterCustomDomains);
-chrome.runtime.onInstalled.addListener(reRegisterCustomDomains);
+browser.runtime.onStartup.addListener(reRegisterCustomDomains);
+browser.runtime.onInstalled.addListener(reRegisterCustomDomains);
 
 async function reRegisterCustomDomains(): Promise<void> {
-    const data = await chrome.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
+    const data = await browser.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
     if (data.customDomains.length === 0) return;
 
     for (const domain of data.customDomains) {
         const pattern = `*://${domain}/*`;
         const id = `ms-script-${domain.replace(/\./g, '-')}`;
         try {
-            const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [id] });
-            if (existing.length === 0) {
-                await chrome.scripting.registerContentScripts([{
-                    id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
-                }]);
+            if (browser.scripting?.registerContentScripts) {
+                // Chrome MV3 path
+                const existing = await browser.scripting.getRegisteredContentScripts({ ids: [id] });
+                if (existing.length === 0) {
+                    await browser.scripting.registerContentScripts([{
+                        id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
+                    }]);
+                }
+            } else if ((browser as any).contentScripts?.register) {
+                // Firefox MV2 path
+                await (browser as any).contentScripts.register({
+                    matches: [pattern],
+                    js: [{ file: 'content.js' }],
+                    runAt: 'document_end'
+                });
             }
         } catch (err) {
             console.warn(`Mol* Linker — failed to re-register ${domain}:`, err);

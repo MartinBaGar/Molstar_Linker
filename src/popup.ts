@@ -1,23 +1,22 @@
 import { PermissionsManager } from './permissions.js';
 import { isDefaultDomain } from './utils/domains.js';
 import { ViewerConfig } from './config.js';
+import { browser } from './utils/browser.js';
 
-declare const browser: typeof chrome;
-const extApi = (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome;
 
 document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------------------
     // Open the Advanced Options page
     // -------------------------------------------------------------------------
     document.getElementById('open-options')?.addEventListener('click', () => {
-        extApi.runtime.openOptionsPage();
+        browser.runtime.openOptionsPage();
     });
 
     // -------------------------------------------------------------------------
     // Open an empty Mol* workspace in a new tab
     // -------------------------------------------------------------------------
     document.getElementById('open-empty-viewer')?.addEventListener('click', () => {
-        extApi.tabs.create({ url: extApi.runtime.getURL(ViewerConfig.viewerUrl) });
+        browser.tabs.create({ url: browser.runtime.getURL(ViewerConfig.viewerUrl) });
         window.close();
     });
 
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------------------
     try {
         const tabs = await new Promise<chrome.tabs.Tab[]>(
-            resolve => extApi.tabs.query({ active: true, currentWindow: true }, resolve),
+            resolve => browser.tabs.query({ active: true, currentWindow: true }, resolve),
         );
         const tab = tabs[0];
 
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isDefault = isDefaultDomain(currentDomain);
 
             const storage = await new Promise<{ customDomains: string[] }>(
-                resolve => extApi.storage.sync.get({ customDomains: [] }, resolve),
+                resolve => browser.storage.sync.get({ customDomains: [] }, resolve),
             );
 
             if (!isDefault && !storage.customDomains.includes(currentDomain)) {
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     // TODO: See rewrite in todo.org
                     enableBtn.addEventListener('click', () => {
-                        extApi.tabs.create({
+                        browser.tabs.create({
                             url: `options.html?domain=${encodeURIComponent(currentDomain)}`,
                         });
                         window.close();

@@ -1,7 +1,6 @@
 import type { InitMolstarMessage } from './types.js';
 import { NativeBuilder, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
 
-
 declare const molstar: any; // Using any for simplicity during rewrite
 
 window.parent.postMessage({ action: 'SANDBOX_READY' }, '*');

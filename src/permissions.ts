@@ -1,16 +1,10 @@
-/// <reference types="chrome" />
-
-declare const browser: typeof chrome;
+import { browser } from './utils/browser.js';
 
 export const PermissionsManager = {
-
-    // Pick the right API object at runtime (Firefox uses `browser`, Chrome uses `chrome`)
-    core: (typeof browser !== 'undefined' ? browser : chrome) as typeof chrome,
 
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
-
     cleanDomain(url: string): string {
         try {
             const parsed = new URL(url.includes('://') ? url : `https://${url}`);
@@ -30,10 +24,6 @@ export const PermissionsManager = {
 
     // ------------------------------------------------------------------
     // requestAndRegister
-    //
-    // IMPORTANT (Firefox): We must call permissions.request() IMMEDIATELY
-    // inside a user-gesture handler. Any `await` before this call kills the
-    // user-gesture context and the permission dialog will be silently blocked.
     // ------------------------------------------------------------------
     async requestAndRegister(url: string): Promise<boolean> {
         const domain = this.cleanDomain(url);
@@ -41,37 +31,51 @@ export const PermissionsManager = {
         const id = this.getScriptId(domain);
 
         try {
-            // ① Request permission synchronously within the user gesture
+            // Request permission synchronously within the user gesture
             const granted = await new Promise<boolean>(resolve => {
-                this.core.permissions.request({ origins: [pattern] }, resolve);
+                browser.permissions.request({ origins: [pattern] }, resolve);
             });
 
             if (!granted) return false;
 
-            // ② Register the content script if not already registered
-            if (this.core.scripting?.registerContentScripts) {
-                // Chrome MV3 path
-                const existing = await this.core.scripting.getRegisteredContentScripts({ ids: [id] });
+            // Chrome Path (MV3)
+            if (browser.scripting?.registerContentScripts) {
+                const existing = await browser.scripting.getRegisteredContentScripts({ ids: [id] });
                 if (existing.length === 0) {
-                    await this.core.scripting.registerContentScripts([{
+                    // Register for future page loads
+                    await browser.scripting.registerContentScripts([{
                         id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
                     }]);
+
+                    // Instantly inject into currently open tabs
+                    const tabs = await new Promise<chrome.tabs.Tab[]>(resolve => browser.tabs.query({ url: pattern }, resolve));
+                    for (const tab of tabs) {
+                        if (tab.id) {
+                            await browser.scripting.executeScript({
+                                target: { tabId: tab.id },
+                                files: ['content.js']
+                            }).catch((err) => console.warn('Could not inject into open tab:', err));
+                        }
+                    }
                 }
-            } else if (typeof browser !== 'undefined') {
-                // Firefox MV2 path — inject into all matching tabs right now
-                const tabs = await browser.tabs.query({ url: pattern });
+            }
+            // Firefox Path (MV2)
+            else {
+                const tabs = await new Promise<chrome.tabs.Tab[]>(resolve => browser.tabs.query({ url: pattern }, resolve));
                 for (const tab of tabs) {
                     if (tab.id) {
-                        await browser.tabs.executeScript(tab.id, { file: 'content.js' });
+                        await new Promise<void>(resolve => browser.tabs.executeScript(tab.id!, { file: 'content.js' }, () => resolve()));
                     }
                 }
             }
 
-            // ③ Persist the domain in storage so the UI can show it
-            const data = await this.core.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
+            // Persist domain in storage
+            const data = await new Promise<{ customDomains: string[] }>(resolve =>
+                browser.storage.sync.get({ customDomains: [] }, resolve)
+            );
             if (!data.customDomains.includes(domain)) {
                 data.customDomains.push(domain);
-                await this.core.storage.sync.set({ customDomains: data.customDomains });
+                await new Promise<void>(resolve => browser.storage.sync.set({ customDomains: data.customDomains }, resolve));
             }
 
             return true;
@@ -90,16 +94,25 @@ export const PermissionsManager = {
         const id = this.getScriptId(domain);
 
         try {
-            await this.core.scripting?.unregisterContentScripts({ ids: [id] }).catch(() => { });
-            await new Promise<boolean>(resolve => this.core.permissions.remove({ origins: [pattern] }, resolve));
+            // 1. Unregister script (Chrome only, safely ignored in Firefox)
+            if (browser.scripting?.unregisterContentScripts) {
+                await browser.scripting.unregisterContentScripts({ ids: [id] }).catch(() => { });
+            }
 
-            const data = await this.core.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
-            await this.core.storage.sync.set({
+            // 2. Remove the actual browser permission (Both browsers)
+            await new Promise<boolean>(resolve => browser.permissions.remove({ origins: [pattern] }, resolve));
+
+            // 3. Remove from local storage (Both browsers)
+            const data = await new Promise<{ customDomains: string[] }>(resolve =>
+                browser.storage.sync.get({ customDomains: [] }, resolve)
+            );
+            await new Promise<void>(resolve => browser.storage.sync.set({
                 customDomains: data.customDomains.filter(d => d !== domain),
-            });
+            }, resolve));
 
             return true;
-        } catch {
+        } catch (err) {
+            console.error('Molstar Linker — revoke error:', err);
             return false;
         }
     },

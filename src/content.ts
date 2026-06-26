@@ -1,4 +1,5 @@
 import { findExtInText, MAX_URL_LENGTH, resolveUrl } from './utils/links';
+import { browser } from './utils/browser.js';
 
 const PROCESSED = 'data-ms-processed';
 const BADGE_CLASS = 'ms-badge';
@@ -146,7 +147,7 @@ document.addEventListener('click', (event: MouseEvent) => {
     const { rawUrl = '', formatStr = '' } = badge.dataset;
     if (!rawUrl.startsWith('http')) return;
     try {
-        chrome.runtime.sendMessage({ action: 'open_viewer', url: rawUrl, format: formatStr });
+        browser.runtime.sendMessage({ action: 'open_viewer', url: rawUrl, format: formatStr });
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         if (msg.includes('Extension context invalidated')) {

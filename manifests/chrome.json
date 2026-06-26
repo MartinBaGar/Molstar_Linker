@@ -3,6 +3,7 @@
   "name": "Mol* Linker",
   "version": "3.1.0",
   "description": "Instantly view molecular structure in your browser using Mol*.",
+  "minimum_chrome_version": "148",
   "permissions": [
     "activeTab",
     "storage",
