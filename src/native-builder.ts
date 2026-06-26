@@ -29,7 +29,7 @@ export async function customRuleToRep(
         if (component) {
             await plugin.builders.structure.representation.addRepresentation(
                 component,
-                { type: "ball-and-stick" } // Customize as needed
+                { type: rule.repprop.type }
             );
             return component;
         } else {

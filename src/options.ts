@@ -2,8 +2,10 @@ import { AppConfig } from './config.js';
 import { PermissionsManager } from './permissions.js';
 import type { ExtensionSettings, CustomRule } from './types.js';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
+import { Script } from 'molstar/lib/mol-script/script';
 import { browser } from './utils/browser.js';
 
+const SCRIPT_LANGUAGES: Script.Language[] = ['mol-script', 'pymol', 'vmd', 'jmol'];
 // ---------------------------------------------------------------------------
 // Storage helpers
 // ---------------------------------------------------------------------------
@@ -91,15 +93,21 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
       <div class="form-group">
         <label>Representation</label>
         <select class="cr-rep">
-          <option value="ball-and-stick" ${data.repprop.type === 'ball-and-stick' ? 'selected' : ''}>Ball and sticks</option>
-          <option value="cartoon" ${data.repprop.type === 'cartoon' ? 'selected' : ''}>Cartoon</option>
+        ${Object.keys(StructureRepresentationRegistry.BuiltIn).map(rep => `
+            <option value="${rep}" ${data.repprop?.type === rep ? 'selected' : ''}>
+            ${rep.charAt(0).toUpperCase() + rep.slice(1)}
+            </option>
+        `).join('')}
         </select>
       </div>
       <div class="form-group">
         <label>Language</label>
         <select class="cr-lang">
-          <option value="pymol" ${data.selection?.script?.language === 'pymol' ? 'selected' : ''}>PyMOL</option>
-          <option value="vmd" ${data.selection?.script?.language === 'vmd' ? 'selected' : ''}>VMD</option>
+        ${SCRIPT_LANGUAGES.map(lang => `
+            <option value="${lang}" ${data.selection?.script?.language === lang ? 'selected' : ''}>
+            ${lang.charAt(0).toUpperCase() + lang.slice(1)}
+            </option>
+        `).join('')}
         </select>
       </div>
       <div class="form-group" style="grid-column: 1 / -1;">
@@ -153,7 +161,7 @@ function extractCurrentSettings(): ExtensionSettings {
             selection: {
                 script: {
                     expression: (card.querySelector('.cr-expression') as HTMLInputElement).value,
-                    language: (card.querySelector('.cr-lang') as HTMLSelectElement).value as 'mol-script' | 'pymol' | 'vmd' | 'jmol',
+                    language: (card.querySelector('.cr-lang') as HTMLSelectElement).value as Script.Language,
                 },
             },
         };

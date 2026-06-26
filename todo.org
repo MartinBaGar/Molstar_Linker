@@ -38,11 +38,11 @@ When accessing a page, it first displays the badges then seems to perform a relo
 Happends only on github
 ** TODO Review each file before release
 The following scripts were the only existing in =./src/= at the moment of this file writing (<2026-06-19 Fri>). Anything else present in =./src/= were added later on.
-- [ ] background.ts
-- [ ] config.ts
+- [X] background.ts
+- [X] config.ts
 - [ ] content.ts
-- [ ] extensions.ts
-- [ ] native-builder.ts
+- [X] extensions.ts
+- [X] native-builder.ts
 - [ ] options.ts
 - [ ] permissions.ts
 - [X] popup.ts
@@ -55,3 +55,5 @@ The following scripts were the only existing in =./src/= at the moment of this f
   Was partly done to register scripts but might have to be consolidated
 - browser api must be changed to general instead of using =chrome=.
 ** TODO Add unit tests
+** DONE Complete custom rule rep and language lists with built-in params
+CLOSED: [2026-06-27 Sat 00:17]

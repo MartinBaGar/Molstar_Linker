@@ -1,11 +1,10 @@
 import { ViewerConfig } from "./config.js";
 import { isSafeUrl, resolveUrl, findExtInText } from './utils/links.js';
 import { browser } from './utils/browser.js';
+import { ALL_EXTENSIONS } from './extensions.js';
 
 // ---------------------------------------------------------------------------
 // FEATURE 1: Context menu — "Open in Mol* Workspace"
-// Created once on install; clicking opens the viewer with format=unknown so
-// the viewer's format-selector UI is triggered automatically.
 // ---------------------------------------------------------------------------
 browser.runtime.onInstalled.addListener(() => {
     browser.contextMenus.create({
@@ -15,7 +14,7 @@ browser.runtime.onInstalled.addListener(() => {
     });
 });
 
-browser.contextMenus.onClicked.addListener((info, _tab) => {
+browser.contextMenus.onClicked.addListener((info: any, _tab: any) => {
     if (info.menuItemId !== 'open-molstar' || !info.linkUrl) return;
 
     if (!isSafeUrl(info.linkUrl)) {
@@ -34,6 +33,30 @@ browser.contextMenus.onClicked.addListener((info, _tab) => {
     browser.tabs.create({ url: viewerUrl.toString() });
 });
 
+
+// ---------------------------------------------------------------------------
+// FEATURE 2: Message router — handles "open_viewer" from content scripts
+// ---------------------------------------------------------------------------
+browser.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender) => {
+    if (message.action !== 'open_viewer') return;
+
+    // Must come from a real tab
+    if (!sender.tab?.id) return;
+
+    // Validate URL and format before building the viewer URL
+    if (!message.url || !isSafeUrl(message.url)) return;
+    if (!ALL_EXTENSIONS.has(message.format)) return;
+
+    const viewerUrl = browser.runtime.getURL(
+        `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(message.url)}&format=${encodeURIComponent(message.format)}`,
+    );
+    browser.tabs.create({ url: viewerUrl });
+});
+
+
+// ---------------------------------------------------------------------------
+// Startup Script Registration
+// ---------------------------------------------------------------------------
 browser.runtime.onStartup.addListener(reRegisterCustomDomains);
 browser.runtime.onInstalled.addListener(reRegisterCustomDomains);
 

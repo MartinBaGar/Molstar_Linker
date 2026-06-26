@@ -1,8 +1,7 @@
 import type { ExtensionSettings } from './types.js';
 
-
 export const ViewerConfig = {
-    viewerUrl: "viewer.html", // Relative to extension root
+    viewerUrl: "viewer.html",
 };
 
 // ---------------------------------------------------------------------------
