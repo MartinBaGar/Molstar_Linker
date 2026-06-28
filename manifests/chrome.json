@@ -12,10 +12,9 @@
   ],
   "host_permissions": [
     "*://*.github.com/*",
-    "*://raw.githubusercontent.com/*",
     "*://*.gitlab.com/*",
-    "*://*.rcsb.org/*",
-    "*://*.alphafold.ebi.ac.uk/*"
+    "*://*.figshare.com/*",
+    "*://*.zenodo.org/*"
   ],
   "optional_host_permissions": [
     "*://*/*"
@@ -52,8 +51,8 @@
       "matches": [
         "*://*.github.com/*",
         "*://*.gitlab.com/*",
-        "*://*.rcsb.org/*",
-        "*://*.alphafold.ebi.ac.uk/*"
+        "*://*.figshare.com/*",
+        "*://*.zenodo.org/*"
       ],
       "js": [
         "content.js"

@@ -3,7 +3,6 @@ import { isDefaultDomain } from './utils/domains.js';
 import { ViewerConfig } from './config.js';
 import { browser } from './utils/browser.js';
 
-
 document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------------------
     // Open the Advanced Options page
@@ -22,8 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // -------------------------------------------------------------------------
     // Custom domain detection
-    // If the current tab's domain is neither a default nor an authorized
-    // custom domain, show the "Authorize in Studio" prompt.
     // -------------------------------------------------------------------------
     try {
         const tabs = await new Promise<chrome.tabs.Tab[]>(
@@ -45,15 +42,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (promptDiv && enableBtn) {
                     promptDiv.style.display = 'block';
-                    enableBtn.textContent = 'Authorize in Studio';
+                    enableBtn.textContent = 'Authorize This Domain';
                     enableBtn.style.backgroundColor = 'var(--primary)';
 
-                    // TODO: See rewrite in todo.org
                     enableBtn.addEventListener('click', () => {
-                        browser.tabs.create({
-                            url: `options.html?domain=${encodeURIComponent(currentDomain)}`,
-                        });
-                        window.close();
+                        try {
+                            PermissionsManager.requestAndRegister(currentDomain);
+
+                            window.close();
+                        } catch (error) {
+                            console.error('Failed to authorize domain:', error);
+                        }
                     });
                 }
             }

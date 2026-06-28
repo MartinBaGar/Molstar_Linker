@@ -28,7 +28,6 @@ export const PermissionsManager = {
     async requestAndRegister(url: string): Promise<boolean> {
         const domain = this.cleanDomain(url);
         const pattern = this.getMatchPattern(domain);
-        const id = this.getScriptId(domain);
 
         try {
             // Request permission synchronously within the user gesture
@@ -38,38 +37,7 @@ export const PermissionsManager = {
 
             if (!granted) return false;
 
-            // Chrome Path (MV3)
-            if (browser.scripting?.registerContentScripts) {
-                const existing = await browser.scripting.getRegisteredContentScripts({ ids: [id] });
-                if (existing.length === 0) {
-                    // Register for future page loads
-                    await browser.scripting.registerContentScripts([{
-                        id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
-                    }]);
-
-                    // Instantly inject into currently open tabs
-                    const tabs = await new Promise<chrome.tabs.Tab[]>(resolve => browser.tabs.query({ url: pattern }, resolve));
-                    for (const tab of tabs) {
-                        if (tab.id) {
-                            await browser.scripting.executeScript({
-                                target: { tabId: tab.id },
-                                files: ['content.js']
-                            }).catch((err) => console.warn('Could not inject into open tab:', err));
-                        }
-                    }
-                }
-            }
-            // Firefox Path (MV2)
-            else {
-                const tabs = await new Promise<chrome.tabs.Tab[]>(resolve => browser.tabs.query({ url: pattern }, resolve));
-                for (const tab of tabs) {
-                    if (tab.id) {
-                        await new Promise<void>(resolve => browser.tabs.executeScript(tab.id!, { file: 'content.js' }, () => resolve()));
-                    }
-                }
-            }
-
-            // Persist domain in storage
+            // Persist domain in storage instantly for UI updates (e.g. Options page)
             const data = await new Promise<{ customDomains: string[] }>(resolve =>
                 browser.storage.sync.get({ customDomains: [] }, resolve)
             );

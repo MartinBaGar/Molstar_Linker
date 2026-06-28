@@ -54,38 +54,90 @@ browser.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Mess
 });
 
 
-// ---------------------------------------------------------------------------
-// Startup Script Registration
-// ---------------------------------------------------------------------------
+// --- HELPER 1: Register script for future page loads ---
+async function registerScriptForDomain(domain: string, pattern: string): Promise<void> {
+    const id = `ms-script-${domain.replace(/\./g, '-')}`;
+    try {
+        if (browser.scripting?.registerContentScripts) {
+            // Chrome MV3 Path
+            const existing = await browser.scripting.getRegisteredContentScripts({ ids: [id] });
+            if (existing.length === 0) {
+                await browser.scripting.registerContentScripts([{
+                    id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
+                }]);
+            }
+        } else if ((browser as any).contentScripts?.register) {
+            // Firefox MV2 Path
+            await (browser as any).contentScripts.register({
+                matches: [pattern], js: [{ file: 'content.js' }], runAt: 'document_end'
+            });
+        }
+    } catch (err) {
+        console.warn(`Mol* Linker — failed to register script for ${domain}:`, err);
+    }
+}
+
+// --- HELPER 2: Inject script into already open tabs (no refresh needed) ---
+async function injectScriptIntoExistingTabs(pattern: string): Promise<void> {
+    try {
+        const tabs = await browser.tabs.query({ url: pattern });
+        for (const tab of tabs) {
+            if (!tab.id) continue;
+            if (browser.scripting?.executeScript) {
+                await browser.scripting.executeScript({
+                    target: { tabId: tab.id }, files: ['content.js']
+                }).catch(() => { });
+            } else {
+                await (browser.tabs as any).executeScript(tab.id, { file: 'content.js' }).catch(() => { });
+            }
+        }
+    } catch (err) {
+        console.warn(`Mol* Linker — failed to inject into active tabs for ${pattern}:`, err);
+    }
+}
+
+// ===========================================================================
+// SCENARIO 1: Browser Startup / Extension Update
+// ===========================================================================
 browser.runtime.onStartup.addListener(reRegisterCustomDomains);
 browser.runtime.onInstalled.addListener(reRegisterCustomDomains);
 
 async function reRegisterCustomDomains(): Promise<void> {
     const data = await browser.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
-    if (data.customDomains.length === 0) return;
 
     for (const domain of data.customDomains) {
         const pattern = `*://${domain}/*`;
-        const id = `ms-script-${domain.replace(/\./g, '-')}`;
-        try {
-            if (browser.scripting?.registerContentScripts) {
-                // Chrome MV3 path
-                const existing = await browser.scripting.getRegisteredContentScripts({ ids: [id] });
-                if (existing.length === 0) {
-                    await browser.scripting.registerContentScripts([{
-                        id, matches: [pattern], js: ['content.js'], runAt: 'document_end',
-                    }]);
-                }
-            } else if ((browser as any).contentScripts?.register) {
-                // Firefox MV2 path
-                await (browser as any).contentScripts.register({
-                    matches: [pattern],
-                    js: [{ file: 'content.js' }],
-                    runAt: 'document_end'
-                });
-            }
-        } catch (err) {
-            console.warn(`Mol* Linker — failed to re-register ${domain}:`, err);
-        }
+        // Just register for future loads (no need to active-inject on browser startup)
+        await registerScriptForDomain(domain, pattern);
     }
 }
+
+// ===========================================================================
+// SCENARIO 2: User Authorizes a New Domain via Popup
+// ===========================================================================
+browser.permissions.onAdded.addListener(async (permissions) => {
+    if (!permissions.origins) return;
+
+    for (const origin of permissions.origins) {
+        const domain = origin.replace(/^\*:\/\//, '').replace(/\/\*$/, '');
+        if (!domain) continue;
+
+        try {
+            // 1. Save to storage so the startup script remembers it next time
+            const data = await browser.storage.sync.get({ customDomains: [] }) as { customDomains: string[] };
+            if (!data.customDomains.includes(domain)) {
+                data.customDomains.push(domain);
+                await browser.storage.sync.set({ customDomains: data.customDomains });
+            }
+
+            // 2. Register for future loads
+            await registerScriptForDomain(domain, origin);
+
+            // 3. Inject NOW so badges appear immediately without refreshing
+            await injectScriptIntoExistingTabs(origin);
+
+        } catch (err) {
+            console.error('Mol* Linker — Background permission injection failed:', err);
+        }
+    }
+});

@@ -9,10 +9,9 @@
     "contextMenus",
     "tabs",
     "*://*.github.com/*",
-    "*://raw.githubusercontent.com/*",
     "*://*.gitlab.com/*",
-    "*://*.rcsb.org/*",
-    "*://*.alphafold.ebi.ac.uk/*"
+    "*://*.figshare.com/*",
+    "*://*.zenodo.org/*"
   ],
   "optional_permissions": [
     "*://*/*"
