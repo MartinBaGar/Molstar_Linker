@@ -6,21 +6,6 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { browser } from './utils/browser.js';
 
 const SCRIPT_LANGUAGES: Script.Language[] = ['mol-script', 'pymol', 'vmd', 'jmol'];
-// ---------------------------------------------------------------------------
-// Storage helpers
-// ---------------------------------------------------------------------------
-const StorageAPI = {
-    get(keys: Record<string, unknown> | null, cb: (r: Record<string, unknown>) => void): void {
-        browser.storage.sync.get(keys as Record<string, unknown>, cb as (r: Record<string, unknown>) => void);
-    },
-    set(data: Record<string, unknown>, cb?: () => void): void {
-        if (cb) {
-            browser.storage.sync.set(data, cb);
-        } else {
-            browser.storage.sync.set(data);
-        }
-    },
-};
 
 // ---------------------------------------------------------------------------
 // XSS helper — used whenever injecting user strings into innerHTML
@@ -238,7 +223,7 @@ function refreshCustomDomainList(): void {
     const list = document.getElementById('custom-domains-list');
     if (!list) return;
 
-    StorageAPI.get({ customDomains: [] }, (data) => {
+    browser.storage.sync.get({ customDomains: [] }, (data) => {
         const domains = (data.customDomains as string[]) ?? [];
 
         if (domains.length === 0) {
@@ -283,7 +268,7 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
 // Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-    StorageAPI.get(null, (savedItems) => {
+    browser.storage.sync.get(null, (savedItems) => {
         injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
     });
 
