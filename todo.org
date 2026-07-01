@@ -1,45 +1,43 @@
 * Inbox
-** TODO Molecule naming
+** Required before unbloated version release
+*** TODO Molecule naming
 Currently, the URL used. In figshare, the URL file is not the same as the uploaded file (xxx.pdb becomes 12345678). In =content.ts=, the some logic retrieves the original name associated to the URL so a solution can be inspired from that BUT it must be compatible with the Context Menu. Solution might have to intervene before each.
 
 [[file:~/git-repos/molstar_linker/src/native-builder.ts::const data = await plugin.builders.data.download({ url, label: filename, isBinary });]]
-** DONE Context menu incompatible with github and gitlab
+*** DONE Context menu incompatible with github and gitlab
 CLOSED: [2026-06-24 Wed 20:16]
 Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
 
 [[file:~/git-repos/molstar_linker/src/background.ts::// NOTE: need url transformation for github and gitlab]]
-** TODO Enhance loading div handling
+*** TODO Enhance loading div handling
 Currently, the loading div is displayed by default even when there is nothing to load (empty viewer). I am not even sure it it even needed in any cases. I have to inspect that.
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::function spawnIframe(]]
-** DONE Context-Menu upgrade
+*** DONE Context-Menu upgrade
 CLOSED: [2026-06-24 Wed 23:19]
 Currently, right-clicking a link in a web page summons the format selector everytime. It should do so only if none of the allowed are clearly indentifiable in the url
-** DONE Need convenience rewrite
+*** DONE Need convenience rewrite
 CLOSED: [2026-06-29 Mon 00:11]
 Currently it opens the extension options page in a new tab and proposes to register the domain there by click. Instead it could simply update the extension settings, then update the popup with visual confirmation and update any existing options tabs with the new domain.
 
 [[file:~/git-repos/molstar_linker/src/popup.ts::enableBtn.addEventListener('click', () => {]]
-** DONE Create an utils directory to gather shared elements
+*** DONE Create an utils directory to gather shared elements
 CLOSED: [2026-06-29 Mon 00:33]
-*** DONE Unify url safety check function
+**** DONE Unify url safety check function
 CLOSED: [2026-06-24 Wed 23:19]
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::if (!isSafeUrl(rawUrl)) {]]
 [[file:~/git-repos/molstar_linker/src/background.ts::function isSafeUrl(urlStr: string): boolean {]]
-*** DONE Unify default domain check
+**** DONE Unify default domain check
 CLOSED: [2026-06-19 Fri 13:06]
 
 - [[file:~/git-repos/molstar_linker/src/viewer.ts::const isDefault = DEFAULT_DOMAINS.some(d => targetDomain.includes(d));]]
 - [[file:~/git-repos/molstar_linker/src/popup.ts::const DEFAULT_DOMAINS = \['github.com', 'raw.githubusercontent.com', 'gitlab.com', 'rcsb.org', 'alphafold.ebi.ac.uk'\];]]
-*** DONE Update default domains
+**** DONE Update default domains
 CLOSED: [2026-06-29 Mon 00:33]
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::// SCENARIO 3: URL present but format unknown (context-menu path)]]
-** TODO Annoying page reload
-When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
-Happends only on github
-** TODO Review each file before release
+*** TODO Review each file before release
 The following scripts were the only existing in =./src/= at the moment of this file writing (<2026-06-19 Fri>). Anything else present in =./src/= were added later on.
 - [X] background.ts
 - [X] config.ts
@@ -53,12 +51,18 @@ The following scripts were the only existing in =./src/= at the moment of this f
 - [ ] sandbox.ts
 - [ ] types.ts
 - [ ] viewer.ts
-** DONE Ensure Firefox compatibiliy
+**** Misc changes during review
+- Removed global scene settings since it can be easily controlled in the molstat viewer
+*** DONE Ensure Firefox compatibiliy
 CLOSED: [2026-06-29 Mon 00:12]
 - Rewrite was done with testing on Chrome only, checks must be done with Firefox.
   Was partly done to register scripts but might have to be consolidated
 - browser api must be changed to general instead of using =chrome=.
-** TODO Add unit tests
-** DONE Complete custom rule rep and language lists with built-in params
+*** DONE Complete custom rule rep and language lists with built-in params
 CLOSED: [2026-06-27 Sat 00:17]
-** TODO Update the documentation
+*** TODO Update the documentation
+** Can be done after release
+*** TODO Annoying page reload
+When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
+Happends only on github
+*** TODO Add unit tests

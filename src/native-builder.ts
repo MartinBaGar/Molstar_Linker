@@ -11,11 +11,11 @@ export async function customRuleToRep(
 ) {
     for (const rule of settings.customRules || []) {
         // Handle undefined expression
-        if (!rule.selection?.script) {  // Check for `script` (not `expression`)
+        if (!rule.selection?.script) {
             throw new Error("Selection script is required");
         }
 
-        const script: Script = rule.selection.script;  // Use `script` (not `expression`)
+        const script: Script = rule.selection.script;
         const expression = Script.toExpression(script);
 
         // Create component from expression
@@ -36,15 +36,6 @@ export async function customRuleToRep(
             throw new Error("Failed to create component from selection");
         }
     }
-}
-
-export async function globalSettingsUpdate(
-    plugin: PluginContext,
-    settings: ExtensionSettings,
-) {
-    plugin.canvas3d?.setProps({
-        renderer: { backgroundColor: Color.fromHexStyle(settings.canvas_color as string) },
-    });
 }
 
 export const NativeBuilder = {

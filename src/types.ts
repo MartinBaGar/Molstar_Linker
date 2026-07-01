@@ -21,9 +21,7 @@ export interface RuleMetadata {
     tooltip?: string;
 }
 
-// Block B: Where to apply the rule
 export interface SelectionCriteria {
-    // mode: "simple" | "expert";
     scheme?: "auth" | "label";
     chain?: string;
     ranges?: string;
@@ -47,7 +45,6 @@ export interface CustomRuleBase {
     meta?: RuleMetadata;
     selection?: SelectionCriteria;
     label?: LabelConfig;
-    focus?: boolean;
 }
 
 export interface CustomRule extends CustomRuleBase {
@@ -58,8 +55,6 @@ export interface CustomRule extends CustomRuleBase {
 // 4. Extension settings — stored in chrome.storage.sync
 // ---------------------------------------------------------------------------
 export interface ExtensionSettings {
-    canvas_color: string;
-    camera_json: string;
     customRules: CustomRule[];
     [key: string]: unknown;
 }

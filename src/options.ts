@@ -6,6 +6,7 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { browser } from './utils/browser.js';
 
 const SCRIPT_LANGUAGES: Script.Language[] = ['mol-script', 'pymol', 'vmd', 'jmol'];
+const RULESCONTAINER = document.getElementById('custom-rules-container') as HTMLDivElement;
 
 // ---------------------------------------------------------------------------
 // XSS helper — used whenever injecting user strings into innerHTML
@@ -15,38 +16,6 @@ function escapeHTML(str: unknown): string {
     return str.replace(/[&<>'"]/g, tag => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
     }[tag as '&'] ?? ''));
-}
-
-// ---------------------------------------------------------------------------
-// Dynamic UI helpers
-// ---------------------------------------------------------------------------
-const sceneContainer = document.getElementById('scene-settings-container') as HTMLDivElement;
-const rulesContainer = document.getElementById('custom-rules-container') as HTMLDivElement;
-
-function buildUI(): void {
-    if (!sceneContainer) return;
-
-    sceneContainer.innerHTML = `
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Background Color</label>
-        <div style="display:flex; gap:10px;">
-          <input type="color" id="canvas_color_picker" value="#ffffff" style="width:50px; padding:0;">
-          <input type="text" id="canvas_color" placeholder="#ffffff" value="#ffffff">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Camera JSON (optional)</label>
-        <textarea id="camera_json" placeholder='{"target":[0,0,0],"position":[50,50,50]}'></textarea>
-      </div>
-    </div>
-  `;
-
-    (document.getElementById('canvas_color_picker') as HTMLInputElement)
-        .addEventListener('input', (e) => {
-            (document.getElementById('canvas_color') as HTMLInputElement).value =
-                (e.target as HTMLInputElement).value;
-        });
 }
 
 // ---------------------------------------------------------------------------
@@ -62,50 +31,49 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
     };
 
     const card = document.createElement('details');
-    card.className = 'target-card custom-rule-card rule-card'; // Added rule-card class
+    card.className = 'target-card custom-rule-card rule-card';
     card.open = true;
 
     card.innerHTML = `
-    <summary>
-      <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
-      <button class="btn-danger delete-rule-btn" style="padding:2px 8px; font-size:12px;">Delete</button>
-    </summary>
-    <div class="card-content form-grid">
-      <div class="form-group">
-        <label>Rule Name</label>
-        <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
-      </div>
-      <div class="form-group">
-        <label>Representation</label>
-        <select class="cr-rep">
+  <summary>
+  <span class="rule-title-display">${escapeHTML(data.meta?.name)}</span>
+  <button class="btn-danger delete-rule-btn" style="padding:2px 8px; font-size:12px;">Delete</button>
+  </summary>
+  <div class="card-content form-grid">
+  <div class="form-group">
+  <label>Rule Name</label>
+  <input type="text" class="cr-name" value="${escapeHTML(data.meta?.name)}">
+  </div>
+  <div class="form-group">
+  <label>Representation</label>
+  <select class="cr-rep">
         ${Object.keys(StructureRepresentationRegistry.BuiltIn).map(rep => `
-            <option value="${rep}" ${data.repprop?.type === rep ? 'selected' : ''}>
+        <option value="${rep}" ${data.repprop?.type === rep ? 'selected' : ''}>
             ${rep.charAt(0).toUpperCase() + rep.slice(1)}
             </option>
         `).join('')}
         </select>
-      </div>
-      <div class="form-group">
+        </div>
+        <div class="form-group">
         <label>Language</label>
         <select class="cr-lang">
         ${SCRIPT_LANGUAGES.map(lang => `
-            <option value="${lang}" ${data.selection?.script?.language === lang ? 'selected' : ''}>
+        <option value="${lang}" ${data.selection?.script?.language === lang ? 'selected' : ''}>
             ${lang.charAt(0).toUpperCase() + lang.slice(1)}
             </option>
         `).join('')}
         </select>
-      </div>
-      <div class="form-group" style="grid-column: 1 / -1;">
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
         <label>Selection Expression</label>
         <input type="text" class="cr-expression" value="${escapeHTML(data.selection?.script?.expression)}" placeholder="e.g., chain A and resi 10-20">
-      </div>
-    </div>
+        </div>
+        </div>
   `;
 
     // Delete button
     card.querySelector('.delete-rule-btn')?.addEventListener('click', (e) => {
         e.preventDefault(); e.stopPropagation(); card.remove();
-        // Trigger the "Unsaved changes" bar
         document.querySelector('.container')?.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
@@ -115,7 +83,7 @@ function addCustomRuleCard(ruleData?: Partial<CustomRule>): void {
             (e.target as HTMLInputElement).value || 'Unnamed Rule';
     });
 
-    rulesContainer.appendChild(card);
+    RULESCONTAINER.appendChild(card);
 }
 
 document.getElementById('add-custom-rule')?.addEventListener('click', () => addCustomRuleCard());
@@ -124,14 +92,7 @@ document.getElementById('add-custom-rule')?.addEventListener('click', () => addC
 // Extract current UI state into an ExtensionSettings object
 // ---------------------------------------------------------------------------
 function extractCurrentSettings(): ExtensionSettings {
-    const s: Record<string, unknown> = { ...AppConfig.getDefaults() };
-
-    // Safely get values, fallback to empty string if DOM element is missing
-    const canvasColorEl = document.getElementById('canvas_color') as HTMLInputElement | null;
-    const cameraJsonEl = document.getElementById('camera_json') as HTMLTextAreaElement | null;
-
-    s.canvas_color = canvasColorEl ? canvasColorEl.value : "#ffffff";
-    s.camera_json = cameraJsonEl ? cameraJsonEl.value : "";
+    const s = { ...AppConfig.getDefaults() };
 
     const customRules: CustomRule[] = [];
     document.querySelectorAll<HTMLElement>('.custom-rule-card').forEach(card => {
@@ -155,35 +116,6 @@ function extractCurrentSettings(): ExtensionSettings {
 
     s.customRules = customRules;
     return s as ExtensionSettings;
-}
-
-// ---------------------------------------------------------------------------
-// Inject a settings object back into the UI
-// ---------------------------------------------------------------------------
-function injectSettingsIntoUI(settingsObj: ExtensionSettings): void {
-    if (sceneContainer) sceneContainer.innerHTML = '';
-    if (rulesContainer) rulesContainer.innerHTML = '';
-
-    buildUI();
-
-    const canvasInput = document.getElementById('canvas_color') as HTMLInputElement | null;
-    const pickerInput = document.getElementById('canvas_color_picker') as HTMLInputElement | null;
-
-    if (settingsObj.canvas_color && canvasInput && pickerInput) {
-        canvasInput.value = settingsObj.canvas_color as string;
-        if ((settingsObj.canvas_color as string).startsWith('#')) {
-            pickerInput.value = settingsObj.canvas_color as string;
-        }
-    }
-
-    const cameraInput = document.getElementById('camera_json') as HTMLTextAreaElement | null;
-    if (settingsObj.camera_json && cameraInput) {
-        cameraInput.value = settingsObj.camera_json as string;
-    }
-
-    if (Array.isArray(settingsObj.customRules)) {
-        settingsObj.customRules.forEach(rule => addCustomRuleCard(rule));
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -268,19 +200,5 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
 // Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-    browser.storage.sync.get(null, (savedItems) => {
-        injectSettingsIntoUI({ ...AppConfig.getDefaults(), ...savedItems } as ExtensionSettings);
-    });
-
     refreshCustomDomainList();
-
-    const autoDomain = new URLSearchParams(window.location.search).get('domain');
-    if (autoDomain) {
-        const input = document.getElementById('manual-domain-input') as HTMLInputElement | null;
-        if (input) {
-            input.value = autoDomain;
-            input.focus();
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-    }
 });

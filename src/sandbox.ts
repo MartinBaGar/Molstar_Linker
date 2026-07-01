@@ -1,5 +1,5 @@
 import type { InitMolstarMessage } from './types.js';
-import { NativeBuilder, customRuleToRep, globalSettingsUpdate } from './native-builder.js';
+import { NativeBuilder, customRuleToRep } from './native-builder.js';
 
 declare const molstar: any; // Using any for simplicity during rewrite
 
@@ -20,11 +20,7 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
         if (!viewerInstance) {
             viewerInstance = await molstar.Viewer.create('app', {
                 layoutIsExpanded: false,
-                layoutShowControls: true,
-                layoutShowRemoteState: false,
-                layoutShowSequence: true,
-                layoutShowLog: true,
-                layoutShowLeftPanel: true,
+                layoutShowControls: false,
             });
 
             // =======================================================================
@@ -72,5 +68,4 @@ window.addEventListener('message', async (event: MessageEvent) => {
     const settings = msg.settings;
 
     customRuleToRep(plugin, settings);
-    globalSettingsUpdate(plugin, settings);
 });

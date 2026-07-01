@@ -10,8 +10,6 @@ export const ViewerConfig = {
 // ---------------------------------------------------------------------------
 function getDefaults(): ExtensionSettings {
     const defaults: ExtensionSettings = {
-        canvas_color: "#ffffff",
-        camera_json: "",
         customRules: [],
     };
     defaults.customRules
