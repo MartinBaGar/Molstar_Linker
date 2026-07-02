@@ -77,14 +77,7 @@ export interface SandboxReadyMessage {
 
 export interface InitMolstarMessage {
     action: "INIT_MOLSTAR";
-    /** data: URI string, or null for an empty workspace */
     url: string | null;
-    /** Mol* format string, or null for an empty workspace */
     format: string | null;
-    // settings: ExtensionSettings;
-    /** The original remote URL, used to extract a filename for the blob URL hash */
     originalUrl: string | null;
 }
-
-// export type SandboxInboundMessage = InitMolstarMessage;
-// export type SandboxOutboundMessage = SandboxReadyMessage;

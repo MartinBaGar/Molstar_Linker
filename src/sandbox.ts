@@ -1,14 +1,14 @@
+import type { Viewer } from 'molstar/lib/apps/viewer/app';
 import type { InitMolstarMessage } from './types.js';
 import { NativeBuilder, customRuleToRep } from './native-builder.js';
-
-declare const molstar: any; // Using any for simplicity during rewrite
+import { getFileNameFromUrl } from './utils/links.js';
+declare global {
+    const molstar: typeof import('molstar/lib/apps/viewer/app');
+}
 
 window.parent.postMessage({ action: 'SANDBOX_READY' }, '*');
 
-let viewerInstance: any = null;
-
-(window.history as any).replaceState = () => { };
-(window.history as any).pushState = () => { };
+let viewerInstance: Viewer | null = null;
 
 window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage>) => {
     const msg = event.data;
@@ -22,32 +22,15 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
                 layoutIsExpanded: false,
                 layoutShowControls: false,
             });
-
-            // =======================================================================
-            // REPL / CONSOLE SETUP
-            // Expose globally exactly ONCE when the viewer is instantiated
-            // =======================================================================
-            (window as any).molPlugin = viewerInstance.plugin;
-            (window as any).viewerInstance = viewerInstance;
-            // =======================================================================
         }
 
-        if (url === null) return; // Empty workspace
+        if (url === null) return;
 
-        // Anti-lag fix: convert base64 to blob URL
-        const response = await fetch(url);
-        const blob = await response.blob();
-        let shortBlobUrl = URL.createObjectURL(blob);
-        let filename: string | undefined;  // Declare at a higher scope
+        const { shortBlobUrl, filename } = await getFileNameFromUrl(
+            url,
+            originalUrl ?? undefined
+        );
 
-        if (originalUrl) {
-            try {
-                filename = new URL(originalUrl).pathname.split('/').pop();
-                if (filename) shortBlobUrl += `#${filename}`;
-            } catch { }
-        }
-
-        // --- Call the Native Builder ---
         await NativeBuilder.buildNativeScene(
             viewerInstance.plugin,
             shortBlobUrl,
@@ -63,6 +46,8 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
 window.addEventListener('message', async (event: MessageEvent) => {
     const msg = event.data;
     if (!msg || msg.action !== 'APPLY_REPRESENTATION') return;
+
+    if (!viewerInstance) return;
 
     const plugin = viewerInstance.plugin
     const settings = msg.settings;

@@ -120,3 +120,18 @@ export function resolveUrl(parsed: URL): string {
         return parsed.href
     }
 }
+
+export async function getFileNameFromUrl(url: string, originalUrl?: string) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    let shortBlobUrl = URL.createObjectURL(blob);
+    let filename: string | undefined;
+
+    if (originalUrl) {
+        try {
+            filename = new URL(originalUrl).pathname.split('/').pop();
+            if (filename) shortBlobUrl += `#${filename}`;
+        } catch { }
+    }
+    return { shortBlobUrl, filename };
+}

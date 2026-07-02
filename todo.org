@@ -1,9 +1,5 @@
 * Inbox
 ** Required before unbloated version release
-*** TODO Molecule naming
-Currently, the URL used. In figshare, the URL file is not the same as the uploaded file (xxx.pdb becomes 12345678). In =content.ts=, the some logic retrieves the original name associated to the URL so a solution can be inspired from that BUT it must be compatible with the Context Menu. Solution might have to intervene before each.
-
-[[file:~/git-repos/molstar_linker/src/native-builder.ts::const data = await plugin.builders.data.download({ url, label: filename, isBinary });]]
 *** DONE Context menu incompatible with github and gitlab
 CLOSED: [2026-06-24 Wed 20:16]
 Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
@@ -41,14 +37,14 @@ CLOSED: [2026-06-29 Mon 00:33]
 The following scripts were the only existing in =./src/= at the moment of this file writing (<2026-06-19 Fri>). Anything else present in =./src/= were added later on.
 - [X] background.ts
 - [X] config.ts
-- [ ] content.ts
+- [X] content.ts
 - [X] extensions.ts
 - [X] native-builder.ts
-- [ ] options.ts
+- [X] options.ts
 - [X] permissions.ts
 - [X] popup.ts
   Added proposition of domain authorization rewrite
-- [ ] sandbox.ts
+- [X] sandbox.ts
 - [ ] types.ts
 - [ ] viewer.ts
 **** Misc changes during review
@@ -61,7 +57,14 @@ CLOSED: [2026-06-29 Mon 00:12]
 *** DONE Complete custom rule rep and language lists with built-in params
 CLOSED: [2026-06-27 Sat 00:17]
 *** TODO Update the documentation
+*** TODO Generate version dynamically
 ** Can be done after release
+*** TODO Molecule naming
+UPDATE: was moved to /after release/ because unrelevent file names can be set by the user. Solution of setting it from it is risky. And looking in the structure file can be inconsistent since not all formats have the molecule name.
+
+Currently, the URL used. In figshare, the URL file is not the same as the uploaded file (xxx.pdb becomes 12345678). In =content.ts=, the some logic retrieves the original name associated to the URL so a solution can be inspired from that BUT it must be compatible with the Context Menu. Solution might have to intervene before each.
+
+[[file:~/git-repos/molstar_linker/src/native-builder.ts::const data = await plugin.builders.data.download({ url, label: filename, isBinary });]]
 *** TODO Annoying page reload
 When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
 Happends only on github
