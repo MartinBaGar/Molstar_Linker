@@ -35,8 +35,8 @@
       "matches": [
         "*://*.github.com/*",
         "*://*.gitlab.com/*",
-        "*://*.rcsb.org/*",
-        "*://*.alphafold.ebi.ac.uk/*"
+        "*://*.figshare.com/*",
+        "*://*.zenodo.org/*"
       ],
       "js": [
         "content.js"
