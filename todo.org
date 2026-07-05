@@ -5,7 +5,8 @@ CLOSED: [2026-06-24 Wed 20:16]
 Currently, url is passed as is and cannot be read by molstar as a transformation is needed for github and gitlab (it work on fishare for example).
 
 [[file:~/git-repos/molstar_linker/src/background.ts::// NOTE: need url transformation for github and gitlab]]
-*** TODO Enhance loading div handling
+*** DONE Enhance loading div handling
+CLOSED: [2026-07-05 Sun 21:32]
 Currently, the loading div is displayed by default even when there is nothing to load (empty viewer). I am not even sure it it even needed in any cases. I have to inspect that.
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::function spawnIframe(]]
@@ -33,7 +34,8 @@ CLOSED: [2026-06-19 Fri 13:06]
 CLOSED: [2026-06-29 Mon 00:33]
 
 [[file:~/git-repos/molstar_linker/src/viewer.ts::// SCENARIO 3: URL present but format unknown (context-menu path)]]
-*** TODO Review each file before release
+*** DONE Review each file before release
+CLOSED: [2026-07-05 Sun 21:33]
 The following scripts were the only existing in =./src/= at the moment of this file writing (<2026-06-19 Fri>). Anything else present in =./src/= were added later on.
 - [X] background.ts
 - [X] config.ts
@@ -46,7 +48,8 @@ The following scripts were the only existing in =./src/= at the moment of this f
   Added proposition of domain authorization rewrite
 - [X] sandbox.ts
 - [ ] types.ts
-- [ ] viewer.ts
+  Can be done later. Still needs to be done
+- [X] viewer.ts
 **** Misc changes during review
 - Removed global scene settings since it can be easily controlled in the molstat viewer
 *** DONE Ensure Firefox compatibiliy

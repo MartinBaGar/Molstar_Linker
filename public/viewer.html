@@ -4,13 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mol* Workspace</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #111; overflow: hidden; }
-        #loading { color: white; text-align: center; font-family: sans-serif; padding-top: 40vh; }
-    </style>
+    <link rel="stylesheet" href="viewer.css">
+
 </head>
 <body>
-    <div id="loading">Loading structure…</div>
+  <div id="loading">
+      <div class="spinner"></div>
+      <p>Loading structure…</p>
+  </div>
+
+  <template id="format-selector-template">
+    <div class="format-selector">
+      <h3>Unknown File Format</h3>
+      <p>Format could not be detected automatically.<br>Please select it below:</p>
+      <select id="format-select">
+        <option value="pdb">PDB</option>
+        <option value="mmcif">mmCIF / CIF</option>
+        <option value="gro">GRO (Gromacs)</option>
+        <option value="sdf">SDF</option>
+        <option value="mol">MOL</option>
+        <option value="mol2">MOL2</option>
+        <option value="xyz">XYZ</option>
+        <option value="bcif">BCIF (binary CIF)</option>
+      </select>
+      <button id="format-confirm">Launch Workspace</button>
+    </div>
+  </template>
 
     <script src="viewer.js"></script>
 </body>

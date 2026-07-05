@@ -37,9 +37,11 @@ window.addEventListener('message', async (event: MessageEvent<InitMolstarMessage
             format!,
             filename!
         );
+        window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
 
     } catch (err) {
         console.error('Mol* Sandbox: failed to load structure natively', err);
+        window.parent.postMessage({ action: 'MOLSTAR_ERROR', error: String(err) }, '*');
     }
 });
 
