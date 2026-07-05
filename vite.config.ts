@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import { crx } from '@crxjs/vite-plugin';
+import { readFileSync } from 'fs';
 import makeManifest from './manifest.config';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig(({ mode }) => {
     const browser = mode === 'firefox' ? 'firefox' : 'chrome';
@@ -19,6 +22,10 @@ export default defineConfig(({ mode }) => {
                     sandbox: 'sandbox.html',
                 },
             },
+            define: {
+                __APP_VERSION__: JSON.stringify(pkg.version),
+            },
+            plugins: [crx({ manifest: makeManifest(browser) })],
         },
     };
 });

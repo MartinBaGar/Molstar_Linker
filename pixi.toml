@@ -12,13 +12,17 @@ prettier = ">=3.9.3,<4"
 
 # ── Shared directory variables, available as $VAR in every task ──────────────
 [activation.env]
-SRC_DIR       = "src"
-MANIFESTS_DIR = "manifests"
-DIST_DIR      = "dist"
-RELEASES_DIR  = "releases"
-DOCS_DIR      = "docs"
+SRC_DIR      = "src"
+DIST_DIR     = "dist"
+RELEASES_DIR = "releases"
+DOCS_DIR     = "docs"
 
 # ── Tasks ─────────────────────────────────────────────────────────────────────
+
+# 0. INSTALL — pixi run install
+[tasks.install]
+description = "Install npm dependencies"
+cmd         = "npm ci"
 
 # 1. DAILY DEV — pixi run save "my message"
 [tasks.save]
@@ -26,46 +30,38 @@ description = "Stage all changes, commit with a message, and push to main"
 args        = ["msg"]
 cmd         = 'git add . && git commit -m "{{ msg }}" && git push origin main'
 
-# 2. BUMP — pixi run bump 1.2.3
+# 2. TYPECHECK
+[tasks.typecheck]
+description = "Type-check the project without emitting output"
+depends-on  = ["install"]
+cmd         = "npm run typecheck"
+
+# 3. BUMP — pixi run bump 1.2.3
 [tasks.bump]
-description = "Update the version field in both Chrome and Firefox manifests"
+description = "Bump the extension version in package.json (single source of truth; manifests and UI read from it at build time)"
 args        = ["version"]
 cmd         = """
 echo "Bumping version to {{ version }}..." &&
-python3 -c "
-import json
-for f in ['$MANIFESTS_DIR/chrome.json', '$MANIFESTS_DIR/firefox.json']:
-    d = json.load(open(f))
-    d['version'] = '{{ version }}'
-    json.dump(d, open(f, 'w'), indent=2)
-" &&
-echo "✅ Version bumped to {{ version }}!"
+npm version {{ version }} --no-git-tag-version --allow-same-version &&
+echo "✅ Version bumped to {{ version }} in package.json"
 """
 
-# 3. BUILD
+# 4. BUILD
 [tasks.build-chrome]
-description = "Copy src + chrome manifest into dist/chrome/"
-cmd         = """
-mkdir -p $DIST_DIR/chrome &&
-cp -r $SRC_DIR/* $DIST_DIR/chrome/ &&
-cp $MANIFESTS_DIR/chrome.json $DIST_DIR/chrome/manifest.json &&
-echo "✅ Chrome build ready in $DIST_DIR/chrome/"
-"""
+description = "Build the Chrome (MV3) extension with Vite into dist/chrome/"
+depends-on  = ["install"]
+cmd         = "npm run build:chrome"
 
 [tasks.build-firefox]
-description = "Copy src + firefox manifest into dist/firefox/"
-cmd         = """
-mkdir -p $DIST_DIR/firefox &&
-cp -r $SRC_DIR/* $DIST_DIR/firefox/ &&
-cp $MANIFESTS_DIR/firefox.json $DIST_DIR/firefox/manifest.json &&
-echo "✅ Firefox build ready in $DIST_DIR/firefox/"
-"""
+description = "Build the Firefox (MV2) extension with Vite into dist/firefox/"
+depends-on  = ["install"]
+cmd         = "npm run build:firefox"
 
 [tasks.build]
-description = "Build both Chrome and Firefox extensions in parallel"
+description = "Build both Chrome and Firefox extensions"
 depends-on  = ["build-chrome", "build-firefox"]
 
-# 4. ZIP — pixi run zip 1.2.3
+# 5. ZIP — pixi run zip 1.2.3
 [tasks.zip]
 description = "Build (if needed) then zip both extensions and the source code for Mozilla review"
 args        = ["version"]
@@ -76,35 +72,41 @@ mkdir -p $RELEASES_DIR &&
 (cd $DIST_DIR/chrome && zip -r ../../$RELEASES_DIR/molstar_linker_chrome-v{{ version }}.zip . -x "*.DS_Store" > /dev/null) &&
 (cd $DIST_DIR/firefox && zip -r ../../$RELEASES_DIR/molstar_linker_firefox-v{{ version }}.zip . -x "*.DS_Store" > /dev/null) &&
 echo "Zipping source code for Mozilla review..." &&
-zip -r $RELEASES_DIR/molstar_linker_source-v{{ version }}.zip src public manifests assets package.json package-lock.json pixi.toml pixi.lock tsconfig.json build.mjs assemble.js README.md -x "*.DS_Store" > /dev/null &&
+zip -r $RELEASES_DIR/molstar_linker_source-v{{ version }}.zip \
+    $SRC_DIR public *.html *.config.ts package.json package-lock.json \
+    pixi.toml pixi.lock tsconfig.json README.md \
+    -x "*.DS_Store" > /dev/null &&
 echo "✅ Packages and source code ready in $RELEASES_DIR/"
 """
 
-# 5. RELEASE — pixi run publish 1.2.3
+# 6. RELEASE — pixi run publish 1.2.3
 #    Sequential steps with ordering constraints mean a bash script is cleaner
 #    than trying to wire all of this through depends-on alone.
 [tasks.publish]
-description = "Full release pipeline: bump → build → zip → commit → tag → push → GitHub release"
+description = "Full release pipeline: typecheck → bump → build → zip → commit → tag → push → GitHub release"
 args        = ["version"]
 cmd         = """
 bash -c '
 set -e
 
-echo "==> [1/4] Bumping manifests..."
+echo "==> [1/5] Type-checking..."
+pixi run typecheck
+
+echo "==> [2/5] Bumping version..."
 pixi run bump {{ version }}
 
-echo "==> [2/4] Building and zipping..."
+echo "==> [3/5] Building and zipping..."
 pixi run zip {{ version }}
 
-echo "==> [3/4] Committing, tagging, and pushing..."
-git add $MANIFESTS_DIR/chrome.json $MANIFESTS_DIR/firefox.json
+echo "==> [4/5] Committing, tagging, and pushing..."
+git add package.json package-lock.json
 git commit -m "chore: bump version to v{{ version }}" \
     || echo "Nothing to commit — version already at {{ version }}."
 git tag v{{ version }}
 git push origin main
 git push origin main --tags
 
-echo "==> [4/4] Creating GitHub release..."
+echo "==> [5/5] Creating GitHub release..."
 if command -v gh &>/dev/null; then
     gh release create v{{ version }} \
         $RELEASES_DIR/molstar_linker_chrome-v{{ version }}.zip \
@@ -118,17 +120,27 @@ fi
 '
 """
 
-# 6. CLEANUP
+# 7. CLEANUP
 [tasks.clean]
 description = "Remove the dist/ and releases/ directories"
 cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and releases/'"
 
-# 7. DEV SERVER
+# 8. DEV SERVER (extension)
+[tasks.dev]
+description = "Start Vite in watch mode for the Chrome build (reload the unpacked extension after changes)"
+depends-on  = ["install"]
+cmd         = "npm run dev:chrome"
+
+[tasks.dev-firefox]
+description = "Start Vite in watch mode for the Firefox build"
+depends-on  = ["install"]
+cmd         = "npm run dev:firefox"
+
+# 9. DOCS SITE (Hugo)
 [tasks.serve]
 description = "Start the Hugo development server (with drafts)"
 cmd         = "echo 'Starting Hugo server in $DOCS_DIR...' && hugo server -s $DOCS_DIR -D --disableFastRender"
 
-# 8. PRODUCTION BUILD
 [tasks.build-site]
 description = "Build the Hugo static site for production"
 cmd         = "hugo --minify"

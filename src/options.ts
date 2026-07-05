@@ -200,5 +200,7 @@ document.getElementById('add-manual-domain')?.addEventListener('click', async ()
 // Initialisation
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
+    const versionEl = document.querySelector('.version');
+    if (versionEl) versionEl.textContent = `v${__APP_VERSION__}`;
     refreshCustomDomainList();
 });

@@ -1,10 +1,10 @@
-// manifest.config.ts
 import { defineManifest } from '@crxjs/vite-plugin';
+import pkg from './package.json';
 
 export default function makeManifest(browser: 'chrome' | 'firefox') {
     const common = {
         name: 'Mol* Linker',
-        version: '3.1.0',
+        version: pkg.version,
         description: 'Instantly view molecular structure in your browser using Mol*.',
         icons: {
             16: 'icons/icon16.png',
