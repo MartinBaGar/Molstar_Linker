@@ -6,18 +6,18 @@ draft = false
 
 ## Development Workflow {#development-workflow}
 
-Mol\* Linker is written in TypeScript and uses a two-stage build pipeline:
+Mol* Linker is written in TypeScript and uses a modern build pipeline powered by **[pixi](https://pixi.sh)** for dependency management and **[Vite](https://vitejs.dev/)** for bundling. The workflow is designed to ensure type safety, fast builds, and cross-browser compatibility.
 
-1.  **Type checking** — `tsc --noEmit` validates the entire codebase against strict TypeScript rules without producing any output files.
-2.  **Bundling** — `esbuild` takes each entry-point module and bundles it with all its dependencies into a single, self-contained JavaScript file per page.
-3.  **Assembly** — `assemble.js` copies the bundled JS, static HTML/CSS, icons, and the correct browser manifest into a browser-specific output folder.
+1. **Type Checking** — `tsc --noEmit` validates the entire codebase against strict TypeScript rules without producing any output files.
+2. **Bundling** — `vite build` bundles each entry-point module and its dependencies into a single, self-contained JavaScript file per page.
+3. **Output** — The bundled files are placed in `dist/`, along with static assets and browser-specific manifests.
 
-This separation means the TypeScript compiler is a pure quality gate, and esbuild handles the actual output — giving you both type safety and fast, modern output with zero runtime overhead.
+This separation ensures type safety while enabling fast, modern builds with zero runtime overhead.
 
 
 ## Environment Setup {#environment-setup}
 
-The project uses [pixi](https://pixi.sh) to manage all tooling dependencies (Node.js, TypeScript, esbuild) in a reproducible, isolated environment. This means contributors do not need to install anything globally.
+The project uses **[pixi](https://pixi.sh)** to manage all tooling dependencies (Node.js, TypeScript, Vite) in a reproducible, isolated environment. This means contributors do not need to install anything globally.
 
 ```bash
 # Clone the repo
@@ -37,13 +37,17 @@ Molstar_Linker/
 │   ├── types.ts     ← shared interfaces and message protocol types
 │   ├── config.ts    ← AppConfig: targets, RepSchema, presets, getDefaults()
 │   ├── permissions.ts
-│   ├── native-builder.ts
+│   ├── native-builder.ts ← dynamic scene construction and custom rules
 │   ├── background.ts
-│   ├── content.ts
+│   ├── content.ts   ← uses SiteAdapter for unified link processing
 │   ├── sandbox.ts
-│   ├── viewer.ts
+│   ├── viewer.ts    ← applies custom rules using native-builder.ts
 │   ├── popup.ts
-│   └── options.ts
+│   ├── options.ts   ← UI for defining custom rules
+│   └── utils/       ← helper modules
+│       ├── links.ts ← URL resolution and safety checks
+│       ├── domains.ts ← domain validation
+│       └── browser.ts ← browser API abstractions
 ├── public/          ← static assets, version-controlled
 │   ├── viewer.html / sandbox.html / popup.html / options.html
 │   ├── popup.css / options.css
@@ -56,8 +60,7 @@ Molstar_Linker/
 │   ├── chrome/
 │   └── firefox/
 ├── releases/        ← hand-managed zips for store uploads
-├── build.mjs        ← esbuild bundler
-├── assemble.js      ← copies JS + statics into dist/chrome or dist/firefox
+├── vite.config.ts   ← Vite configuration
 ├── tsconfig.json    ← type-checker config (noEmit: true)
 └── package.json
 ```
@@ -65,36 +68,36 @@ Molstar_Linker/
 
 ## Build Commands {#build-commands}
 
-All commands are run via pixi (recommended) or npm directly.
+All commands are run via `pixi` (recommended) or `npm` directly.
 
 
-### Local testing {#local-testing}
+### Local Testing {#local-testing}
 
 ```bash
-pixi run npm run build:chrome    # type-check → bundle → assemble dist/chrome/
-pixi run npm run build:firefox   # type-check → bundle → assemble dist/firefox/
-pixi run npm run build           # both browsers at once
+pixi run build:chrome    # type-check → bundle → output dist/chrome/
+pixi run build:firefox   # type-check → bundle → output dist/firefox/
+pixi run build           # both browsers at once
 ```
 
--   Load `dist/chrome` as an **Unpacked Extension** in `chrome://extensions/`.
--   Load `dist/firefox` as a **Temporary Add-on** in `about:debugging`, selecting `manifest.json`.
+- Load `dist/chrome` as an **Unpacked Extension** in `chrome://extensions/`.
+- Load `dist/firefox` as a **Temporary Add-on** in `about:debugging`, selecting `manifest.json`.
 
 
-### Type checking only (no output) {#type-checking-only--no-output}
+### Type Checking Only (No Output) {#type-checking-only--no-output}
 
 ```bash
-pixi run npm run watch    # tsc --noEmit -w, re-checks on every file save
+pixi run watch           # tsc --noEmit -w, re-checks on every file save
 ```
 
 This is the recommended mode while editing — fast feedback on type errors without a full build cycle.
 
 
-### Packaging a release {#packaging-a-release}
+### Packaging a Release {#packaging-a-release}
 
 Zip each browser folder after a clean build:
 
 ```bash
-pixi run npm run build
+pixi run build
 cd dist
 zip -r ../releases/molstar_linker_chrome-vX.Y.Z.zip  chrome/
 zip -r ../releases/molstar_linker_firefox-vX.Y.Z.zip firefox/
@@ -106,29 +109,47 @@ zip -r ../releases/molstar_linker_firefox-vX.Y.Z.zip firefox/
 
 ### `tsconfig.json` {#tsconfig-dot-json}
 
-Sets `noEmit: true` — tsc is used exclusively for type checking, not for producing output. esbuild handles compilation and bundling. Strict mode and `noImplicitAny` are both enabled.
+Sets `noEmit: true` — `tsc` is used exclusively for type checking, not for producing output. Vite handles compilation and bundling. Strict mode and `noImplicitAny` are both enabled.
 
 
-### `build.mjs` {#build-dot-mjs}
+### `vite.config.ts` {#vite-config-dot-ts}
 
-Runs esbuild against the six entry points (`background`, `content`, `sandbox`, `viewer`, `popup`, `options`). Each entry point is bundled with all its TypeScript imports into a single flat JS file in `dist/`. Shared modules (`config`, `permissions`, `native-builder`, `types`) are not separate output files — they are inlined into whichever entry points import them.
-
-
-### `assemble.js` {#assemble-dot-js}
-
-Takes the browser name as an argument (`chrome` or `firefox`), cleans the target output folder, copies the six bundled JS files from `dist/`, copies static assets from `public/`, and copies the correct manifest from `manifests/`. The result is a complete, self-contained loadable extension folder.
+Configures Vite to bundle the extension for Chrome and Firefox. Each entry point (`background.ts`, `content.ts`, `viewer.ts`, etc.) is compiled into a self-contained `.js` file in `dist/`. Shared modules (e.g., `types.ts`, `native-builder.ts`) are inlined into the bundles that import them.
 
 
 ### `manifests/chrome.json` vs `manifests/firefox.json` {#manifests-chrome-dot-json-vs-manifests-firefox-dot-json}
 
-Chrome requires Manifest V3 (`service_worker`, `action`, strict CSP). Firefox requires Manifest V2 (`background.scripts`, `browser_action`, permissive CSP for `unsafe-eval`). Keeping them separate is honest about the platform divergence rather than maintaining one manifest with conditional logic.
+- **Chrome**: Uses Manifest V3 (`service_worker`, `action`, strict CSP).
+- **Firefox**: Uses Manifest V2 (`background.scripts`, `browser_action`, permissive CSP for `unsafe-eval`).
+
+Keeping them separate ensures compatibility without conditional logic.
 
 
 ## Adding a New Module {#adding-a-new-module}
 
-1.  Create `src/your-module.ts` with a named export.
-2.  Import it in whichever entry point needs it — esbuild will bundle it automatically.
-3.  If the module introduces shared types, add interfaces to `src/types.ts`.
-4.  Run `pixi run npm run watch` to verify no type errors.
+1. Create `src/your-module.ts` with a named export.
+2. Import it in whichever entry point needs it (e.g., `viewer.ts`). Vite will bundle it automatically.
+3. If the module introduces shared types, add interfaces to `src/types.ts`.
+4. Run `pixi run watch` to verify no type errors.
 
-There is no need to update any HTML files, manifests, or the assemble script when adding internal modules.
+There is no need to update HTML files, manifests, or the Vite configuration when adding internal modules.
+
+
+## Adding Support for New Domains {#adding-support-for-new-domains}
+
+To add support for a new domain (e.g., a custom GitLab instance):
+
+1. Extend the `SiteAdapter` interface in `src/content.ts` to include the new domain.
+2. Add URL resolution logic in `utils/links.ts` (e.g., `resolveUrl`).
+3. Update `utils/domains.ts` to include the domain in `isDefaultDomain`.
+4. Test the changes by running `pixi run watch` and loading a file from the new domain.
+
+
+## Testing Custom Rules {#testing-custom-rules}
+
+Custom rules can be defined and tested using the `options.html` UI:
+
+1. Open `options.html` in the browser.
+2. Click **Add Custom Rule** to define a new rule (e.g., coloring specific residues).
+3. Save the settings and open a molecular file to verify the rule is applied.
+4. Use `pixi run watch` to ensure no type errors in your rule definitions.

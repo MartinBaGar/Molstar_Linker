@@ -6,15 +6,14 @@ draft = false
 
 ## Security &amp; Threat Mitigation {#security-and-threat-mitigation}
 
-Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol\* Linker employs a strict **Defense-in-Depth** strategy to protect user privacy, prevent malicious payload execution, and secure local networks.
+Browser extensions that handle cross-origin data and execute complex rendering engines are frequent targets for security audits. Mol* Linker employs a strict **Defense-in-Depth** strategy to protect user privacy, prevent malicious payload execution, and secure local networks.
 
 Here is a breakdown of the active security layers within the extension.
 
 
 ### 1. Zero-Upload Data Privacy {#1-dot-zero-upload-data-privacy}
 
-The most significant security feature of Mol\* Linker is its local-only architecture.
-When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, **the file is never uploaded to an external server.** - Data is fetched directly from the authenticated host server into the browser's volatile memory (RAM).
+The most significant security feature of Mol* Linker is its local-only architecture. When a user visualizes a proprietary, unreleased structure from a private GitLab or ElabFTW instance, **the file is never uploaded to an external server.** Data is fetched directly from the authenticated host server into the browser's volatile memory (RAM).
 
 -   The rendering happens 100% locally on the user's machine.
 -   Once the workspace tab is closed, the data is permanently erased by the browser's garbage collector.
@@ -22,19 +21,20 @@ When a user visualizes a proprietary, unreleased structure from a private GitLab
 
 ### 2. Sandbox Containment (Exploit Isolation) {#2-dot-sandbox-containment--exploit-isolation}
 
-The Mol\* rendering engine requires `eval()` and `new Function()` to dynamically compile WebGL shaders. To support this securely without exposing the browser to Cross-Site Scripting (XSS):
+The Mol* rendering engine requires `eval()` and `new Function()` to dynamically compile WebGL shaders. To support this securely without exposing the browser to Cross-Site Scripting (XSS):
 
--   Mol\* is executed exclusively inside `sandbox.html`, which is loaded as an `<iframe>`.
+-   Mol* is executed exclusively inside `sandbox.html`, which is loaded as an `<iframe>`.
 -   The Sandbox operates on a strict `null` origin. It has absolutely **zero access** to Chrome Extension APIs, background scripts, user cookies, or the parent webpage.
 -   Even if a theoretical "Zero-Day" exploit were embedded inside a malicious `.pdb` file, the payload would execute inside this locked-down container and die the moment the tab is closed.
 
 
 ### 3. SSRF (Server-Side Request Forgery) Mitigation {#3-dot-ssrf--server-side-request-forgery--mitigation}
 
-Because Mol\* Linker requests broad host permissions (`*://*/*`) to bypass CORS for custom domains, it acts as a highly privileged network agent. To prevent malicious websites from tricking the extension into scanning the user's internal network:
+Because Mol* Linker requests broad host permissions (`*://*/*`) to bypass CORS for custom domains, it acts as a highly privileged network agent. To prevent malicious websites from tricking the extension into scanning the user's internal network:
 
--   The `isSafeUrl()` filter actively blocks any non-`https://` requests.
+-   The `isSafeUrl()` function in `utils/links.ts` actively blocks any non-`https://` requests.
 -   It strictly drops requests to `localhost`, `127.0.0.1`, and all private IPv4 ranges (e.g., `192.168.x.x`, `10.x.x.x`).
+-   It also blocks non-standard ports and malformed URLs.
 -   This ensures the extension can never be used as a proxy to attack a user's local router or internal microservices.
 
 
@@ -44,9 +44,19 @@ Data is passed from the privileged `viewer.js` to the unprivileged `sandbox.js` 
 
 -   **Input Validation:** The background router and the sandbox strictly validate that incoming formats belong to a hardcoded allowlist (e.g., `pdb`, `mmcif`, `gro`).
 -   **Origin Locking:** The sandbox actively inspects `event.origin`. It will instantly reject any initialization command that does not originate from the extension's own `chrome-extension://` or `moz-extension://` URL, preventing malicious third-party websites from injecting iframes and beaming payloads into the visualizer.
+-   **Message Validation:** The `spawnIframe` function in `viewer.ts` ensures that all messages passed to the sandbox are validated and sanitized.
 
 
-### 5. Memory &amp; Payload Exhaustion Limits {#5-dot-memory-and-payload-exhaustion-limits}
+### 5. Domain Validation {#5-dot-domain-validation}
+
+To prevent unauthorized access to custom domains:
+
+-   The `cleanDomain` function in `utils/links.ts` normalizes domains (e.g., strips `www.` or `https://`) for validation.
+-   The `isDefaultDomain` function in `utils/domains.ts` checks if a domain is supported by default (e.g., GitHub, GitLab).
+-   Custom domains must be explicitly authorized via the `options.html` UI, which uses `PermissionsManager.requestAndRegister` to request host permissions.
+
+
+### 6. Memory &amp; Payload Exhaustion Limits {#6-dot-memory-and-payload-exhaustion-limits}
 
 To prevent Denial of Service (DoS) attacks or browser crashes via memory exhaustion:
 
@@ -54,9 +64,18 @@ To prevent Denial of Service (DoS) attacks or browser crashes via memory exhaust
 -   **Size Cap:** The fetcher strictly enforces a 25 MB file limit. It checks the `Content-Length` header before downloading, and re-verifies the resulting `Blob` size after downloading, instantly aborting if the file is too large.
 
 
-### 6. Strict Content Security Policy (CSP) {#6-dot-strict-content-security-policy--csp}
+### 7. Strict Content Security Policy (CSP) {#7-dot-strict-content-security-policy--csp}
 
 The extension implements a dual-layered CSP in the manifest:
 
 -   Extension pages (like the Popup and Options menus) are strictly locked to `script-src 'self'` and `object-src 'none'`, making unauthorized script execution virtually impossible.
--   Only the specific `sandbox` directive is granted `unsafe-eval`, isolating the risk to the mathematically necessary components..
+-   Only the specific `sandbox` directive is granted `unsafe-eval`, isolating the risk to the mathematically necessary components.
+
+
+### 8. Custom Rules Security {#8-dot-custom-rules-security}
+
+Custom rules defined in `ExtensionSettings` are applied dynamically to the Mol* viewer using `native-builder.ts`. To ensure security:
+
+-   **Validation**: Custom rules are validated against the `CustomRule` type in `types.ts`.
+-   **Sandbox Isolation**: Custom rules are applied within the sandboxed `<iframe>`, ensuring they cannot access extension APIs or user data.
+-   **Size Limits**: The number of custom rules is capped at 50 to prevent performance issues..
