@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!rawUrl) {
         if (loadingDiv) loadingDiv.innerText = 'Loading empty workspace…';
         spawnIframe(null, null, null);
+        // if (loadingDiv) loadingDiv.remove();
         return;
     }
 

@@ -4,7 +4,6 @@ assets/*.mp4
 
 # Build Artifacts
 *.zip
-*.docx
 *assets
 
 # OS Generated Files (Mac/Windows junk)
@@ -25,9 +24,6 @@ Thumbs.db
 .pixi/*
 !.pixi/config.toml
 
-# org capture
-notes.org
-
 # dist/
 public/lib/
 
@@ -37,5 +33,7 @@ build/
 
 # Node modules
 node_modules/
-node_modules/
 dist/
+
+# direnv
+.envrc
