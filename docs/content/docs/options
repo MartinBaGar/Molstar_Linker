@@ -1,0 +1,196 @@
++++
+title = "Options & Custom Rules"
+author = ["Martin Bari Garnier"]
+draft = false
+weight = 20
++++
+
+## The Mol* Linker Options Page {#molstar-linker-options}
+
+The **Mol* Linker Options Page** allows you to customize how molecular structures are visualized directly in your browser. This page replaces the legacy "Studio" and consolidates all configuration options into a single, streamlined interface.
+
+To access the Options Page:
+1. Click the Mol* Linker extension icon in your browser toolbar.
+2. Select **Options** from the popup menu.
+
+---
+
+## Core Concepts {#core-concepts}
+
+### 1. Global Targets {#global-targets}
+
+Global targets define the default visual style for broad categories of molecules (e.g., proteins, nucleic acids, ligands). Each target is represented as a collapsible card in the **Global Target Configurations** panel.
+
+#### Available Targets {#available-targets}
+
+| Target                        | Selector   | Default Representation | Default Color  |
+|-------------------------------|------------|------------------------|----------------|
+| Proteins                      | `protein`  | Cartoon                | Chain ID       |
+| Nucleic Acids (DNA/RNA)       | `nucleic`  | Cartoon                | Chain ID       |
+| Ligands & Small Molecules     | `ligand`   | Ball & Stick           | Element symbol |
+| Carbohydrates & Glycans       | `branched` | Ball & Stick           | Element symbol |
+| Lipids                        | `lipid`    | Ball & Stick           | Element symbol |
+| Single Ions                   | `ion`      | Ball & Stick           | Element symbol |
+| Water / Solvent               | `water`    | Hidden (Off)           | —              |
+| All Atoms                     | `all`      | Ball & Stick           | Element symbol |
+
+The `all` target is a catch-all that applies to every atom in the structure. It is useful as a fallback but is hidden by default.
+
+
+#### Representation Types {#representation-types}
+
+Each target can use any of the following representations:
+
+| Key              | Label            | Extra Options                        |
+|------------------|------------------|--------------------------------------|
+| `cartoon`        | Cartoon          | Tubular helices on/off               |
+| `backbone`       | Backbone         | —                                    |
+| `ball_and_stick` | Ball & Stick     | Ignore hydrogens on/off              |
+| `line`           | Line             | Ignore hydrogens on/off              |
+| `spacefill`      | Spacefill        | Ignore hydrogens on/off              |
+| `carbohydrate`   | Carbohydrate     | —                                    |
+| `putty`          | Putty            | Size theme: uniform / uncertainty    |
+| `surface`        | Surface          | Type: molecular / gaussian; ignore H |
+| `off`            | Hide             | Omits this target from the scene     |
+
+
+#### Color {#color}
+
+Each target has a color mode toggle:
+- **Theme**: Uses a Mol* built-in coloring scheme (e.g., `chain-id`, `element-symbol`, `secondary-structure`).
+- **Solid**: Applies a single flat hex color uniformly to all atoms in the target.
+
+
+#### Size & Opacity {#size-and-opacity}
+- **Size**: Scales atom/bond radius relative to the default (`size_factor` in MolViewSpec).
+- **Opacity**: Sets transparency (0–1) for the target, useful for semi-transparent surfaces.
+
+
+### 2. Scene Settings {#scene-settings}
+
+The **Global Scene Settings** panel controls the overall look of the Mol* viewer, independent of any particular molecule.
+
+#### Canvas Background Color {#canvas-background-color}
+- Sets the viewer background. Use the color picker or enter a hex value (e.g., `#111111` for dark mode).
+- Default: white (`#ffffff`).
+
+
+#### Camera JSON {#camera-json}
+- Locks the camera to a specific position, orientation, and zoom when the viewer opens.
+- Paste a JSON object following the [MolViewSpec](https://molstar.org/viewer-docs/extensions/mvs/) `camera` schema. Example:
+  ```json
+  {
+    "target": [0, 0, 0],
+    "position": [0, 0, 100],
+    "up": [0, 1, 0]
+  }
+  ```
+- Leave empty to auto-fit the camera to the structure.
+
+
+### 3. Applying Changes {#applying-changes}
+
+Click **Save Settings** at the bottom of the page to apply your changes. Settings are saved to `chrome.storage.sync` and take effect immediately for all subsequent badge clicks or workspace loads.
+
+---
+
+## Custom Rules {#custom-rules}
+
+Custom rules allow you to override global targets for specific chains, residues, or atoms. They enable fine-grained control over molecular visualizations, such as highlighting active sites or applying unique representations to ligands.
+
+To create a custom rule:
+1. Scroll to the **Custom Rules** panel.
+2. Click **+ Add New Rule**.
+3. Configure the rule using the fields described below.
+
+
+### Rule Types {#rule-types}
+
+#### Highlight (Color Overlay) {#highlight}
+- Overlays a color on the existing representation without adding new geometry.
+- Use this to call attention to specific residues or chains while preserving the surrounding context.
+
+
+#### Representation {#representation}
+- Creates a separate component in the Mol* scene with its own representation type, color, size, and opacity.
+- Use this to make specific regions look different from the rest (e.g., a surface on chain A while everything else is cartoon).
+
+
+### Selector Syntax {#selector-syntax}
+
+The selector field accepts MolViewSpec selector expressions. Examples:
+
+| Goal                         | Selector                                   |
+|------------------------------|--------------------------------------------|
+| Entire chain A               | `{ "chain_id": "A" }`                  |
+| Residues 10–50               | `{ "residue_index": [10, 50] }`          |
+| A single residue (by number) | `{ "residue_number": 42 }`               |
+| Ligand by name               | `{ "residue_name": "HEM" }`            |
+| All ligands                  | `ligand` (plain string selectors work too) |
+
+Refer to the [MolViewSpec documentation](https://molstar.org/viewer-docs/extensions/mvs/) for the full selector schema.
+
+
+### Appearance Options {#appearance-options}
+
+| Field   | Description                                   |
+|---------|-----------------------------------------------|
+| Color   | Theme or solid color (same as global targets) |
+| Size    | `size_factor` for the representation          |
+| Opacity | 0–1; adds an MVS `opacity` node               |
+
+
+### Storytelling Options {#storytelling-options}
+
+| Field   | Effect in Mol*                                              |
+|---------|--------------------------------------------------------------|
+| Label   | Renders a 3D text label anchored to the selection centroid   |
+| Tooltip | Shows a text tooltip when hovering over the selection        |
+| Focus   | Auto-zooms Mol* to the selection when the viewer opens      |
+
+
+### Rule Order {#rule-order}
+
+Rules are applied in the order they appear. Custom representation rules are appended after all global target branches in the MolViewSpec tree.
+
+
+### Performance & Security Limits {#performance-and-security-limits}
+
+To ensure fast rendering and protect against memory exhaustion:
+- **Rule Cap**: Maximum of **50 custom rules**.
+- **Text Limits**: Labels are truncated at 256 characters; tooltips at 512 characters.
+- **Sanitization**: Invisible control characters and null bytes are stripped from selectors.
+
+
+### Example: Highlight the Active Site {#example-highlight-the-active-site}
+
+To highlight residues 100–110 in chain A in orange with a label:
+- **Selector**: `{ "chain_id": "A", "residue_number": [100, 110] }`
+- **Type**: Highlight
+- **Color**: Solid → `#ff6600`
+- **Label**: Active site
+- **Focus**: On
+
+---
+
+## Custom Domains {#custom-domains}
+
+Mol* Linker supports custom domains (e.g., private GitLab instances) for fetching molecular files. To add a custom domain:
+
+1. Scroll to the **Custom Domains** panel.
+2. Enter the domain (e.g., `gitlab.mycompany.com`).
+3. Click **Authorize Domain**.
+4. Grant the required permissions in the browser popup.
+
+To revoke a domain, click **Revoke** next to the domain name.
+
+---
+
+## Import/Export Settings {#import-export-settings}
+
+### Export Settings {#export-settings}
+- Click **Export Settings** to download your current configuration as a JSON file.
+
+### Import Settings {#import-settings}
+- Click **Import Settings** and upload a JSON file to restore a previously saved configuration.
+- The imported settings are validated against the `ExtensionSettings` schema before applying.

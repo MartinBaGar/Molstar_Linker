@@ -7,7 +7,7 @@ Mol* Linker operates across several security boundaries enforced by modern brows
 
 ** Key Design Decisions
 
-- *Native Mol* Rendering*: The extension now uses Mol*'s native rendering engine instead of MolViewSpec (MVS), providing better performance and direct access to Mol*'s features.
+- *Native Mol* Rendering*: The extension now uses Mol*'s native rendering engine, providing better performance and direct access to Mol*'s features.
 - *Sandboxed Execution*: Mol* runs in a sandboxed iframe to allow dynamic WebGL shader compilation while maintaining security.
 - *Dynamic Permissions*: Custom domains are authorized dynamically, enabling seamless integration with self-hosted instances.
 
@@ -16,9 +16,9 @@ Mol* Linker operates across several security boundaries enforced by modern brows
 ** 1. Reconnaissance (Content Script)
 - *Source*: =src/content.ts=
 - *Output*: =content.js= (bundled standalone)
-- *Environment*: The host webpage (GitHub, GitLab, custom domains)
-- *Role*: Scans the DOM for links to supported structure files using a 3-ring scanner (URL, HTML attributes, surrounding text).
-- *Action*: Injects a *Mol** badge next to each valid link. Clicking the badge sends an =open_viewer= message to the background script.
+- *Environment*: The host webpage (GitHub, GitLab, Zenodo, Figshare, custom domains)
+- *Role*: Scans the DOM for links to supported structure files using a site adapter.
+- *Action*: Injects a *Mol** badge next to each valid link. Clicking the badge sends an =open_viewer= message to the background script which opens a viewer page in a new tab.
 
 ** 2. The Router (Background Script)
 - *Source*: =src/background.ts=
