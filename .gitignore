@@ -37,3 +37,6 @@ dist/
 
 # direnv
 .envrc
+
+# documentation
+docs/public
