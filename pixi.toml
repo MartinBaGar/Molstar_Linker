@@ -27,13 +27,11 @@ cmd         = "npm ci"
 # 1. DAILY DEV — pixi run save "my message"
 [tasks.save]
 description = "Stage all changes, commit with a message, and push to main"
-args        = ["msg"]
 cmd         = 'git add . && git commit -m "{{ msg }}" && git push origin main'
 
 # 2. TYPECHECK
 [tasks.typecheck]
 description = "Type-check the project without emitting output"
-depends-on  = ["install"]
 cmd         = "npm run typecheck"
 
 # 3. BUMP — pixi run bump 1.2.3
@@ -49,12 +47,10 @@ echo "✅ Version bumped to {{ version }} in package.json"
 # 4. BUILD
 [tasks.build-chrome]
 description = "Build the Chrome (MV3) extension with Vite into dist/chrome/"
-depends-on  = ["install"]
 cmd         = "npm run build:chrome"
 
 [tasks.build-firefox]
 description = "Build the Firefox (MV2) extension with Vite into dist/firefox/"
-depends-on  = ["install"]
 cmd         = "npm run build:firefox"
 
 [tasks.build]
@@ -128,12 +124,10 @@ cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and rel
 # 8. DEV SERVER (extension)
 [tasks.dev]
 description = "Start Vite in watch mode for the Chrome build (reload the unpacked extension after changes)"
-depends-on  = ["install"]
 cmd         = "npm run dev:chrome"
 
 [tasks.dev-firefox]
 description = "Start Vite in watch mode for the Firefox build"
-depends-on  = ["install"]
 cmd         = "npm run dev:firefox"
 
 # 9. DOCS SITE (Hugo)
