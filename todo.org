@@ -60,7 +60,8 @@ CLOSED: [2026-06-29 Mon 00:12]
 *** DONE Complete custom rule rep and language lists with built-in params
 CLOSED: [2026-06-27 Sat 00:17]
 *** TODO Update the documentation
-*** TODO Generate version dynamically
+*** DONE Generate version dynamically
+CLOSED: [2026-07-06 Mon 02:30]
 ** Can be done after release
 *** TODO Molecule naming
 UPDATE: was moved to /after release/ because unrelevent file names can be set by the user. Solution of setting it from it is risky. And looking in the structure file can be inconsistent since not all formats have the molecule name.
