@@ -4,95 +4,96 @@ author = ["Martin Bari Garnier"]
 draft = false
 +++
 
-## Core Philosophy {#core-philosophy}
+## High-Level Architecture {#high-level-architecture}
 
-Mol\* Linker operates across several strict security boundaries imposed by the browser. Modern browsers enforce Content Security Policies (CSP) that block `unsafe-eval` in Manifest V3 extension pages, and restrict cross-origin requests (CORS) between websites and external servers.
-
-To load multi-megabyte structural files from dynamic Single Page Applications (GitHub, GitLab, RCSB) into a high-performance WebGL visualizer (Mol\*), the extension uses a **4-Layer Architecture** where each layer has one clearly defined responsibility.
-
+Mol* Linker is a browser extension that enables users to visualize molecular structures directly from websites like GitHub, GitLab, and custom domains. The extension operates across multiple security boundaries enforced by modern browsers, requiring a **4-Layer Architecture** to ensure security, performance, and compatibility.
 
 ### Key Design Decisions {#key-design-decisions}
 
--   **NPM Integration**: The extension no longer bundles `molstar.js` directly. Instead, it uses the Mol\* NPM package for better maintainability and versioning.
--   **Label Customization**: Labels are now fully customizable, including text size, color, and border properties. The `LabelHandler` class in `src/native-builder.ts` manages label creation, styling, and positioning.
+- **Modern Build Pipeline**: The extension uses **[pixi](https://pixi.sh)** for dependency management and **[Vite](https://vitejs.dev/)** for building. This ensures a fast, reproducible, and isolated development environment.
+- **Simplified Storage**: Settings are stored in `chrome.storage.sync` and managed via the `ExtensionSettings` interface in `src/types.ts`. This ensures consistency and synchronization across browsers.
+- **Modular Codebase**: The extension is divided into small, focused modules (e.g., `background.ts`, `content.ts`, `viewer.ts`, `sandbox.ts`) to improve maintainability and testability.
 
+---
 
 ## The 4-Layer Architecture {#the-4-layer-architecture}
 
+### 1. Reconnaissance (Content Script) {#reconnaissance-content-script}
+- **Source**: `src/content.ts`
+- **Output**: `dist/[chrome|firefox]/content.js`
+- **Environment**: Injected into host webpages (e.g., GitHub, GitLab).
+- **Role**: Scans the DOM for links to supported molecular file formats (e.g., `.pdb`, `.cif`). Detects links even on sites with dynamic or opaque URLs (e.g., Figshare, Zenodo).
+- **Action**:
+  - Injects a badge next to each valid link.
+  - Clicking the badge sends an `open_viewer` message to the background script.
 
-### 1. Reconnaissance (The Content Script) {#1-dot-reconnaissance--the-content-script}
+---
 
--   **Source:** `src/content.ts`
--   **Output:** `content.js` (bundled standalone, no imports)
--   **Environment:** The host webpage (GitHub, GitLab, RCSB, custom domains)
--   **Role:** Scans the DOM for links that point to supported structural file formats. Uses a 3-ring scanner — URL, HTML attributes, and surrounding parent text — to detect structure links even on sites with opaque download URLs (Figshare, Zenodo).
--   **Action:** Injects a native `<button>` badge next to each valid link. Clicking the badge stops SPA navigation and sends an `open_viewer` message to the background router via `chrome.runtime.sendMessage`.
+### 2. The Router (Background Script) {#router-background-script}
+- **Source**: `src/background.ts`
+- **Output**: `dist/[chrome|firefox]/background.js`
+- **Environment**: Extension service worker (Chrome) or event page (Firefox).
+- **Role**: Acts as a security checkpoint and traffic cop.
+- **Action**:
+  - Validates `open_viewer` messages for safe HTTPS URLs and known formats.
+  - Opens a new extension tab pointing to `viewer.html` with the file URL and format as query parameters.
+  - Handles dynamic content script registration for custom domains.
 
+---
 
-### 2. The Router (The Background Script) {#2-dot-the-router--the-background-script}
+### 3. The Privileged Shell (Viewer) {#privileged-shell-viewer}
+- **Source**: `src/viewer.ts`
+- **Output**: `dist/[chrome|firefox]/viewer.js`
+- **Environment**: Extension context (`chrome-extension://...`), full API access.
+- **Role**: Security gatekeeper and data acquisition layer.
+- **Action**:
+  - Validates the requesting domain and file format.
+  - Downloads the structure file using `fetch()`, enforcing a 25 MB size cap.
+  - Spawns the sandbox `<iframe>` and passes the data URI and settings via `postMessage`.
 
--   **Source:** `src/background.ts`
--   **Output:** `background.js`
--   **Environment:** Extension service worker (Chrome MV3) or event page (Firefox MV2)
--   **Role:** Acts as a traffic cop and security checkpoint. Validates that incoming `open_viewer` messages carry a safe HTTPS URL and a known format string before acting.
--   **Action:** Opens a new isolated extension tab pointing to `viewer.html`, passing the file URL and format via URL query parameters. Also handles the right-click context menu and dynamic content script registration for newly authorized custom domains.
+---
 
+### 4. The Engine (Sandbox) {#engine-sandbox}
+- **Source**: `src/sandbox.ts`
+- **Output**: `dist/[chrome|firefox]/sandbox.js`
+- **Environment**: Sandboxed `<iframe>`, origin `null`, no extension API access.
+- **Role**: Isolated rendering context for the Mol* viewer.
+- **Action**:
+  - Initializes the Mol* viewer and loads the structure data.
+  - Renders the 3D scene using the Mol* viewer API.
 
-### 3. The Privileged Shell (The Viewer) {#3-dot-the-privileged-shell--the-viewer}
+---
 
--   **Source:** `src/viewer.ts`
--   **Output:** `viewer.js`
--   **Environment:** Extension context (`chrome-extension://...`), full API access
--   **Role:** The security gatekeeper and data acquisition layer. Runs with elevated privileges that the sandbox explicitly does not have.
--   **Actions:**
-    1.  **Domain gating:** Checks whether the requesting domain is a default (GitHub, RCSB, etc.) or an authorized custom domain. Halts with a UI prompt if not.
-    2.  **Format gating:** If format is unknown (right-click path), shows a format selector before proceeding.
-    3.  **SSRF protection:** Validates the URL against a blocklist of private IP ranges and loopback addresses before fetching.
-    4.  **Fetch:** Downloads the structure file using `fetch()`, enforces a 25 MB size cap, and performs a Firefox tracking-protection sanity check on the first 150 bytes.
-    5.  **Schema gating:** Merges storage settings with `AppConfig.getDefaults()` using a strict allowlist of known keys before passing them to the sandbox, preventing rogue storage keys from reaching the rendering engine.
-    6.  **Label Customization:** Applies label styling (text size, color, border) using the `LabelHandler` class from `src/native-builder.ts`.
-    7.  **Handoff:** Spawns the sandbox `<iframe>` and passes the base64 data URI and validated settings via `postMessage`, using an `e.source` guard instead of origin matching (sandboxed iframes always report `null` origin).
-    8.  **Drag &amp; drop:** Handles local file loading for offline use.
+## Build Pipeline {#build-pipeline}
 
+The extension uses a modern build pipeline powered by **[pixi](https://pixi.sh)** and **[Vite](https://vitejs.dev/)**. This ensures fast, reproducible builds with minimal configuration.
 
-### 4. The Engine (The Sandbox) {#4-dot-the-engine--the-sandbox}
+### Key Steps {#key-steps}
+1. **Dependency Management**: `pixi install` sets up an isolated environment with all required tools (Node.js, TypeScript, Vite).
+2. **Type Checking**: `tsc --noEmit` validates the codebase for type errors.
+3. **Bundling**: `vite build` bundles the extension for Chrome or Firefox, generating self-contained files in `dist/`.
+4. **Output**: The `dist/` directory contains browser-specific folders (`chrome/` and `firefox/`) ready for loading as unpacked extensions.
 
--   **Source:** `src/sandbox.ts`, `src/native-builder.ts`
--   **Output:** `sandbox.js` (bundles both modules)
--   **Environment:** Sandboxed iframe, origin `null`, zero extension API access
--   **Role:** Mol\* requires `eval()` and `new Function()` to compile WebGL shaders dynamically. Standard MV3 extension pages forbid this. The sandbox is explicitly declared in the Chrome manifest to allow `unsafe-eval` in isolation.
--   **Action:**
-    1.  Immediately posts `SANDBOX_READY` to the parent on script load to signal readiness.
-    2.  Validates the incoming `INIT_MOLSTAR` message (origin, URL scheme, format).
-    3.  Converts the base64 data URI back into a short `blob:` URL to avoid embedding multi-megabyte strings in the State tree.
-    4.  Initializes the Mol\* viewer and loads the structure data directly into the scene.
-    5.  Renders the 3D scene via the Mol\* viewer API.
+---
 
+## Cross-Browser Compatibility {#cross-browser-compatibility}
 
-## The Build Pipeline {#the-build-pipeline}
+The extension supports both **Chrome (Manifest V3)** and **Firefox (Manifest V2)**. The build process generates browser-specific manifests and output directories to ensure compatibility.
 
-A fifth layer that exists at development time rather than runtime.
+- **Chrome**: Uses `service_worker` for the background script and `action` for the popup.
+- **Firefox**: Uses `background.scripts` for the background script and `browser_action` for the popup.
 
-```nil
-src/*.ts  ──→  tsc --noEmit ──→  (type errors only, no files)
-src/*.ts  ──→  esbuild       ──→  dist/*.js  (one file per entry point)
-dist/*.js
-public/   ──→  assemble.js   ──→  dist/chrome/   (loadable extension)
-manifests/                        dist/firefox/
-```
+The TypeScript source code is identical for both browsers—only the manifests differ.
 
--   **tsc** acts as a quality gate: strict type checking with no file output (`noEmit: true`).
--   **esbuild** bundles each entry point and all its imports into one self-contained JS file. Shared modules (`config`, `permissions`, `native-builder`, `types`) are inlined — they do not appear as separate script files in the output.
--   **assemble.js** routes the correct manifest, the compiled JS, and the static assets into a browser-specific folder that can be loaded directly into the browser.
+---
 
-This design means `content.js` compiles to a plain classic script with no module syntax (it has no imports), while all other entry points also compile to classic scripts because esbuild resolves all imports at build time. The browser never needs to handle ES module resolution at runtime.
+## Storage Schema {#storage-schema}
 
+The extension stores user settings in `chrome.storage.sync` using the `ExtensionSettings` interface defined in `src/types.ts`. This ensures settings are synchronized across browsers and devices.
 
-## Cross-Browser Compatibility (Manifest Split) {#cross-browser-compatibility--manifest-split}
+### Key Settings {#key-settings}
+- **Custom Rules**: User-defined visual rules for specific chains, residues, or atoms.
+- **Global Targets**: Default visual styles for proteins, nucleic acids, ligands, etc.
+- **Scene Settings**: Background color, camera position, and other viewer preferences.
 
-Chrome (MV3) and Firefox (MV2) have incompatible requirements for background workers, sandboxing, and CSP. Rather than a single manifest with conditional logic, two separate manifests are maintained:
-
--   **`manifests/chrome.json`**: Uses `service_worker` for the background, `action` for the popup, and the `sandbox` manifest key to declare the sandboxed page.
--   **`manifests/firefox.json`**: Uses `background.scripts` (event page), `browser_action` for the popup, and a permissive `content_security_policy` string. Firefox does not support the `sandbox` manifest key but allows `unsafe-eval` globally for extension pages, achieving the same result.
-
-The TypeScript source is identical for both targets — only the manifest differs. `assemble.js` copies the right one during the build.
+Settings are validated and filtered using `AppConfig.getDefaults()` to ensure consistency.
