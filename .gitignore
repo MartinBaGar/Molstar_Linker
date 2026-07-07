@@ -23,6 +23,7 @@ Thumbs.db
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+pixi.lock
 
 # dist/
 public/lib/

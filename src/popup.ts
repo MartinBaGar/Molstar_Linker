@@ -2,6 +2,7 @@ import { PermissionsManager } from './permissions.js';
 import { isDefaultDomain } from './utils/domains.js';
 import { ViewerConfig } from './config.js';
 import { browser } from './utils/browser.js';
+import './styles/popup.css';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------------------------
