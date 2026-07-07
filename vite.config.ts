@@ -16,6 +16,12 @@ export default defineConfig(({ mode, command }) => {
     if (browser === 'firefox') {
         manifest.background.scripts = ['src/background.ts'];
         manifest.content_scripts[0].js = ['src/content.ts'];
+      if (isDev) {
+            manifest.content_security_policy = manifest.content_security_policy.replace(
+                "script-src 'self'",
+                "script-src 'self' http://localhost:5173"
+            );
+        }
     } else {
         manifest.background.service_worker = 'src/background.ts';
         manifest.content_scripts[0].js = ['src/content.ts'];
