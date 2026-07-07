@@ -42,8 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (promptDiv && enableBtn) {
                     promptDiv.style.display = 'block';
-                    enableBtn.textContent = 'Authorize This Domain';
-                    enableBtn.style.backgroundColor = 'var(--primary)';
 
                     enableBtn.addEventListener('click', () => {
                         try {
