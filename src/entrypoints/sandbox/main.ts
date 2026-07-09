@@ -34,8 +34,8 @@ script.onload = () => {
             try {
                 if (!viewerInstance) {
                     viewerInstance = await molstar.Viewer.create('app', {
-                        layoutIsExpanded: true,
-                        layoutShowControls: true,
+                        layoutIsExpanded: false,
+                        layoutShowControls: false,
                     });
                 }
 
