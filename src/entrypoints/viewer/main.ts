@@ -1,8 +1,7 @@
-import type { InitMolstarMessage } from './types.js';
-import { ALL_EXTENSIONS } from './extensions';
-import { isSafeUrl } from './utils/links.js';
-import { browser } from './utils/browser.js';
-
+import type { InitMolstarMessage } from '~/types.js';
+import { ALL_EXTENSIONS } from '~/extensions';
+import { isSafeUrl } from '~/utils/links.js';
+import './style.css';
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 

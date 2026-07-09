@@ -1,10 +1,8 @@
 # Video / Heavy Media
-assets/*.mkv
-assets/*.mp4
+assets/
 
 # Build Artifacts
 *.zip
-*assets
 
 # OS Generated Files (Mac/Windows junk)
 .DS_Store
@@ -21,23 +19,21 @@ Thumbs.db
 *.swp
  
 # pixi environments
-.pixi/*
-!.pixi/config.toml
+.pixi/
 pixi.lock
 
 # dist/
 public/lib/
 
-# Build outputs
-dist/
-build/
-
 # Node modules
 node_modules/
-dist/
 
 # direnv
 .envrc
 
 # documentation
 docs/public
+
+# WXT Generated Folders
+.wxt/
+.output/

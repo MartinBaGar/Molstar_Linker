@@ -1,5 +1,3 @@
-import { browser } from './utils/browser.js';
-
 export const PermissionsManager = {
 
     // ------------------------------------------------------------------

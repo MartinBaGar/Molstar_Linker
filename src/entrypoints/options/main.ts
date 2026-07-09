@@ -1,9 +1,9 @@
-import { AppConfig } from './config.js';
-import { PermissionsManager } from './permissions.js';
-import type { ExtensionSettings, CustomRule } from './types.js';
+import { AppConfig } from '~/config.js';
+import { PermissionsManager } from '~/permissions.js';
+import type { ExtensionSettings, CustomRule } from '~/types.js';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { Script } from 'molstar/lib/mol-script/script';
-import { browser } from './utils/browser.js';
+import './style.css';
 
 const SCRIPT_LANGUAGES: Script.Language[] = ['mol-script', 'pymol', 'vmd', 'jmol'];
 const RULESCONTAINER = document.getElementById('custom-rules-container') as HTMLDivElement;
@@ -204,3 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (versionEl) versionEl.textContent = `v${__APP_VERSION__}`;
     refreshCustomDomainList();
 });
+
+// export default defineOptions({
+//   openInTab: true,
+// });

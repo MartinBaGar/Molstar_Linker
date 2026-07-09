@@ -16,7 +16,7 @@ Mol* Linker operates across several security boundaries enforced by modern brows
 ** 1. Reconnaissance (Content Script)
 - *Source*: =src/content.ts=
 - *Output*: =content.js= (bundled standalone)
-- *Environment*: The host webpage (GitHub, GitLab, Zenodo, Figshare, custom domains)
+- *Environment*: The host webpage (GitHub, GitLab, Figshare, Zenodo, custom domains)
 - *Role*: Scans the DOM for links to supported structure files using a site adapter.
 - *Action*: Injects a *Mol** badge next to each valid link. Clicking the badge sends an =open_viewer= message to the background script which opens a viewer page in a new tab.
 

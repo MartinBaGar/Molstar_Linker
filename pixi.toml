@@ -123,11 +123,11 @@ cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and rel
 
 # 8. DEV SERVER (extension)
 [tasks.dev]
-description = "Start Vite in watch mode for the Chrome build (reload the unpacked extension after changes)"
+description = "Start WXT in watch mode for Chrome (launches isolated browser with HMR)"
 cmd         = "npm run dev:chrome"
 
 [tasks.dev-firefox]
-description = "Start Vite in watch mode for the Firefox build"
+description = "Start WXT in watch mode for Firefox (launches isolated browser with HMR)"
 cmd         = "npm run dev:firefox"
 
 # 9. DOCS SITE (Hugo)
