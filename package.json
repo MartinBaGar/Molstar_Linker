@@ -5,8 +5,7 @@
   "directories": {
     "doc": "docs"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit",
+    "scripts": {
     "dev": "wxt",
     "dev:chrome": "wxt",
     "dev:firefox": "wxt -b firefox",
@@ -15,12 +14,19 @@
     "build": "npm run build:chrome && npm run build:firefox",
     "zip:chrome": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
-    "zip": "npm run zip:chrome && npm run zip:firefox"
+    "zip": "npm run zip:chrome && npm run zip:firefox",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "postinstall": "wxt prepare"
   },
   "dependencies": {
-    "molstar": "^5.5.0"
+    "molstar": "^5.5.0",
+    "svelte": "^5.56.4",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
+    "@tsconfig/svelte": "^5.0.8",
+    "@wxt-dev/module-svelte": "^2.0.5",
+    "svelte-check": "^4.7.2",
     "typescript": "^6.0.3",
     "wxt": "^0.20.27"
   },
@@ -33,5 +39,8 @@
   "bugs": {
     "url": "https://github.com/MartinBaGar/Molstar_Linker/issues"
   },
-  "homepage": "https://github.com/MartinBaGar/Molstar_Linker#readme"
+  "homepage": "https://github.com/MartinBaGar/Molstar_Linker#readme",
+  "allowScripts": {
+    "esbuild@0.27.7": true
+  }
 }

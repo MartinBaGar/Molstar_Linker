@@ -7,48 +7,7 @@
   <title>Mol* Linker Studio</title>
 </head>
 <body>
-
-  <main class="container">
-
-    <header class="doc-header">
-      <div class="brand">
-        <h1>Mol* Linker Studio <span class="version"></span></h1>
-        <p class="subtitle">Enhance your Mol* experience with custom rules and domain management.</p>
-      </div>
-      <nav class="links">
-        <a href="https://molstar.org/" target="_blank">Mol*</a>
-        <a href="https://github.com/MartinBaGar/molstar_linker" target="_blank">GitHub</a>
-        <a href="https://github.com/MartinBaGar/molstar_linker/issues" target="_blank">Report Bug</a>
-        <a href="https://ko-fi.com/mabagar" target="_blank" class="donate">☕ Donate</a>
-      </nav>
-    </header>
-
-    <section class="panel">
-      <h2>Custom Component Rules</h2>
-      <p class="desc">Create dynamic rules to color specific chains, residues, or atomic selections.</p>
-      <div id="custom-rules-container"></div>
-      <button id="add-custom-rule" class="btn-secondary">+ Add New Rule</button>
-    </section>
-
-    <section class="panel">
-      <h2>Managed Custom Domains</h2>
-      <p class="desc">Private GitLab or institutional domains you have authorized.</p>
-      <div id="custom-domains-list" class="domain-list">
-        <p class="empty-state">No custom domains authorized yet.</p>
-      </div>
-      <div class="domain-input-group">
-        <input type="text" id="manual-domain-input" placeholder="e.g., gitlab.my-lab.org">
-        <button id="add-manual-domain" class="btn-secondary">+ Add Domain</button>
-      </div>
-    </section>
-
-  </main>
-
-  <div class="bottom-action-bar" id="action-bar">
-    <span id="status">Unsaved changes</span>
-    <button id="save" class="btn-primary pill-btn">Apply Settings to Mol*</button>
-  </div>
-
+  <div id="app"></div>
   <script type="module" src="./main.ts"></script>
 </body>
 </html>

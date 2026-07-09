@@ -5,6 +5,9 @@ import path from 'path';
 export default defineConfig({
   srcDir: 'src',
 
+  // 1. Tell WXT to use its official Svelte integration!
+  modules: ['@wxt-dev/module-svelte'],
+
   vite: () => ({
     server: {
       cors: {
@@ -35,6 +38,7 @@ export default defineConfig({
     }
   },
 
+  // THIS is where the variables safely belong!
   manifest: ({ browser, command }) => {
     const isFirefox = browser === 'firefox';
     const isDev = command === 'serve';
