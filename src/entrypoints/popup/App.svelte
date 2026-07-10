@@ -11,18 +11,14 @@
     // 2. Ensure the callback is explicitly 'async'
     onMount(async () => {
         try {
-            const tabs = await new Promise<chrome.tabs.Tab[]>(
-                resolve => browser.tabs.query({ active: true, currentWindow: true }, resolve),
-            );
+            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
             const tab = tabs[0];
 
             if (tab?.url?.startsWith('http')) {
                 currentDomain = PermissionsManager.cleanDomain(tab.url);
                 const isDefault = isDefaultDomain(currentDomain);
 
-                const storage = await new Promise<{ customDomains: string[] }>(
-                    resolve => browser.storage.sync.get({ customDomains: [] }, resolve),
-                );
+                const storage = await browser.storage.sync.get({ customDomains: [] });
 
                 if (!isDefault && !storage.customDomains.includes(currentDomain)) {
                     showDomainPrompt = true;
