@@ -6,28 +6,29 @@
     <title>Mol* Workspace</title>
 </head>
 <body>
-  <div id="loading">
-      <div class="spinner"></div>
-      <p>Loading structure…</p>
-  </div>
+  <div id="app"></div>
+  <!-- <div id="loading">
+       <div class="spinner"></div>
+       <p>Loading structure…</p>
+       </div>
 
-  <template id="format-selector-template">
-    <div class="format-selector">
-      <h3>Unknown File Format</h3>
-      <p>Format could not be detected automatically.<br>Please select it below:</p>
-      <select id="format-select">
-        <option value="pdb">PDB</option>
-        <option value="mmcif">mmCIF / CIF</option>
-        <option value="gro">GRO (Gromacs)</option>
-        <option value="sdf">SDF</option>
-        <option value="mol">MOL</option>
-        <option value="mol2">MOL2</option>
-        <option value="xyz">XYZ</option>
-        <option value="bcif">BCIF (binary CIF)</option>
-      </select>
-      <button id="format-confirm">Launch Workspace</button>
-    </div>
-  </template>
+       <template id="format-selector-template">
+       <div class="format-selector">
+       <h3>Unknown File Format</h3>
+       <p>Format could not be detected automatically.<br>Please select it below:</p>
+       <select id="format-select">
+       <option value="pdb">PDB</option>
+       <option value="mmcif">mmCIF / CIF</option>
+       <option value="gro">GRO (Gromacs)</option>
+       <option value="sdf">SDF</option>
+       <option value="mol">MOL</option>
+       <option value="mol2">MOL2</option>
+       <option value="xyz">XYZ</option>
+       <option value="bcif">BCIF (binary CIF)</option>
+       </select>
+       <button id="format-confirm">Launch Workspace</button>
+       </div>
+       </template> -->
 
     <script type="module" src="./main.ts"></script>
 </body>

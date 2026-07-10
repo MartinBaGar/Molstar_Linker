@@ -1,4 +1,5 @@
 html, body {
+    font-family: "Figtree";
     margin: 0;
     padding: 0;
     width: 100%;
@@ -50,6 +51,12 @@ iframe {
 
 /* Format selector styles */
 .format-selector {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+
     background: white;
     padding: 20px 30px;
     border-radius: 8px;

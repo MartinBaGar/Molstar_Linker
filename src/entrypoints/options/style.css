@@ -12,9 +12,8 @@
 body {
   font-family: "Figtree";
   color: var(--text-main);
-  /* background-color: var(--bg-muted); */
   margin: 0;
-  padding: 0 0 80px 0; /* Extra padding so the bottom bar doesn't cover content */
+  padding: 0 0 80px 0;
   line-height: 1.5;
 }
 
@@ -127,27 +126,27 @@ button:hover { opacity: 0.9; }
   position: fixed;
   bottom: 30px;
   left: 50%;
-  transform: translate(-50%, 150%); /* Hidden below screen initially */
-  background: #24292f; /* Dark theme for contrast */
+  transform: translate(-50%, 150%);
+  background: #24292f;
   color: white;
   padding: 12px 24px;
-  border-radius: 50px; /* Pill shape */
+  border-radius: 50px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   gap: 20px;
   z-index: 1000;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy slide up */
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .bottom-action-bar.visible {
-  transform: translate(-50%, 0); /* Slide into view */
+  transform: translate(-50%, 0);
 }
 
 #status { font-size: 14px; font-weight: 500; opacity: 0.9; }
 
 .pill-btn {
-  background: var(--success); /* Green pop */
+  background: var(--success);
   border-radius: 30px;
   padding: 8px 20px;
   box-shadow: 0 2px 8px rgba(45, 164, 78, 0.4);

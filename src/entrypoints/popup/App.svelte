@@ -4,11 +4,9 @@
     import { isDefaultDomain } from '~/utils/domains.js';
     import { ViewerConfig } from '~/config.js';
 
-    // 1. Top-level State (HTML can see these!)
     let showDomainPrompt = false;
     let currentDomain = '';
 
-    // 2. Ensure the callback is explicitly 'async'
     onMount(async () => {
         try {
             const tabs = await browser.tabs.query({ active: true, currentWindow: true });
