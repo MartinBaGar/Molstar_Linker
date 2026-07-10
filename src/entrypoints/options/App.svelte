@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { AppConfig } from '~/config.js';
-    import { PermissionsManager } from '~/permissions.js';
-    import type { CustomRule } from '~/types.js';
+    import { AppConfig } from '~/core/config.js';
+    import { PermissionsManager } from '~/core/permissions.js';
+    import type { CustomRule } from '~/types/index.js';
     import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 
     // --- 1. STATE VARIABLES ---

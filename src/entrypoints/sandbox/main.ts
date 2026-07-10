@@ -1,6 +1,6 @@
 import type { Viewer } from 'molstar/lib/apps/viewer/app';
-import type { InitMolstarMessage } from '~/types.js';
-import { NativeBuilder, customRuleToRep } from '~/native-builder.js';
+import type { InitMolstarMessage } from '~/types/index.js';
+import { NativeBuilder, customRuleToRep } from '~/core/native-builder.js';
 import { getFileNameFromUrl } from '~/utils/links.js';
 
 declare global {
@@ -39,7 +39,10 @@ script.onload = () => {
                     });
                 }
 
-                if (url === null) return;
+                if (url === null) {
+                    window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
+                    return
+                };
 
                 const { shortBlobUrl, filename } = await getFileNameFromUrl(
                     url,

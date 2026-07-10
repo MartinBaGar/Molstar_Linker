@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import type { InitMolstarMessage } from '~/types.js';
-    import { ALL_EXTENSIONS } from '~/extensions';
+    import type { InitMolstarMessage } from '~/types/index.js';
+    import { ALL_EXTENSIONS } from '~/core/extensions';
     import { isSafeUrl } from '~/utils/links.js';
 
     const MAX_BYTES = 25 * 1024 * 1024; // 25 MB

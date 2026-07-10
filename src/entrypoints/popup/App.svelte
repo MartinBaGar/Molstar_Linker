@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { PermissionsManager } from '~/permissions.js';
+    import { PermissionsManager } from '~/core/permissions.js';
     import { isDefaultDomain } from '~/utils/domains.js';
-    import { ViewerConfig } from '~/config.js';
+    import { ViewerConfig } from '~/core/config.js';
 
     let showDomainPrompt = false;
     let currentDomain = '';

@@ -1,6 +1,6 @@
-import { ViewerConfig } from "~/config.js";
 import { isSafeUrl, resolveUrl, findExtInText } from '~/utils/links.js';
-import { ALL_EXTENSIONS } from '~/extensions.js';
+import { ViewerConfig } from "~/core/config.js";
+import { ALL_EXTENSIONS } from '~/core/extensions.js';
 
 export default defineBackground(() => {
     // ---------------------------------------------------------------------------
