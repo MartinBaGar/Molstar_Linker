@@ -1,4 +1,4 @@
-import type { ExtensionSettings } from './types.js';
+import type { ExtensionSettings } from '~/types/index.js';
 
 export const ViewerConfig = {
     viewerUrl: "viewer.html",

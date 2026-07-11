@@ -9,6 +9,7 @@ version = "0.1.0"
 hugo = ">=0.163.3,<0.164"
 nodejs = ">=26.4.0,<26.5"
 prettier = ">=3.9.3,<4"
+pnpm = ">=11.10.0,<12"
 
 # ── Shared directory variables, available as $VAR in every task ──────────────
 [activation.env]
@@ -22,36 +23,40 @@ DOCS_DIR     = "docs"
 # 0. INSTALL — pixi run install
 [tasks.install]
 description = "Install npm dependencies"
-cmd         = "npm ci"
+cmd         = "pnpm ci"
 
 # 1. DAILY DEV — pixi run save "my message"
 [tasks.save]
 description = "Stage all changes, commit with a message, and push to main"
 cmd         = 'git add . && git commit -m "{{ msg }}" && git push origin main'
 
-# 2. TYPECHECK
+[tasks.setup]
+description = "Install pixi env + npm dependencies in one command"
+cmd         = "pnpm install --frozen-lockfile"
+inputs      = ["pnpm-lock.yaml"]
+outputs     = ["node_modules/.pnpm/lock.yaml"]
+
 [tasks.typecheck]
 description = "Type-check the project without emitting output"
-cmd         = "npm run typecheck"
+cmd         = "pnpm typecheck"
 
-# 3. BUMP — pixi run bump 1.2.3
 [tasks.bump]
-description = "Bump the extension version in package.json (single source of truth; manifests and UI read from it at build time)"
+description = "Bump the extension version in package.json"
 args        = ["version"]
 cmd         = """
 echo "Bumping version to {{ version }}..." &&
-npm version {{ version }} --no-git-tag-version --allow-same-version &&
+pnpm version {{ version }} --no-git-tag-version --allow-same-version &&
 echo "✅ Version bumped to {{ version }} in package.json"
 """
 
 # 4. BUILD
 [tasks.build-chrome]
 description = "Build the Chrome (MV3) extension with Vite into dist/chrome/"
-cmd         = "npm run build:chrome"
+cmd         = "pnpm run build:chrome"
 
 [tasks.build-firefox]
 description = "Build the Firefox (MV2) extension with Vite into dist/firefox/"
-cmd         = "npm run build:firefox"
+cmd         = "pnpm run build:firefox"
 
 [tasks.build]
 description = "Build both Chrome and Firefox extensions"
@@ -69,7 +74,7 @@ mkdir -p $RELEASES_DIR &&
 (cd $DIST_DIR/firefox && zip -r ../../$RELEASES_DIR/molstar_linker_firefox-v{{ version }}.zip . -x "*.DS_Store" > /dev/null) &&
 echo "Zipping source code for Mozilla review..." &&
 zip -r $RELEASES_DIR/molstar_linker_source-v{{ version }}.zip \
-    $SRC_DIR public *.html *.config.ts package.json package-lock.json \
+    $SRC_DIR public *.html *.config.ts package.json pnpm-lock.yaml \
     pixi.toml pixi.lock tsconfig.json README.md \
     -x "*.DS_Store" > /dev/null &&
 echo "✅ Packages and source code ready in $RELEASES_DIR/"
@@ -124,11 +129,11 @@ cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and rel
 # 8. DEV SERVER (extension)
 [tasks.dev]
 description = "Start WXT in watch mode for Chrome (launches isolated browser with HMR)"
-cmd         = "npm run dev:chrome"
+cmd         = "pnpm run dev:chrome"
 
 [tasks.dev-firefox]
 description = "Start WXT in watch mode for Firefox (launches isolated browser with HMR)"
-cmd         = "npm run dev:firefox"
+cmd         = "pnpm run dev:firefox"
 
 # 9. DOCS SITE (Hugo)
 [tasks.serve]

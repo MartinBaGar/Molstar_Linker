@@ -1,7 +1,6 @@
 import { Script } from "molstar/lib/mol-script/script";
 import type { PluginContext } from 'molstar/lib/mol-plugin/context';
-import { Color } from 'molstar/lib/mol-util/color';
-import type { ExtensionSettings } from './types.js';
+import type { ExtensionSettings } from '~/types/index.js';
 
 let _lastStructure: any = null;
 
@@ -10,7 +9,6 @@ export async function customRuleToRep(
     settings: ExtensionSettings,
 ) {
     for (const rule of settings.customRules || []) {
-        // Handle undefined expression
         if (!rule.selection?.script) {
             throw new Error("Selection script is required");
         }

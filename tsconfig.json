@@ -1,16 +1,10 @@
 {
-  "extends": "./.wxt/tsconfig.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "checkJs": true,
-    "isolatedModules": true
-  },
-  "include": [
-    "src/**/*",
-    "*.config.ts"
-  ]
+    "extends": "./.wxt/tsconfig.json",
+    "compilerOptions": {
+        "useDefineForClassFields": true,
+        "allowJs": true,
+        "checkJs": true,
+        "isolatedModules": true
+    },
+    "include": ["src/**/*", ".wxt/**/*", "*.config.ts"]
 }

@@ -1,14 +1,4 @@
-import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registry';
-
-const _reg = new DataFormatRegistry();
-
-export const ALL_EXTENSIONS = new Set([
-    ...Array.from(_reg.extensions),
-    ...Array.from(_reg.binaryExtensions),
-]);
-
-// One pre-compiled regex, reused everywhere — never rebuilt per link
-export const EXT_REGEX = new RegExp(`\\.(${[...ALL_EXTENSIONS].join('|')})(?:[?#&]|$)`, 'i');
+import { EXT_REGEX } from '~/core/extensions.js';
 export const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 export const MAX_URL_LENGTH = 2048; // chars

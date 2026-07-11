@@ -1,8 +1,4 @@
-import { DataFormatRegistry } from 'molstar/lib/mol-plugin-state/formats/registry';
+import { ALL_EXTENSIONS } from 'virtual:molstar-extensions';
 
-const _reg = new DataFormatRegistry();
-
-export const ALL_EXTENSIONS = new Set([
-    ...Array.from(_reg.extensions),
-    ...Array.from(_reg.binaryExtensions),
-]);
+export { ALL_EXTENSIONS };
+export const EXT_REGEX = new RegExp(`\\.(${[...ALL_EXTENSIONS].join('|')})(?:[?#&]|$)`, 'i');

@@ -1,8 +1,5 @@
 export const PermissionsManager = {
 
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
     cleanDomain(url: string): string {
         try {
             const parsed = new URL(url.includes('://') ? url : `https://${url}`);

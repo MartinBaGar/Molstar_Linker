@@ -14,7 +14,6 @@
     let hasUnsavedChanges = false;
     let showSavedMessage = false;
 
-    // Constants
     const SCRIPT_LANGUAGES = ['mol-script', 'pymol', 'vmd', 'jmol'];
     const REP_TYPES = Object.keys(StructureRepresentationRegistry.BuiltIn);
 
@@ -68,7 +67,6 @@
     function saveSettings() {
         const settings = { ...AppConfig.getDefaults(), customRules };
 
-        // Send settings to other tabs (matching your Vanilla logic)
         browser.runtime.sendMessage({
             action: 'SETTINGS_UPDATED',
             settings: settings,
