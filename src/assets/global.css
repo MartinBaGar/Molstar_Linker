@@ -1,0 +1,40 @@
+:root {
+  --bg-color: #ffffff;
+  --bg-muted: #f6f8fa;
+  --text-main: #24292f;
+  --text-muted: #57606a;
+  --border-color: #e0ddd4;
+
+  --viewer: #e0ddd4;
+  --primary-accent: #e0ddd4;
+  --border: #000000;
+  --danger: #cf222e;
+  --btn-hover-color: #974102;
+  --btn-hover-border: #ddd3b5;
+  --open-opts: #ffffff;
+}
+body {
+  font-family: system-ui;
+  color: var(--text-main);
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+button {
+  cursor: pointer;
+  display: block;
+  padding: 8px;
+  width: 100%;
+  border: 1px solid var(--viewer);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-main);
+  font-weight: bold;
+}
+
+button:hover {
+  color: var(--btn-hover-color);
+  border-color: var(--btn-hover-border);
+}
