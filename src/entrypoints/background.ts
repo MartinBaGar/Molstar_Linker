@@ -2,36 +2,45 @@ import { isSafeUrl, resolveUrl, findExtInText } from '~/utils/links.js';
 import { ViewerConfig } from "~/core/config.js";
 import { ALL_EXTENSIONS } from '~/core/extensions.js';
 
+if (typeof browser !== 'undefined' && !browser.commands) {
+    (browser as any).commands = {
+        onCommand: { addListener: () => {} }
+    };
+}
+
 export default defineBackground(() => {
     // ---------------------------------------------------------------------------
     // FEATURE 1: Context menu — "Open in Mol* Workspace"
     // ---------------------------------------------------------------------------
-    browser.runtime.onInstalled.addListener(() => {
-        browser.contextMenus.create({
-            id: 'open-molstar',
-            title: 'Open in Mol* Workspace',
-            contexts: ['link'],
+
+    if (browser.contextMenus) {
+        browser.runtime.onInstalled.addListener(() => {
+            browser.contextMenus.create({
+                id: 'open-molstar',
+                title: 'Open in Mol* Workspace',
+                contexts: ['link'],
+            });
         });
-    });
 
-    browser.contextMenus.onClicked.addListener((info: any, _tab: any) => {
-        if (info.menuItemId !== 'open-molstar' || !info.linkUrl) return;
+        browser.contextMenus.onClicked.addListener((info: any, _tab: any) => {
+            if (info.menuItemId !== 'open-molstar' || !info.linkUrl) return;
 
-        if (!isSafeUrl(info.linkUrl)) {
-            console.warn('Mol* Linker: blocked unsafe context-menu URL:', info.linkUrl);
-            return;
-        }
+            if (!isSafeUrl(info.linkUrl)) {
+                console.warn('Mol* Linker: blocked unsafe context-menu URL:', info.linkUrl);
+                return;
+            }
 
-        const extension = findExtInText(info.linkUrl) || "unknown";
-        const url = new URL(info.linkUrl);
-        const resolvedUrl = resolveUrl(url);
+            const extension = findExtInText(info.linkUrl) || "unknown";
+            const url = new URL(info.linkUrl);
+            const resolvedUrl = resolveUrl(url);
 
-        const viewerUrl = new URL(browser.runtime.getURL(ViewerConfig.viewerUrl));
-        viewerUrl.searchParams.append('fileUrl', resolvedUrl);
-        viewerUrl.searchParams.append('format', extension);
+            const viewerUrl = new URL(browser.runtime.getURL(ViewerConfig.viewerUrl));
+            viewerUrl.searchParams.append('fileUrl', resolvedUrl);
+            viewerUrl.searchParams.append('format', extension);
 
-        browser.tabs.create({ url: viewerUrl.toString() });
-    });
+            browser.tabs.create({ url: viewerUrl.toString() });
+        });
+    }
 
 
     // ---------------------------------------------------------------------------

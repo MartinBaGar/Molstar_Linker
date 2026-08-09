@@ -52,11 +52,11 @@ echo "✅ Version bumped to {{ version }} in package.json"
 # 4. BUILD
 [tasks.build-chrome]
 description = "Build the Chrome (MV3) extension with Vite into dist/chrome/"
-cmd         = "pnpm run build:chrome"
+cmd         = "pnpm run build-chrome"
 
 [tasks.build-firefox]
 description = "Build the Firefox (MV2) extension with Vite into dist/firefox/"
-cmd         = "pnpm run build:firefox"
+cmd         = "pnpm run build-firefox"
 
 [tasks.build]
 description = "Build both Chrome and Firefox extensions"
@@ -127,13 +127,36 @@ description = "Remove the dist/ and releases/ directories"
 cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and releases/'"
 
 # 8. DEV SERVER (extension)
-[tasks.dev]
+[tasks.dev-chrome]
 description = "Start WXT in watch mode for Chrome (launches isolated browser with HMR)"
-cmd         = "pnpm run dev:chrome"
+cmd         = "pnpm run dev-chrome"
 
 [tasks.dev-firefox]
 description = "Start WXT in watch mode for Firefox (launches isolated browser with HMR)"
-cmd         = "pnpm run dev:firefox"
+cmd         = "pnpm run dev-firefox"
+
+[tasks.dev]
+description = "Start WXT in watch mode for Chrome and Firefox"
+cmd = """
+npx concurrently -k \
+  "pnpm run dev-chrome" \
+  "pnpm run dev-firefox" \
+"""
+
+[tasks.dev-firefox-all]
+description = "Run and auto-reload the extension on Firefox for Android via HMR"
+cmd = """
+npx concurrently -k \
+  "WXT_NO_LAUNCH=true pnpm run dev-firefox" \
+  "npx wait-on file:.output/firefox-mv2-dev/manifest.json && npx web-ext run --source-dir .output/firefox-mv2-dev --target=firefox-android --android-device=$(adb devices | awk 'NR==2 {print $1}')"
+"""
+
+[tasks.dev-chromium-all]
+description = "Simultaneous Desktop & Android live testing"
+cmd = """
+adb reverse tcp:3000 tcp:3000 &&
+npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv3-dev -e js,json,html,css --delay 2 --exec 'adb push .output/chrome-mv3-dev /sdcard/Download/molstar-linker-dev'\"
+"""
 
 # 9. DOCS SITE (Hugo)
 [tasks.serve]
