@@ -120,7 +120,7 @@ export default defineContentScript({
         "*://*.figshare.com/*",
         "*://*.zenodo.org/*"
     ],
-    runAt: 'document_end', // <-- ADD THIS LINE
+    runAt: 'document_end',
     // EVERYTHING inside main() only runs when injected into the live webpage
     main() {
         let stylesInjected = false;
@@ -164,7 +164,6 @@ export default defineContentScript({
             const currentHref = anchor.href;
             if (previousHref === currentHref) return;
 
-            // href changed or first visit — remove any stale badge
             anchor.parentElement?.querySelectorAll(`.${BADGE_CLASS}`).forEach(b => b.remove());
             anchor.setAttribute(PROCESSED, currentHref);
 
@@ -183,7 +182,6 @@ export default defineContentScript({
             const { rawUrl = '', formatStr = '' } = badge.dataset;
             if (!rawUrl.startsWith('http')) return;
             try {
-                // browser is auto-imported by WXT!
                 browser.runtime.sendMessage({ action: 'open_viewer', url: rawUrl, format: formatStr });
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
@@ -221,7 +219,6 @@ export default defineContentScript({
             debounceTimer = setTimeout(scanAllLinks, 300);
         });
 
-        // START EXECUTION
         observer.observe(document.body, OBS_OPTIONS);
         scanAllLinks();
     }

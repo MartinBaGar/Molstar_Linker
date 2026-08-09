@@ -12,6 +12,7 @@
   --btn-hover-color: #974102;
   --btn-hover-border: #ddd3b5;
   --open-opts: #ffffff;
+  --border-radius: 18px;
 }
 body {
   font-family: system-ui;
@@ -34,6 +35,27 @@ button {
   font-weight: bold;
 }
 
+#enable-domain-btn:hover {
+    border-color: green;
+    color: green;
+}
+
+.remove-btn {
+    width: auto;
+    padding: 0.5em 1em;
+    color: #d73a49;
+    background-color: white;
+}
+
+.remove-btn:hover {
+    color: white;
+    background-color: #d73a49;
+    border-color: #d73a49;
+    font-weight: 800;
+}
+
+
+.links a:hover,
 button:hover {
   color: var(--btn-hover-color);
   border-color: var(--btn-hover-border);

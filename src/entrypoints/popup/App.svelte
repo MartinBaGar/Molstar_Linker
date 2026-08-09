@@ -118,9 +118,4 @@
     #enable-domain-btn {
         margin-top: 10px;
     }
-
-    #enable-domain-btn:hover {
-        border-color: green;
-        color: green;
-    }
 </style>
