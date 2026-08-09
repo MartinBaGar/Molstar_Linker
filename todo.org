@@ -73,3 +73,9 @@ Currently, the URL used. In figshare, the URL file is not the same as the upload
 When accessing a page, it first displays the badges then seems to perform a reload making the badges disappear and reappear. Very annoying.
 Happends only on github
 *** TODO Add unit tests
+*** TODO Mobile device support
+On my Android devices, I tested the extension installation and behavior.
+
+For the Firefox version, it is natively handled by the official Firefox app and solely recquires activating the "Android support" when releasing. For the Chrome version, we need a browser that supports extensions installation and use ([[https://github.com/jqssun/android-titanium-browser][Titanium]], [[https://github.com/uazo/cromite/][Cromite]], [[https://github.com/kiwibrowser/src.next][Kiwi]]).
+
+It works on both browsers but some discrepancies have been found and a proper investigation is required. This will supposedly lead to a big rewrite for a proper implementation.
