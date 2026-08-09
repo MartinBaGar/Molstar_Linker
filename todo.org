@@ -79,3 +79,6 @@ On my Android devices, I tested the extension installation and behavior.
 For the Firefox version, it is natively handled by the official Firefox app and solely recquires activating the "Android support" when releasing. For the Chrome version, we need a browser that supports extensions installation and use ([[https://github.com/jqssun/android-titanium-browser][Titanium]], [[https://github.com/uazo/cromite/][Cromite]], [[https://github.com/kiwibrowser/src.next][Kiwi]]).
 
 It works on both browsers but some discrepancies have been found and a proper investigation is required. This will supposedly lead to a big rewrite for a proper implementation.
+
+UPDATE commit b5ef89a5d99e7078d1f13dd09b7a4eab2f827f6c
+Lots of work have been done to improve development experience, allowing Hot Module Replacement for live testing desktop->mobile. Compatibility issues in the code for Firefox (background.js) have been fixed which also fixed the badge-click not being detected on Android.
