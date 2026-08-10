@@ -2,7 +2,6 @@
     import { onMount } from "svelte";
     import { PermissionsManager } from "~/core/permissions.js";
     import { isDefaultDomain } from "~/utils/domains.js";
-    import { ViewerConfig } from "~/core/config.js";
 
     let showDomainPrompt = false;
     let currentDomain = "";
@@ -19,9 +18,9 @@
                 currentDomain = PermissionsManager.cleanDomain(tab.url);
                 const isDefault = isDefaultDomain(currentDomain);
 
-                const storage = await browser.storage.sync.get({
+                const storage = (await browser.storage.sync.get({
                     customDomains: [],
-                });
+                })) as { customDomains: string[] };
 
                 if (
                     !isDefault &&
@@ -38,7 +37,7 @@
     // 3. Helper functions for clean HTML
     function openViewer() {
         browser.tabs.create({
-            url: browser.runtime.getURL(ViewerConfig.viewerUrl),
+            url: browser.runtime.getURL("/viewer.html"),
         });
         window.close();
     }

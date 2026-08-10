@@ -1,9 +1,5 @@
 import type { ExtensionSettings } from '~/types/index.js';
 
-export const ViewerConfig = {
-    viewerUrl: "viewer.html",
-};
-
 // ---------------------------------------------------------------------------
 // getDefaults — generates the full settings object with sensible default values.
 // This is the single source of truth for what keys exist in storage.

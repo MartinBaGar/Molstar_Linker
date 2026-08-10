@@ -1,10 +1,9 @@
 import { isSafeUrl, resolveUrl, findExtInText } from '~/utils/links.js';
-import { ViewerConfig } from "~/core/config.js";
 import { ALL_EXTENSIONS } from '~/core/extensions.js';
 
 if (typeof browser !== 'undefined' && !browser.commands) {
     (browser as any).commands = {
-        onCommand: { addListener: () => {} }
+        onCommand: { addListener: () => { } }
     };
 }
 
@@ -34,7 +33,7 @@ export default defineBackground(() => {
             const url = new URL(info.linkUrl);
             const resolvedUrl = resolveUrl(url);
 
-            const viewerUrl = new URL(browser.runtime.getURL(ViewerConfig.viewerUrl));
+            const viewerUrl = new URL(browser.runtime.getURL('/viewer.html'));
             viewerUrl.searchParams.append('fileUrl', resolvedUrl);
             viewerUrl.searchParams.append('format', extension);
 
@@ -46,7 +45,7 @@ export default defineBackground(() => {
     // ---------------------------------------------------------------------------
     // FEATURE 2: Message router — handles "open_viewer" from content scripts
     // ---------------------------------------------------------------------------
-    browser.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender) => {
+    browser.runtime.onMessage.addListener((message: any, sender: any) => {
         if (message.action !== 'open_viewer') return;
 
         // Must come from a real tab
@@ -56,10 +55,11 @@ export default defineBackground(() => {
         if (!message.url || !isSafeUrl(message.url)) return;
         if (!ALL_EXTENSIONS.has(message.format)) return;
 
-        const viewerUrl = browser.runtime.getURL(
-            `${ViewerConfig.viewerUrl}?fileUrl=${encodeURIComponent(message.url)}&format=${encodeURIComponent(message.format)}`,
-        );
-        browser.tabs.create({ url: viewerUrl });
+        const viewerUrl = new URL(browser.runtime.getURL('/viewer.html'));
+        viewerUrl.searchParams.append('fileUrl', message.url);
+        viewerUrl.searchParams.append('format', message.format);
+
+        browser.tabs.create({ url: viewerUrl.toString() });
     });
 
 
@@ -94,7 +94,7 @@ export default defineBackground(() => {
                 if (!tab.id) continue;
                 if (browser.scripting?.executeScript) {
                     await browser.scripting.executeScript({
-                        target: { tabId: tab.id }, files: ['content-scripts/content.js']
+                        target: { tabId: tab.id }, files: ['/content-scripts/content.js']
                     }).catch(() => { });
                 } else {
                     await (browser.tabs as any).executeScript(tab.id, { file: 'content-scripts/content.js' }).catch(() => { });
