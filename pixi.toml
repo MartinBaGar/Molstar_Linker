@@ -156,7 +156,7 @@ npx concurrently -k \
 description = "Simultaneous Desktop & Android live testing"
 cmd = """
 adb reverse tcp:3000 tcp:3000 &&
-npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv3-dev -e js,json,html,css --delay 2 --exec 'adb push .output/chrome-mv3-dev /sdcard/Download/molstar-linker-dev'\"
+npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv3-dev -e js,json,html,css --delay 2 --exec 'adb push .output/molstar-linker-chromium-dev /sdcard/Download/'\"
 """
 
 # 9. DOCS SITE (Hugo)
