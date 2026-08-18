@@ -146,6 +146,7 @@ npx concurrently -k \
 [tasks.dev-firefox-all]
 description = "Run and auto-reload the extension on Firefox for Android via HMR"
 cmd = """
+adb reverse tcp:3000 tcp:3000 &&
 npx concurrently -k \
   "WXT_NO_LAUNCH=true pnpm run dev-firefox" \
   "npx wait-on file:.output/firefox-mv2-dev/manifest.json && npx web-ext run --source-dir .output/firefox-mv2-dev --target=firefox-android --android-device=$(adb devices | awk 'NR==2 {print $1}')"
