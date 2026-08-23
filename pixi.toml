@@ -20,12 +20,12 @@ DOCS_DIR     = "docs"
 
 # ── Tasks ─────────────────────────────────────────────────────────────────────
 
-# 0. INSTALL — pixi run install
+# 0. INSTALL
 [tasks.install]
 description = "Install npm dependencies"
 cmd         = "pnpm ci"
 
-# 1. DAILY DEV — pixi run save "my message"
+# 1. DAILY DEV
 [tasks.save]
 description = "Stage all changes, commit with a message, and push to main"
 cmd         = 'git add . && git commit -m "{{ msg }}" && git push origin main'
@@ -38,7 +38,7 @@ outputs     = ["node_modules/.pnpm/lock.yaml"]
 
 [tasks.typecheck]
 description = "Type-check the project without emitting output"
-cmd         = "pnpm typecheck"
+cmd         = "pnpm check"
 
 [tasks.bump]
 description = "Bump the extension version in package.json"
