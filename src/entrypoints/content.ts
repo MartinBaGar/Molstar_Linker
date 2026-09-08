@@ -9,48 +9,54 @@ const BADGE_CLASS = 'ms-badge';
 
 interface SiteAdapter {
     matches(hostname: string): boolean;
-    shouldIgnore(anchor: HTMLAnchorElement, parsed: URL): boolean;
-    findExt(anchor: HTMLAnchorElement, parsed: URL): string | null;
-    resolveUrl(parsed: URL): string;
-    getPlacement(anchor: HTMLAnchorElement): InsertPosition;
+    getSelector(): string; // Tells the scanner what elements to target
+    shouldIgnore(element: HTMLElement, parsed: URL | null): boolean;
+    findExt(element: HTMLElement, parsed: URL | null): string | null;
+    resolveUrl(element: HTMLElement, parsed: URL | null): string | null;
+    getPlacement(element: HTMLElement): InsertPosition;
 }
+
+// --- STANDARD ADAPTERS (Look for a[href]) ---
 
 const GitHubAdapter: SiteAdapter = {
     matches: (hostname) => hostname === 'github.com' || hostname.endsWith('.github.com'),
-    shouldIgnore: (anchor, _parsed) => {
-        const isFileTreeLink = anchor.classList.contains('Link--primary');
-        const isRawButton = anchor.dataset.testid === 'raw-button';
+    getSelector: () => 'a[href]',
+    shouldIgnore: (element, _parsed) => {
+        const isFileTreeLink = element.classList.contains('Link--primary');
+        const isRawButton = element.dataset.testid === 'raw-button';
         return !isFileTreeLink && !isRawButton;
     },
-    findExt: (_anchor, parsed) => findExtInText(parsed.pathname) ?? findExtInText(parsed.search),
-    resolveUrl: (parsed) => resolveUrl(parsed),
-    getPlacement: (anchor) => anchor.dataset.testid === 'raw-button' ? 'beforebegin' : 'afterend',
+    findExt: (_element, parsed) => parsed ? (findExtInText(parsed.pathname) ?? findExtInText(parsed.search)) : null,
+    resolveUrl: (_element, parsed) => parsed ? resolveUrl(parsed) : null,
+    getPlacement: (element) => element.dataset.testid === 'raw-button' ? 'beforebegin' : 'afterend',
 };
 
 const GitLabAdapter: SiteAdapter = {
     matches: (hostname) => hostname === 'gitlab.com' || hostname.includes('gitlab'),
-    shouldIgnore: (anchor, _parsed) => {
-        const isFileTreeLink = anchor.classList.contains('tree-item-link');
-        const isDownloadButton = anchor.dataset.testid === 'download-button';
+    getSelector: () => 'a[href]',
+    shouldIgnore: (element, _parsed) => {
+        const isFileTreeLink = element.classList.contains('tree-item-link');
+        const isDownloadButton = element.dataset.testid === 'download-button';
         return !isFileTreeLink && !isDownloadButton;
     },
-    findExt: (_anchor, parsed) => findExtInText(parsed.pathname) ?? findExtInText(parsed.search),
-    resolveUrl: (parsed) => resolveUrl(parsed),
+    findExt: (_element, parsed) => parsed ? (findExtInText(parsed.pathname) ?? findExtInText(parsed.search)) : null,
+    resolveUrl: (_element, parsed) => parsed ? resolveUrl(parsed) : null,
     getPlacement: () => 'afterend',
 };
 
 const FigshareAdapter: SiteAdapter = {
     matches: (hostname) => hostname === 'figshare.com' || hostname.endsWith('.figshare.com'),
-    shouldIgnore: (anchor, _parsed) => {
-        const isThumbnailDownload = anchor.dataset.controlId?.startsWith('thumbnail-download-item-');
-        const isTooltipDownload = anchor.getAttribute('tooltip') === 'Download file';
+    getSelector: () => 'a[href]',
+    shouldIgnore: (element, _parsed) => {
+        const isThumbnailDownload = element.dataset.controlId?.startsWith('thumbnail-download-item-');
+        const isTooltipDownload = element.getAttribute('tooltip') === 'Download file';
         return !isThumbnailDownload && !isTooltipDownload;
     },
-    findExt: (anchor, parsed) => {
-        const ext = findExtInText(parsed.pathname) ?? findExtInText(parsed.search);
+    findExt: (element, parsed) => {
+        const ext = parsed ? (findExtInText(parsed.pathname) ?? findExtInText(parsed.search)) : null;
         if (ext) return ext;
 
-        let el = anchor.parentElement;
+        let el = element.parentElement;
         for (let depth = 0; el && depth < 3; el = el.parentElement, depth++) {
             const fromAttr = findExtInText(el.getAttribute('title'));
             if (fromAttr) return fromAttr;
@@ -59,54 +65,83 @@ const FigshareAdapter: SiteAdapter = {
         }
         return null;
     },
-    resolveUrl: (parsed) => resolveUrl(parsed),
+    resolveUrl: (_element, parsed) => parsed ? resolveUrl(parsed) : null,
     getPlacement: () => 'afterend',
 };
 
 const ZenodoAdapter: SiteAdapter = {
     matches: (hostname) => hostname === 'zenodo.org' || hostname.endsWith('.zenodo.org'),
-    shouldIgnore: (anchor, _parsed) => !anchor.closest('td.ten.wide'),
-    findExt: (_anchor, parsed) => findExtInText(parsed.pathname) ?? findExtInText(parsed.search),
-    resolveUrl: (parsed) => resolveUrl(parsed),
+    getSelector: () => 'a[href]',
+    shouldIgnore: (element, _parsed) => !element.closest('td.ten.wide'),
+    findExt: (_element, parsed) => parsed ? (findExtInText(parsed.pathname) ?? findExtInText(parsed.search)) : null,
+    resolveUrl: (_element, parsed) => parsed ? resolveUrl(parsed) : null,
     getPlacement: () => 'afterend',
 };
 
 const GenericAdapter: SiteAdapter = {
     matches: () => true,
-    shouldIgnore: (_anchor, parsed) => parsed.protocol !== 'https:' && parsed.protocol !== 'http:',
-    findExt: () => null,
-    resolveUrl: (parsed) => resolveUrl(parsed),
+    getSelector: () => 'a[href]',
+    shouldIgnore: (_element, parsed) => !parsed || (parsed.protocol !== 'https:' && parsed.protocol !== 'http:'),
+    findExt: (_element, parsed) => parsed ? (findExtInText(parsed.pathname) ?? findExtInText(parsed.search)) : null,
+    resolveUrl: (_element, parsed) => parsed ? resolveUrl(parsed) : null,
     getPlacement: () => 'afterend',
 };
+
+// --- SPECIAL ADAPTERS (Look for Buttons/Divs) ---
+
+const NextcloudAdapter: SiteAdapter = {
+    matches: () => {
+        // Generically detect ANY Nextcloud instance without hardcoding domains.
+        // Nextcloud consistently injects these attributes into the <head> on load.
+        return document.head.hasAttribute('data-requesttoken') ||
+               document.head.hasAttribute('data-user') ||
+               !!document.querySelector('.files-list__row');
+    },
+    getSelector: () => '.files-list__row-name-link',
+    shouldIgnore: () => false,
+    findExt: (element, _parsed) => {
+        const extEl = element.querySelector('.files-list__row-name-ext');
+        if (!extEl || !extEl.textContent) return null;
+        const ext = extEl.textContent.trim().replace('.', '').toLowerCase();
+        return ['pdb', 'cif', 'gro', 'sdf', 'mol', 'mol2', 'xyz'].includes(ext) ? ext : null;
+    },
+    resolveUrl: (element, _parsed) => {
+        const nameEl = element.querySelector('.files-list__row-name-');
+        const extEl = element.querySelector('.files-list__row-name-ext');
+        if (!nameEl || !extEl) return null;
+
+        const filename = nameEl.textContent?.trim() + extEl.textContent?.trim();
+
+        // Find User ID dynamically (checks standard Nextcloud metadata)
+        const userMeta = document.head.querySelector('meta[name="user"]');
+        const userId = userMeta?.getAttribute('content') || document.head.getAttribute('data-user');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const dir = urlParams.get('dir') || '/';
+        const cleanDir = dir.endsWith('/') ? dir : dir + '/';
+
+        // If a user ID is found, use the specific user DAV path.
+        // If missing (e.g. public links or custom setups), fallback to generic WebDAV endpoint.
+        const baseDav = userId ? `/remote.php/dav/files/${userId}` : '/remote.php/webdav';
+
+        return `https://${window.location.hostname}${baseDav}${cleanDir}${filename}`;
+    },
+    getPlacement: () => 'afterend',
+};
+
+// ==========================================
 
 const ADAPTERS: SiteAdapter[] = [
     GitHubAdapter,
     GitLabAdapter,
     FigshareAdapter,
     ZenodoAdapter,
+    NextcloudAdapter,
     GenericAdapter,
 ];
 
 function getAdapter(hostname: string): SiteAdapter {
     return ADAPTERS.find(a => a.matches(hostname)) ?? GenericAdapter;
-}
-
-interface StructureInfo {
-    rawUrl: string;
-    formatStr: string;
-    adapter: SiteAdapter;
-}
-
-function analyseLink(anchor: HTMLAnchorElement): StructureInfo | null {
-    if (!anchor.href || anchor.href.length > MAX_URL_LENGTH) return null;
-    let parsed: URL;
-    try { parsed = new URL(anchor.href); } catch { return null; }
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
-    const adapter = getAdapter(parsed.hostname);
-    if (adapter.shouldIgnore(anchor, parsed)) return null;
-    const formatStr = adapter.findExt(anchor, parsed);
-    if (!formatStr) return null;
-    return { rawUrl: adapter.resolveUrl(parsed), formatStr, adapter };
 }
 
 // ==========================================
@@ -118,10 +153,10 @@ export default defineContentScript({
         "*://*.github.com/*",
         "*://*.gitlab.com/*",
         "*://*.figshare.com/*",
-        "*://*.zenodo.org/*"
+        "*://*.zenodo.org/*",
+        // "<all_urls>" // <--- This allows the script to scan new websites for Nextcloud markers
     ],
     runAt: 'document_end',
-    // EVERYTHING inside main() only runs when injected into the live webpage
     main() {
         let stylesInjected = false;
         let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -147,33 +182,52 @@ export default defineContentScript({
             document.head.appendChild(style);
         }
 
-        function createBadge(info: StructureInfo, originalHref: string): HTMLButtonElement {
+        function createBadge(rawUrl: string, formatStr: string, originalHref: string): HTMLButtonElement {
             ensureStyles();
             const badge = document.createElement('button');
             badge.type = 'button';
             badge.className = BADGE_CLASS;
             badge.textContent = 'Mol*';
-            badge.dataset.rawUrl = info.rawUrl;
-            badge.dataset.formatStr = info.formatStr;
+            badge.dataset.rawUrl = rawUrl;
+            badge.dataset.formatStr = formatStr;
             badge.dataset.originalHref = originalHref;
             return badge;
         }
 
-        function processLink(anchor: HTMLAnchorElement): void {
-            const previousHref = anchor.getAttribute(PROCESSED);
-            const currentHref = anchor.href;
-            if (previousHref === currentHref) return;
+        function processElement(element: HTMLElement): void {
+            const processed = element.getAttribute(PROCESSED);
+            if (processed === 'true') return;
 
-            anchor.parentElement?.querySelectorAll(`.${BADGE_CLASS}`).forEach(b => b.remove());
-            anchor.setAttribute(PROCESSED, currentHref);
+            element.parentElement?.querySelectorAll(`.${BADGE_CLASS}`).forEach(b => b.remove());
+            element.setAttribute(PROCESSED, 'true');
 
-            const info = analyseLink(anchor);
-            if (!info) return;
+            const adapter = getAdapter(window.location.hostname);
 
-            anchor.insertAdjacentElement(info.adapter.getPlacement(anchor), createBadge(info, currentHref));
+            let parsed: URL | null = null;
+            if (element instanceof HTMLAnchorElement && element.href) {
+                if (element.href.length > MAX_URL_LENGTH) return;
+                try { parsed = new URL(element.href); } catch { }
+            }
+
+            if (adapter.shouldIgnore(element, parsed)) return;
+
+            const formatStr = adapter.findExt(element, parsed);
+            const rawUrl = adapter.resolveUrl(element, parsed);
+
+            if (!formatStr || !rawUrl) return;
+
+            const originalHref = element instanceof HTMLAnchorElement ? element.href : '';
+            element.insertAdjacentElement(adapter.getPlacement(element), createBadge(rawUrl, formatStr, originalHref));
         }
 
         // --- Event Listeners ---
+
+        document.addEventListener('contextmenu', (event: MouseEvent) => {
+            if (event.altKey) {
+                event.stopImmediatePropagation();
+            }
+        }, true);
+
         document.addEventListener('click', (event: MouseEvent) => {
             const badge = (event.target as HTMLElement).closest<HTMLButtonElement>(`.${BADGE_CLASS}`);
             if (!badge) return;
@@ -203,10 +257,11 @@ export default defineContentScript({
         });
 
         // --- Observer Logic ---
-        function scanAllLinks(): void {
+        function scanAllElements(): void {
             observer.disconnect();
             try {
-                document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(processLink);
+                const adapter = getAdapter(window.location.hostname);
+                document.querySelectorAll<HTMLElement>(adapter.getSelector()).forEach(processElement);
             } catch (err) {
                 console.warn('[Mol* Linker]', err);
             } finally {
@@ -216,10 +271,10 @@ export default defineContentScript({
 
         const observer = new MutationObserver(() => {
             if (debounceTimer !== null) clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(scanAllLinks, 300);
+            debounceTimer = setTimeout(scanAllElements, 300);
         });
 
         observer.observe(document.body, OBS_OPTIONS);
-        scanAllLinks();
+        scanAllElements();
     }
 });

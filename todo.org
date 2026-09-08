@@ -82,3 +82,31 @@ It works on both browsers but some discrepancies have been found and a proper in
 
 UPDATE commit b5ef89a5d99e7078d1f13dd09b7a4eab2f827f6c
 Lots of work have been done to improve development experience, allowing Hot Module Replacement for live testing desktop->mobile. Compatibility issues in the code for Firefox (background.js) have been fixed which also fixed the badge-click not being detected on Android.
+*** TODO Complete the list of handled site for badge injection
+**** TODO Future Site Adapters (URL Transformations) :adapters:
+   Websites where files are hidden behind UI actions or require URL rewriting before passing to Mol*.
+   - [ ] *Google Drive*: Rewrite share links from =/view= to =uc?export=download&id=<id>=. Watch for the virus-scan warning page on large files. UI is built with Shadow DOM, so =querySelectorAll= won't see inside it — adapter will need to pierce =shadowRoot= explicitly.
+   - [ ] *Dropbox*: Change =?dl=0= to =?dl=1= (or swap host to =dl.dropboxusercontent.com=) to force a direct stream.
+   - [ ] *OneDrive / SharePoint*: URLs often need =?download=1= appended. SharePoint document libraries render as a JS grid, so it needs a DOM-selector adapter similar to Nextcloud.
+   - [ ] *OSF (Open Science Framework)*: Highly relevant for supplementary structures in papers. Needs the =/download= suffix pattern.
+   - [ ] *Dataverse*: Academic dataset repos access files via API endpoints like =/api/access/datafile/<id>= instead of raw links.
+   - [ ] *Generic Data-ID / API-endpoint pattern*: Some sites expose only an internal ID (e.g. =data-file-id="1234"=) with no href at all — adapter constructs the hidden API URL manually. Worth building as a reusable adapter shape since multiple sites will hit this, not just one-off per site.
+   - [ ] *JS-Triggered Downloads*: Sites like ResearchGate use =<button onclick="download()">= with no anchor/href at all. Requires a custom DOM-selector adapter.
+
+**** TODO Nextcloud / OwnCloud Resilience :adapters:
+   - [ ] *Version Drift*: Nextcloud 25+ uses a modern Vue-based DOM. Older Nextcloud instances (and OwnCloud) use a different table structure (=#fileList tr[data-file]=). Current adapter needs a fallback for older versions.
+
+**** TODO Core Technical Architecture & Edge Cases :architecture:
+   Issues that will cause silent failures or visual bugs.
+   - [ ] *=data-ms-processed= regression*: Current version only stores =\"true\"=, so an element is never re-checked once marked — this also breaks virtual scrolling detection below. The old approach (storing the actual href) at least caught href changes. Needs a proper fix, not a revert.
+   - [ ] *Virtual Scrolling / DOM Recycling*: Modern file browsers (Nextcloud, GitHub) recycle DOM rows as the user scrolls. A recycled row keeps its stale =processed= flag and stale badge. Fix needs to compare current row data against the badge's stored URL, not just check a boolean.
+   - [ ] *CORS*: If the Mol* viewer is hosted externally (e.g. molstar.org), the browser blocks it from fetching files from domains without permissive CORS headers. May need to fetch the file in the extension's background script and hand off raw data instead of just a URL.
+   - [ ] *Expiring / Signed URLs (AWS S3, Drive)*: URL can expire between scan-time and click-time. Consider resolving the exact URL at click-time instead of scan-time.
+   - [ ] *Private Repos & Authentication*: External viewer doesn't share the user's cookies — private GitHub files / intranet Nextcloud files will 403/404. Need a strategy (embedded tokens) or at minimum a clear failure message to the user.
+   - [ ] *Compressed Files*: Decide how to handle =.pdb.gz=, =.cif.gz=, =.zip= bundles. Check if the target Mol* viewer unpacks them; if not, adapter should ignore/skip them.
+   - [ ] *Blob / Ephemeral URLs & Form-based POST downloads*: Both are effectively out of scope — blob: URLs can't cross extension/page contexts without intercepting network requests, and POST-based downloads need a proxy server. Document as unsupported rather than building for them.
+
+**** TODO Release & Store Deployment Prep :release:
+   Store review requirements and security constraints.
+   - [ ] *Manifest Permissions*: =<all_urls>= triggers scary install warnings and strict manual review. Switch to =optional_host_permissions= and request runtime permission when the user enables the extension on a new site.
+   - [ ] *Content Security Policy (CSP)*: Hardened sites block inline =<style>= tag injection. Add a try/catch fallback for badge styling.
