@@ -2,7 +2,7 @@ import { EXT_REGEX } from '~/core/extensions.js';
 export const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 export const MAX_URL_LENGTH = 2048; // chars
-export const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
+export const MAX_BYTES = 2000 * 1024 * 1024; // 2000 MB
 
 // For development/testing, you might allow HTTP:
 const ALLOWED_PROTOCOLS = new Set(['https:', 'http:']);

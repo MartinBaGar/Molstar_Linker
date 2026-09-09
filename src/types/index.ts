@@ -77,7 +77,8 @@ export interface SandboxReadyMessage {
 
 export interface InitMolstarMessage {
     action: "INIT_MOLSTAR";
-    blob: Blob | null;
+    buffer: ArrayBuffer | null;
+    mimeType: string | null;
     format: string | null;
     originalUrl: string | null;
 }

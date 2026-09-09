@@ -2,9 +2,7 @@
   import { onMount } from "svelte";
   import type { InitMolstarMessage } from "~/types/index.js";
   import { ALL_EXTENSIONS } from "~/core/extensions";
-  import { isSafeUrl } from "~/utils/links.js";
-
-  const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+  import { isSafeUrl, MAX_BYTES } from "~/utils/links.js";
 
   // ---------------------------------------------------------------------------
   // 1. Svelte State
@@ -22,62 +20,134 @@
   // ---------------------------------------------------------------------------
   // 2. Iframe Management
   // ---------------------------------------------------------------------------
-  function spawnIframe(
-    blob: Blob | null,          // was: dataUri: string | null
-    format: string | null,
-    rawUrl: string | null,
-  ): void {
-    const sandboxReadyListener = (e: MessageEvent): void => {
-      if (
-        e.data?.action !== "SANDBOX_READY" ||
-        e.source !== currentIframe?.contentWindow
-      )
-        return;
-      window.removeEventListener("message", sandboxReadyListener);
+  let sandboxReadyResolve: (() => void) | null = null;
+  const sandboxReady = new Promise<void>((resolve) => {
+    sandboxReadyResolve = resolve;
+  });
 
-      const payload: InitMolstarMessage = {
-        action: "INIT_MOLSTAR",
-        blob,
-        format: format,
-        originalUrl: rawUrl,
-      };
-      currentIframe!.contentWindow!.postMessage(payload, "*");
-    };
-
-    const molstarReadyListener = (e: MessageEvent) => {
+    function spawnIframe(
+      buffer: ArrayBuffer | null,
+      mimeType: string | null,
+      format: string | null,
+      rawUrl: string | null,
+    ): void {
+      const molstarReadyListener = (e: MessageEvent) => {
         if (e.data?.action !== "MOLSTAR_READY" || e.source !== currentIframe?.contentWindow) return;
         window.removeEventListener("message", molstarReadyListener);
+        window.removeEventListener("message", molstarErrorListener);
         isLoading = false;
-    };
+      };
 
-    window.addEventListener("message", sandboxReadyListener);
-    window.addEventListener("message", molstarReadyListener);
-  }
+      const molstarErrorListener = (e: MessageEvent) => {
+        if (e.data?.action !== "MOLSTAR_ERROR" || e.source !== currentIframe?.contentWindow) return;
+        window.removeEventListener("message", molstarReadyListener);
+        window.removeEventListener("message", molstarErrorListener);
+        errorMessage = e.data.error
+          ? `Mol* failed to load the structure: ${e.data.error}`
+          : "Mol* failed to load the structure.";
+        isLoading = false;
+      };
+
+      window.addEventListener("message", molstarReadyListener);
+      window.addEventListener("message", molstarErrorListener);
+
+      sandboxReady.then(() => {
+        loadingMessage = "Loading structure into viewer…";
+        const payload: InitMolstarMessage = { action: "INIT_MOLSTAR", buffer, mimeType, format, originalUrl: rawUrl };
+        if (buffer) {
+          currentIframe!.contentWindow!.postMessage(payload, "*", [buffer]);
+        } else {
+          currentIframe!.contentWindow!.postMessage(payload, "*");
+        }
+      });
+    }
 
   // ---------------------------------------------------------------------------
   // 3. Remote Fetch Logic
   // ---------------------------------------------------------------------------
-    async function bootWorkspace(
-        rawUrl: string,
-        safeFormat: string,
-    ): Promise<void> {
-        isLoading = true;
-        loadingMessage = "Downloading structure securely…";
+  async function bootWorkspace(rawUrl: string, safeFormat: string): Promise<void> {
+    isLoading = true;
+    loadingMessage = "Downloading structure securely…";
 
-        try {
-            const response = await fetch(rawUrl);
-            if (!response.ok)
-            throw new Error(`${response.status} ${response.statusText}`);
+    const controller = new AbortController();
+    const INACTIVITY_TIMEOUT_MS = 30_000; // no new bytes for 30s = treat as stalled
+    let inactivityTimer: ReturnType<typeof setTimeout>;
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => controller.abort(), INACTIVITY_TIMEOUT_MS);
+    };
 
-            const blob = await response.blob();
-            if (blob.size > MAX_BYTES) throw new Error("File exceeds the size limit.");
+    try {
+      resetInactivityTimer();
+      const response = await fetch(rawUrl, { signal: controller.signal });
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
 
-            spawnIframe(blob, safeFormat, rawUrl);
-        } catch (error: unknown) {
-            errorMessage = error instanceof Error ? error.message : String(error);
-            isLoading = false;
+      const contentLength = response.headers.get("Content-Length");
+      const total = contentLength ? parseInt(contentLength, 10) : null;
+      if (total && total > MAX_BYTES) throw new Error("File exceeds the size limit.");
+
+      const mimeType = response.headers.get("Content-Type") ?? undefined;
+      let finalBuffer: ArrayBuffer;
+
+      if (!response.body) {
+        // Fallback if streaming isn't available
+        const blob = await response.blob();
+        if (blob.size > MAX_BYTES) throw new Error("File exceeds the size limit.");
+        finalBuffer = await blob.arrayBuffer();
+      } else if (total) {
+        // Known size — write directly into a pre-allocated buffer, no intermediate copies
+        finalBuffer = new ArrayBuffer(total);
+        const view = new Uint8Array(finalBuffer);
+        const reader = response.body.getReader();
+        let offset = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          resetInactivityTimer();
+          if (offset + value.length > total) throw new Error("Response exceeded declared size.");
+          view.set(value, offset);
+          offset += value.length;
+          loadingMessage = `Downloading structure… ${Math.round((offset / total) * 100)}%`;
         }
+      } else {
+        // No Content-Length — must accumulate in chunks, but skip the Blob step
+        const reader = response.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let received = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          resetInactivityTimer();
+          chunks.push(value);
+          received += value.length;
+          if (received > MAX_BYTES) throw new Error("File exceeds the size limit.");
+          loadingMessage = `Downloading structure… ${(received / (1024 * 1024)).toFixed(1)} MB`;
         }
+
+        const combined = new Uint8Array(received);
+        let offset = 0;
+        for (const chunk of chunks) {
+          combined.set(chunk, offset);
+          offset += chunk.length;
+        }
+        finalBuffer = combined.buffer;
+      }
+
+      loadingMessage = "Preparing viewer…";
+      spawnIframe(finalBuffer, mimeType ?? null, safeFormat, rawUrl);
+
+    } catch (error: unknown) {
+      errorMessage =
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Download stalled — no data received for 30 seconds."
+          : error instanceof Error ? error.message : String(error);
+      isLoading = false;
+    } finally {
+      clearTimeout(inactivityTimer);
+    }
+  }
 
   function promptForFormat(rawUrl: string) {
     pendingUrl = rawUrl;
@@ -89,6 +159,13 @@
   // 4. Initialization
   // ---------------------------------------------------------------------------
   onMount(async () => {
+    const onSandboxReady = (e: MessageEvent) => {
+      if (e.data?.action !== "SANDBOX_READY") return;
+      window.removeEventListener("message", onSandboxReady);
+      sandboxReadyResolve?.();
+    };
+    window.addEventListener("message", onSandboxReady);
+
     const urlParams = new URLSearchParams(window.location.search);
     const rawUrl = urlParams.get("fileUrl");
     const format = urlParams.get("format") ?? "";
@@ -96,7 +173,7 @@
     // SCENARIO 1: No URL → open an empty workspace
     if (!rawUrl) {
       loadingMessage = "Opening empty workspace…";
-      spawnIframe(null, null, null);
+      spawnIframe(null, null, null, null);
       return;
     }
 

@@ -1,7 +1,7 @@
 import type { Viewer } from 'molstar/lib/apps/viewer/app';
 import type { InitMolstarMessage } from '~/types/index.js';
 import { NativeBuilder, customRuleToRep } from '~/core/native-builder.js';
-import { getFileNameFromUrl } from '~/utils/links.js';
+import { getFileNameFromBlob } from '~/utils/links.js';
 
 declare global {
     const molstar: typeof import('molstar/lib/apps/viewer/app');
@@ -16,11 +16,11 @@ cssLink.type = 'text/css';
 cssLink.href = '/lib/molstar.css';
 document.head.appendChild(cssLink);
 
-// 1. Create the script tag dynamically to bypass Vite's bundler isolation
+// 2. Create the script tag dynamically to bypass Vite's bundler isolation
 const script = document.createElement('script');
 script.src = '/lib/molstar.js';
 
-// 2. Wait for the physical file to load before setting up listeners
+// 3. Wait for the physical file to load before setting up listeners
 script.onload = () => {
     console.log("✅ Molstar script loaded natively!");
 
@@ -30,7 +30,9 @@ script.onload = () => {
         if (!msg) return;
 
         if (msg.action === 'INIT_MOLSTAR') {
-            const { blob, format, originalUrl } = msg as InitMolstarMessage;
+            const { buffer, mimeType, format, originalUrl } = msg as InitMolstarMessage;
+            let shortBlobUrl: string | undefined;
+
             try {
                 if (!viewerInstance) {
                     viewerInstance = await molstar.Viewer.create('app', {
@@ -39,21 +41,31 @@ script.onload = () => {
                     });
                 }
 
-                if (blob === null) {
-                        window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
-                    return
-                };
+                if (buffer === null) {
+                    window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
+                    return;
+                }
 
-                const { shortBlobUrl, filename } = getFileNameFromBlob(blob, originalUrl ?? undefined);
-                await NativeBuilder.buildNativeScene(viewerInstance.plugin, shortBlobUrl, format!, filename!);
+                const blob = new Blob([buffer], { type: mimeType ?? undefined });
+                const result = getFileNameFromBlob(blob, originalUrl ?? undefined);
+                shortBlobUrl = result.shortBlobUrl;
+
+                await NativeBuilder.buildNativeScene(
+                    viewerInstance.plugin,
+                    shortBlobUrl,
+                    format!,
+                    result.filename!
+                );
                 window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
 
             } catch (err) {
                 console.error('Mol* Sandbox: failed to load structure natively', err);
                 window.parent.postMessage({ action: 'MOLSTAR_ERROR', error: String(err) }, '*');
+            } finally {
+                if (shortBlobUrl) URL.revokeObjectURL(shortBlobUrl.split('#')[0]);
             }
         }
-        // URL.revokeObjectURL(shortBlobUrl.split('#')[0]);
+
         if (msg.action === 'APPLY_REPRESENTATION') {
             if (!viewerInstance) return;
             const plugin = viewerInstance.plugin;
@@ -62,7 +74,7 @@ script.onload = () => {
         }
     });
 
-    // 3. NOW tell the parent window we are ready to receive the INIT message
+    // 4. NOW tell the parent window we are ready to receive the INIT message
     window.parent.postMessage({ action: 'SANDBOX_READY' }, '*');
 };
 
@@ -71,5 +83,5 @@ script.onerror = () => {
     window.parent.postMessage({ action: 'MOLSTAR_ERROR', error: 'Failed to load molstar.js' }, '*');
 };
 
-// 4. Inject the script into the page to trigger the download
+// 5. Inject the script into the page to trigger the download
 document.head.appendChild(script);
