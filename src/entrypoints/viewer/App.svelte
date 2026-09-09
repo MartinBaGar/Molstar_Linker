@@ -23,7 +23,7 @@
   // 2. Iframe Management
   // ---------------------------------------------------------------------------
   function spawnIframe(
-    dataUri: string | null,
+    blob: Blob | null,          // was: dataUri: string | null
     format: string | null,
     rawUrl: string | null,
   ): void {
@@ -37,7 +37,7 @@
 
       const payload: InitMolstarMessage = {
         action: "INIT_MOLSTAR",
-        url: dataUri,
+        blob,
         format: format,
         originalUrl: rawUrl,
       };
@@ -45,13 +45,9 @@
     };
 
     const molstarReadyListener = (e: MessageEvent) => {
-      if (
-        e.data?.action !== "MOLSTAR_READY" ||
-        e.source !== currentIframe?.contentWindow
-      )
-        return;
-      window.removeEventListener("message", molstarReadyListener);
-      isLoading = false;
+        if (e.data?.action !== "MOLSTAR_READY" || e.source !== currentIframe?.contentWindow) return;
+        window.removeEventListener("message", molstarReadyListener);
+        isLoading = false;
     };
 
     window.addEventListener("message", sandboxReadyListener);
@@ -61,47 +57,27 @@
   // ---------------------------------------------------------------------------
   // 3. Remote Fetch Logic
   // ---------------------------------------------------------------------------
-  async function bootWorkspace(
-    rawUrl: string,
-    safeFormat: string,
-  ): Promise<void> {
-    isLoading = true;
-    loadingMessage = "Downloading structure securely…";
+    async function bootWorkspace(
+        rawUrl: string,
+        safeFormat: string,
+    ): Promise<void> {
+        isLoading = true;
+        loadingMessage = "Downloading structure securely…";
 
-    try {
-      const response = await fetch(rawUrl);
-      if (!response.ok)
-        throw new Error(`${response.status} ${response.statusText}`);
+        try {
+            const response = await fetch(rawUrl);
+            if (!response.ok)
+            throw new Error(`${response.status} ${response.statusText}`);
 
-      const contentLength = response.headers.get("Content-Length");
-      if (contentLength && parseInt(contentLength, 10) > MAX_BYTES) {
-        throw new Error("File exceeds the 25 MB size limit.");
-      }
+            const blob = await response.blob();
+            if (blob.size > MAX_BYTES) throw new Error("File exceeds the size limit.");
 
-      const blob = await response.blob();
-      if (blob.size > MAX_BYTES)
-        throw new Error("File exceeds the 25 MB size limit.");
-
-      const preview = await blob.slice(0, 150).text();
-      if (preview.trim().startsWith("<?xml") || preview.includes("<Error>")) {
-        throw new Error(
-          "Download blocked by browser tracking protection. " +
-            "Please authorize this domain in the Studio settings.",
-        );
-      }
-
-      const dataUri = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
-
-      spawnIframe(dataUri, safeFormat, rawUrl);
-    } catch (error: unknown) {
-      errorMessage = error instanceof Error ? error.message : String(error);
-      isLoading = false;
-    }
-  }
+            spawnIframe(blob, safeFormat, rawUrl);
+        } catch (error: unknown) {
+            errorMessage = error instanceof Error ? error.message : String(error);
+            isLoading = false;
+        }
+        }
 
   function promptForFormat(rawUrl: string) {
     pendingUrl = rawUrl;

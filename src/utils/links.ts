@@ -2,7 +2,7 @@ import { EXT_REGEX } from '~/core/extensions.js';
 export const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 export const MAX_URL_LENGTH = 2048; // chars
-export const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
+export const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
 // For development/testing, you might allow HTTP:
 const ALLOWED_PROTOCOLS = new Set(['https:', 'http:']);
@@ -111,17 +111,14 @@ export function resolveUrl(parsed: URL): string {
     }
 }
 
-export async function getFileNameFromUrl(url: string, originalUrl?: string) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    let shortBlobUrl = URL.createObjectURL(blob);
-    let filename: string | undefined;
-
-    if (originalUrl) {
-        try {
-            filename = new URL(originalUrl).pathname.split('/').pop();
-            if (filename) shortBlobUrl += `#${filename}`;
-        } catch { }
-    }
-    return { shortBlobUrl, filename };
+export function getFileNameFromBlob(blob: Blob, originalUrl?: string) {
+  let shortBlobUrl = URL.createObjectURL(blob);
+  let filename: string | undefined;
+  if (originalUrl) {
+    try {
+      filename = new URL(originalUrl).pathname.split('/').pop();
+      if (filename) shortBlobUrl += `#${filename}`;
+    } catch {}
+  }
+  return { shortBlobUrl, filename };
 }

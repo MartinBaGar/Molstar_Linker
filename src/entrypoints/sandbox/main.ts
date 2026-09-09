@@ -30,7 +30,7 @@ script.onload = () => {
         if (!msg) return;
 
         if (msg.action === 'INIT_MOLSTAR') {
-            const { url, format, originalUrl } = msg as InitMolstarMessage;
+            const { blob, format, originalUrl } = msg as InitMolstarMessage;
             try {
                 if (!viewerInstance) {
                     viewerInstance = await molstar.Viewer.create('app', {
@@ -39,22 +39,13 @@ script.onload = () => {
                     });
                 }
 
-                if (url === null) {
-                    window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
+                if (blob === null) {
+                        window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
                     return
                 };
 
-                const { shortBlobUrl, filename } = await getFileNameFromUrl(
-                    url,
-                    originalUrl ?? undefined
-                );
-
-                await NativeBuilder.buildNativeScene(
-                    viewerInstance.plugin,
-                    shortBlobUrl,
-                    format!,
-                    filename!
-                );
+                const { shortBlobUrl, filename } = getFileNameFromBlob(blob, originalUrl ?? undefined);
+                await NativeBuilder.buildNativeScene(viewerInstance.plugin, shortBlobUrl, format!, filename!);
                 window.parent.postMessage({ action: 'MOLSTAR_READY' }, '*');
 
             } catch (err) {
@@ -62,7 +53,7 @@ script.onload = () => {
                 window.parent.postMessage({ action: 'MOLSTAR_ERROR', error: String(err) }, '*');
             }
         }
-
+        // URL.revokeObjectURL(shortBlobUrl.split('#')[0]);
         if (msg.action === 'APPLY_REPRESENTATION') {
             if (!viewerInstance) return;
             const plugin = viewerInstance.plugin;
