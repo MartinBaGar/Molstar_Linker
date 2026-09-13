@@ -162,7 +162,7 @@ npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv
 # 9. DOCS SITE (Hugo)
 [tasks.serve]
 description = "Start the Hugo development server (with drafts)"
-cmd         = "echo 'Starting Hugo server in $DOCS_DIR...' && hugo server -s $DOCS_DIR -D --disableFastRender"
+cmd         = "echo 'Starting Hugo server in $DOCS_DIR...' && hugo server -s $DOCS_DIR -D --disableFastRender --baseURL \"http://localhost:1313/\""
 
 [tasks.build-site]
 description = "Build the Hugo static site for production"

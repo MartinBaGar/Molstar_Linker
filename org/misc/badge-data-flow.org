@@ -1,0 +1,7 @@
+#+title: Badge data flow
+#+draft: false
+#+WEIGHT: 901
+
+This diagram retraces the data flow from badge creation to structure file loading into a new Mol* tab. It aims to help understand the communication between each script and its underlying logic.
+
+[[img:badge-flow-diagram.drawio]]
