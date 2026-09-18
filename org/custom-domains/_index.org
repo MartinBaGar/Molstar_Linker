@@ -60,3 +60,10 @@ This process is secure and does not require server-side changes (e.g., CORS head
 - *Badges don't appear*: Ensure the domain is authorized and the page has been refreshed.
 - *Files fail to load*: Check that the domain is correctly spelled in the *Custom Domains* list.
 - *Permission denied*: Some browsers may require you to manually enable permissions in the extension management page (=chrome://extensions/= or =about:addons=).
+
+  #+begin_src emacs-lisp
+(message "%s" org-img-dir)
+#+end_src
+
+  #+RESULTS:
+  : ~/org/img/

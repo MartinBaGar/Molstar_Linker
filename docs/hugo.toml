@@ -1,5 +1,5 @@
-baseURL = 'https://MartinBaGar.github.io/Molstar_Linker/'
-languageCode = 'en-us'
+baseURL = 'https://MartinBaGar.github.io/Molstar_Linker'
+locale = 'en-us'
 title = 'Mol* Linker Wiki'
 theme = 'hugo-book'
 

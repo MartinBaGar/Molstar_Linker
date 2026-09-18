@@ -1,5 +1,6 @@
 # Video / Heavy Media
-/assets
+/assets/*
+!assets/docs
 
 # Build Artifacts
 *.zip
@@ -20,7 +21,6 @@ Thumbs.db
  
 # pixi environments
 .pixi/
-pixi.lock
 
 # dist/
 public/lib/
@@ -32,7 +32,9 @@ node_modules/
 .envrc
 
 # documentation
-docs/public
+docs/public/
+docs/resources/
+docs/.hugo_build.lock
 
 # WXT Generated Folders
 .wxt/
