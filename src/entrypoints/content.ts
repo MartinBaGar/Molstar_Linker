@@ -96,7 +96,6 @@ const GenericAdapter: SiteAdapter = {
 };
 
 // --- SPECIAL ADAPTERS (Look for Buttons/Divs) ---
-
 const NextcloudAdapter: SiteAdapter = {
 	matches: () => {
 		// Generically detect ANY Nextcloud instance without hardcoding domains.
@@ -115,6 +114,7 @@ const NextcloudAdapter: SiteAdapter = {
 		const ext = extEl.textContent.trim().replace('.', '').toLowerCase();
 		return ALL_EXTENSIONS.has(ext) ? ext : null;
 	},
+
 	resolveUrl: (element, _parsed) => {
 		const nameEl = element.querySelector('.files-list__row-name-');
 		const extEl = element.querySelector('.files-list__row-name-ext');
@@ -140,59 +140,50 @@ const NextcloudAdapter: SiteAdapter = {
 };
 
 const FileSenderAdapter: SiteAdapter = {
-    matches: (hostname) => hostname.includes('filesender') || !!document.querySelector('meta[name="description"][content*="FileSender"]'),
+	matches: (hostname) =>
+		hostname.includes('filesender') ||
+		!!document.querySelector('meta[name="description"][content*="FileSender"]'),
 
-    // Target any link that downloads files (removed the strict requirement for 'token=')
-    getSelector: () => 'a[href*="download.php"][href*="files_ids="]',
+	// Target any link that downloads files (removed the strict requirement for 'token=')
+	getSelector: () => 'a[href*="download.php"][href*="files_ids="]',
 
-    shouldIgnore: (element, parsed) => {
-        if (!parsed) return true;
+	shouldIgnore: (element, parsed) => {
+		if (!parsed) return true;
 
-        // Ignore "Download All" ZIP links that contain multiple IDs separated by a comma (e.g., %2C or ,)
-        const filesIds = parsed.searchParams.get('files_ids');
-        return !filesIds || filesIds.includes(',');
-    },
+		// Ignore "Download All" ZIP links that contain multiple IDs separated by a comma (e.g., %2C or ,)
+		const filesIds = parsed.searchParams.get('files_ids');
+		return !filesIds || filesIds.includes(',');
+	},
 
-    findExt: (element, parsed) => {
-        const validExts = ['pdb', 'cif', 'gro', 'sdf', 'mol', 'mol2', 'xyz'];
+	findExt: (element, parsed) => {
+		// Walk up the HTML tree to look at the surrounding table row or container
+		let currentEl = element.parentElement;
+		for (let i = 0; i < 6; i++) {
+			if (!currentEl) break;
+			const match = findExtInPageText(currentEl.textContent);
+			if (match) return match;
+			currentEl = currentEl.parentElement;
+		}
 
-        // Create a regex that specifically looks for .pdb, .cif, etc., followed by a word boundary
-        // This catches cases like "my_file.pdb" or "my_file.pdb (1.5 MB)"
-        const extRegex = new RegExp(`\\.(${validExts.join('|')})\\b`, 'i');
+		// Fallback for single-file pages where the filename might just be in the page header
+		const allDownloadLinks = document.querySelectorAll(
+			'a[href*="download.php"][href*="files_ids="]:not([href*="%2C"])'
+		);
+		if (allDownloadLinks.length === 1) {
+			const match = findExtInPageText(document.body.textContent);
+			if (match) return match;
+		}
+		return null;
+	},
 
-        // Walk up the HTML tree to look at the surrounding table row or container
-        let currentEl = element.parentElement;
-        for (let i = 0; i < 6; i++) {
-            if (!currentEl) break;
+	resolveUrl: (element, parsed) => {
+		return element instanceof HTMLAnchorElement ? element.href : null;
+	},
 
-            const text = currentEl.textContent || '';
-            const match = text.match(extRegex);
-
-            if (match) {
-                return match[1].toLowerCase(); // Returns 'pdb', 'cif', etc.
-            }
-            currentEl = currentEl.parentElement;
-        }
-
-        // Fallback for single-file pages where the filename might just be in the page header
-        const allDownloadLinks = document.querySelectorAll('a[href*="download.php"][href*="files_ids="]:not([href*="%2C"])');
-        if (allDownloadLinks.length === 1) {
-            const text = document.body.textContent || '';
-            const match = text.match(extRegex);
-            if (match) return match[1].toLowerCase();
-        }
-
-        return null;
-    },
-
-    resolveUrl: (element, parsed) => {
-        return element instanceof HTMLAnchorElement ? element.href : null;
-    },
-
-    getPlacement: (element) => {
-        // For icon-only links (like the first target), it looks better placed after the icon
-        return 'afterend';
-    },
+	getPlacement: (element) => {
+		// For icon-only links (like the first target), it looks better placed after the icon
+		return 'afterend';
+	}
 };
 
 // ==========================================
@@ -203,8 +194,8 @@ const ADAPTERS: SiteAdapter[] = [
 	FigshareAdapter,
 	ZenodoAdapter,
 	NextcloudAdapter,
+	FileSenderAdapter,
 	GenericAdapter
-  FileSenderAdapter,
 ];
 
 function getAdapter(hostname: string): SiteAdapter {
@@ -221,7 +212,6 @@ export default defineContentScript({
 		'*://*.gitlab.com/*',
 		'*://*.figshare.com/*',
 		'*://*.zenodo.org/*'
-		// "<all_urls>" // <--- This allows the script to scan new websites for Nextcloud markers
 	],
 	runAt: 'document_end',
 	main() {
