@@ -1,15 +1,19 @@
-version: 6
+version: 7
+platforms:
+- name: linux-64
+  virtual-packages:
+  - __unix=0=0
+  - __linux=4.18
+  - __glibc=2.28
+  - __archspec=0=x86_64
 environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.8-hebe6cf0_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/hugo-0.163.3-hecca717_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-py310h44b86e0_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20260526.0-cxx17_h0dc7533_2.conda
@@ -29,6 +33,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pnpm-11.10.0-h245e063_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prettier-3.9.3-hdf27b9d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_7.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/svelte-language-server-0.18.4-h7b269df_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/typescript-language-server-6.0.1-hee61e0b_0.conda
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -53,14 +60,6 @@ packages:
   license_family: MIT
   size: 228700
   timestamp: 1787169971173
-- conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
-  sha256: 0a0544cf95f64394fe4959286f5c71f5444ad58feb0602e53becb27448d24da6
-  md5: 0f51e2391ade309db462a55611263e9c
-  depends:
-  - __unix
-  license: ISC
-  size: 131780
-  timestamp: 1784754889428
 - conda: https://conda.anaconda.org/conda-forge/linux-64/hugo-0.163.3-hecca717_0.conda
   sha256: ab08630290799dda67726e60e7fa99cf2f69e77633dd0e1436c008529808420f
   md5: 2181de05578edec1599884c9d3183e7b
@@ -291,3 +290,30 @@ packages:
   license_family: BSD
   size: 601301
   timestamp: 1786599621503
+- conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
+  sha256: 0a0544cf95f64394fe4959286f5c71f5444ad58feb0602e53becb27448d24da6
+  md5: 0f51e2391ade309db462a55611263e9c
+  depends:
+  - __unix
+  license: ISC
+  size: 131780
+  timestamp: 1784754889428
+- conda: https://conda.anaconda.org/conda-forge/noarch/svelte-language-server-0.18.4-h7b269df_0.conda
+  sha256: 54a86c9a1aee55f8a3c6139453e57cd8cd7272d5e30397735996a4e7fc25e880
+  md5: 8f13264a4b7e927389a76ad92038ebb5
+  depends:
+  - nodejs
+  license: MIT
+  license_family: MIT
+  run_exports: {}
+  size: 6546134
+  timestamp: 1786842193174
+- conda: https://conda.anaconda.org/conda-forge/noarch/typescript-language-server-6.0.1-hee61e0b_0.conda
+  sha256: aba78a825e105122cdf06ee2257ce9a9b6a78a6119f4a4dd139d5baf1b03eb53
+  md5: dab17e956ec693a2a349bf252b14803f
+  depends:
+  - nodejs
+  license: MIT AND Apache-2.0
+  run_exports: {}
+  size: 453551
+  timestamp: 1790287560547

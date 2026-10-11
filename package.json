@@ -5,7 +5,7 @@
   "directories": {
     "doc": "docs"
   },
-    "scripts": {
+  "scripts": {
     "dev": "wxt",
     "dev-chrome": "wxt",
     "dev-firefox": "wxt -b firefox",
@@ -16,7 +16,9 @@
     "zip-firefox": "wxt zip -b firefox",
     "zip": "pnpm run zip-chrome && pnpm run zip-firefox",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "molstar": "^5.5.0",
@@ -26,6 +28,8 @@
   "devDependencies": {
     "@tsconfig/svelte": "^5.0.8",
     "@wxt-dev/module-svelte": "^2.0.5",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^4.1.0",
     "svelte-check": "^4.7.2",
     "typescript": "^6.0.3",
     "wxt": "^0.20.27"

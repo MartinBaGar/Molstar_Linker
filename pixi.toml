@@ -10,6 +10,8 @@ hugo = ">=0.163.3,<0.164"
 nodejs = ">=26.4.0,<26.5"
 prettier = ">=3.9.3,<4"
 pnpm = ">=11.10.0,<12"
+typescript-language-server = ">=6.0.1,<7"
+svelte-language-server = ">=0.18.4,<0.19"
 
 # ── Shared directory variables, available as $VAR in every task ──────────────
 [activation.env]
