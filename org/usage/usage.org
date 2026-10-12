@@ -2,7 +2,11 @@
 #+hugo_weight: 210
 #+draft: false
 
+** Opening a structure 
 Spot a molecular structure file (e.g., .pdb, .cif) on a supported site. A green *Mol** badge appears next to the file link or download button.
+
+#+ATTR_HTML: :width 70% :class center-image
+[[img:github_badge.png]]
 
 1. Click the badge.
 2. The file opens instantly in the *Mol** web viewer in a new tab.

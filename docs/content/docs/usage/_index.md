@@ -1,0 +1,25 @@
++++
+title = "Getting Started"
+draft = false
+weight = 200
++++
+
+## Installation {#installation}
+
+If not installed yet, you can refer to [those]({{< relref "installation" >}}) instructions to get it on your browser
+
+
+## Websites supported by default {#websites-supported-by-default}
+
+Mol\* Linker works out-of-the-box on the following sites. The badge appears automatically next to supported file links.
+
+| **Site**   | **Trigger Condition**                                                         | **Caveats/Notes**                                                                                    |
+|------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| GitHub     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file tree or raw file button.                                |
+| GitLab     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file tree or download button.                                |
+| Figshare   | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to download links. File extension detection may fall back to parent element text. |
+| Zenodo     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file table.                                                  |
+| Nextcloud  | File extensions: Detected from file list elements.                            | Badge appears next to file links. URLs are constructed using WebDAV paths.                           |
+| FileSender | File extensions: Detected from download links or parent element text.         | Badge appears next to download links. Only single-file downloads are supported.                      |
+
+Get more information on [how to use]({{< relref "usage" >}}) it there.

@@ -14,7 +14,7 @@ theme = 'hugo-book'
   # BookTheme = 'auto'
   # BookToC = true
   BookSection = 'docs'
-  BookLogo = "icon128.png"
+  BookLogo = "assets/icon128.png"
   # BookEditLink = 'https://github.com/MartinBaGar/Molstar_Linker/edit/main/org/{{ .Path }}'
 
 # Apply the flat section style to ALL folders automatically

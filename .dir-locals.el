@@ -1,21 +1,18 @@
 ((org-mode
-  . ((eval
-      . (let* ((root (locate-dominating-file default-directory ".dir-locals.el"))
-               (org-root (expand-file-name "org" root))
-               (assets-dir (expand-file-name "assets" root))
-               (docs-dir (expand-file-name "docs" root))
-               (rel-section (file-relative-name default-directory org-root)))
+  . ((eval . (let* ((root (locate-dominating-file default-directory ".dir-locals.el"))
+                    (org-root (expand-file-name "org" root))
+                    (docs-dir (expand-file-name "docs" root))
+                    (rel-section (file-relative-name default-directory org-root)))
 
-          (setq-local org-img-dir
-                      (concat (file-relative-name assets-dir default-directory) "/docs/" (file-name-base buffer-file-name)))
+               ;; 1. Tell ox-hugo where the Hugo root is (Absolute path required)
+               (setq-local org-hugo-base-dir docs-dir)
 
-          (setq-local org-hugo-base-dir
-                      (file-relative-name docs-dir default-directory))
+               ;; 2. Tell org-img where all your images live (Absolute path)
+               (setq-local org-img-dir (expand-file-name "docs/static/assets" root))
 
-          (setq-local org-hugo-section
-                      (if (file-equal-p default-directory org-root)
-                          "docs"
-                        (file-name-as-directory
-                         ;; (concat "docs/" (directory-file-name rel-section)))))))
-                         (directory-file-name rel-section))))))
+               (setq-local org-hugo-section
+                           (if (file-equal-p default-directory org-root)
+                               "docs"
+                             (file-name-as-directory
+                              (concat "docs/" (directory-file-name rel-section)))))))
      (eval . (org-hugo-auto-export-mode)))))

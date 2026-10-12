@@ -1,4 +1,5 @@
-#+TITLE: Configure your Mol* Linker extension
+#+TITLE: Configuration
 #+HUGO_WEIGHT: 300
 
-Mol* Linker is designed to be usable on custom domains in addition of the default ones. Look [[file:custom-domains.org][here]] to learn how to add them.
+Mol* Linker is designed to be usable on custom domains in addition of the default ones.
+# Look [[file:custom-domains.org][here]] to learn how to add them.

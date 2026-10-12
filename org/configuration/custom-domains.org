@@ -1,4 +1,4 @@
-#+title: Custom Domains (Private Instances)
+#+title: Custom Domains
 #+hugo_weight: 310
 #+draft: false
 
