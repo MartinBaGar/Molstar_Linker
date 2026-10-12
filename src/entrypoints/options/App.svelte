@@ -109,6 +109,8 @@
   </header>
 
   <section class="panel">
+    <h1 style="font-size: 25px; margin: 0px;">⚠ WORK IN PROGRESS ⚠</h1>
+    <p style="margin-top: 0px;">This will affect all your Mol* Linker tabs opened and needs more refined behavior.</p>
     <h2>Custom Component Rules</h2>
     <p class="desc">
       Create dynamic rules to color specific chains, residues, or atomic
