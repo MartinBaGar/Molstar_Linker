@@ -32,6 +32,9 @@
     rawUrl: string | null,
   ): void {
     const molstarReadyListener = (e: MessageEvent) => {
+      // Validate sender by window reference.
+      // The sandbox has origin "null" in Chrome so origin checks are unreliable.
+      // event.source is set by the browser and cannot be spoofed.
       if (
         e.data?.action !== "MOLSTAR_READY" ||
         e.source !== currentIframe?.contentWindow
@@ -69,6 +72,10 @@
         originalUrl: rawUrl,
       };
       if (buffer) {
+        // '*' is required here — Chrome assigns origin "null" to
+        // sandboxed iframes, so a targeted origin would silently drop the message.
+        // Security is enforced on the RECEIVE side via event.source checks above,
+        // which the browser sets and which cannot be spoofed by any sender.
         currentIframe!.contentWindow!.postMessage(payload, "*", [buffer]);
       } else {
         currentIframe!.contentWindow!.postMessage(payload, "*");
@@ -87,7 +94,7 @@
     loadingMessage = "Downloading structure securely…";
 
     const controller = new AbortController();
-    const INACTIVITY_TIMEOUT_MS = 30_000; // no new bytes for 30s = treat as stalled
+    const INACTIVITY_TIMEOUT_MS = 30_000;
     let inactivityTimer: ReturnType<typeof setTimeout>;
     const resetInactivityTimer = () => {
       clearTimeout(inactivityTimer);
@@ -112,13 +119,11 @@
       let finalBuffer: ArrayBuffer;
 
       if (!response.body) {
-        // Fallback if streaming isn't available
         const blob = await response.blob();
         if (blob.size > MAX_BYTES)
           throw new Error("File exceeds the size limit.");
         finalBuffer = await blob.arrayBuffer();
       } else if (total) {
-        // Known size — write directly into a pre-allocated buffer, no intermediate copies
         finalBuffer = new ArrayBuffer(total);
         const view = new Uint8Array(finalBuffer);
         const reader = response.body.getReader();
@@ -135,7 +140,6 @@
           loadingMessage = `Downloading structure… ${Math.round((offset / total) * 100)}%`;
         }
       } else {
-        // No Content-Length — must accumulate in chunks, but skip the Blob step
         const reader = response.body.getReader();
         const chunks: Uint8Array[] = [];
         let received = 0;
@@ -196,31 +200,29 @@
     const rawUrl = urlParams.get("fileUrl");
     const format = urlParams.get("format") ?? "";
 
-    // SCENARIO 1: No URL → open an empty workspace
     if (!rawUrl) {
       loadingMessage = "Opening empty workspace…";
       spawnIframe(null, null, null, null);
       return;
     }
 
-    // SCENARIO 2: URL present but unsafe
     if (!isSafeUrl(rawUrl)) {
       errorMessage = "Error: request to unsafe or restricted URL blocked.";
       isLoading = false;
       return;
     }
 
-    // SCENARIO 3: URL present but format unknown
     if (!ALL_EXTENSIONS.has(format)) {
       promptForFormat(rawUrl);
       return;
     }
 
-    // SCENARIO 4: Known format + authorized domain
     bootWorkspace(rawUrl, format);
   });
 
-  // Message listener for live updates from the Options page
+  // The runtime message bus is extension-internal — no origin check needed.
+  // But we still use '*' on the forward into the iframe for the same reason
+  // as above: the sandbox origin is "null" in Chrome.
   browser.runtime.onMessage.addListener((message) => {
     if (message.action !== "SETTINGS_UPDATED") return;
     if (!currentIframe?.contentWindow) return;
@@ -236,14 +238,14 @@
   <div id="loading">
     <div
       style="
-			background: white;
-			padding: 20px 30px;
-			border-radius: 8px;
-			text-align: center;
-			color: #333;
-			max-width: 400px;
-			margin: 0 auto;
-		"
+                        background: white;
+                        padding: 20px 30px;
+                        border-radius: 8px;
+                        text-align: center;
+                        color: #333;
+                        max-width: 400px;
+                        margin: 0 auto;
+                "
     >
       <h3 style="margin-top: 0; color: #d73a49">Download Blocked</h3>
       <p
@@ -331,7 +333,6 @@
     left: 0;
   }
 
-  /* Format selector styles */
   .format-selector {
     position: fixed;
     top: 50%;

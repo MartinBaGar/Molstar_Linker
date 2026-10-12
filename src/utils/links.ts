@@ -2,21 +2,43 @@ import { EXT_REGEX, TEXT_EXT_REGEX } from '~/core/extensions.js';
 export const GITLAB_URL_RE = /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
 export const MAX_URL_LENGTH = 2048; // chars
-export const MAX_BYTES = 2000 * 1024 * 1024; // 2000 MB
 
-// For development/testing, you might allow HTTP:
-const ALLOWED_PROTOCOLS = new Set(['https:', 'http:']);
+// Real molecular structure files are almost never above 500 MB.
+// 2 GB would crash the browser tab and could be used as a denial-of-service vector.
+export const MAX_BYTES = 1000 * 1024 * 1024; // 1000 MB
+
+// HTTP is allowed only in development builds.
+// In production, plain HTTP allows man-in-the-middle attacks: a network
+// attacker could silently replace the structure file in transit.
+// import.meta.env.DEV is injected by Vite/WXT at build time — it is
+// statically replaced with `true` or `false`, so the unused branch is
+// tree-shaken out of the production bundle entirely.
+const ALLOWED_PROTOCOLS = new Set(
+  import.meta.env.DEV ? ['https:', 'http:'] : ['https:']
+);
 
 const BLOCKED_IP_RANGES = [
-	/^10\.\d+\.\d+\.\d+$/,
-	/^192\.168\.\d+\.\d+$/,
-	/^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
-	/^169\.254\.\d+\.\d+$/,
-	/^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/,
-	/^127\.\d+\.\d+\.\d+$/,
-	/^\[?::1\]?$/,
-	/^\[?fc[0-9a-f]{2}:/i,
-	/^localhost$/i
+  // IPv4 private / reserved ranges
+  /^10\.\d+\.\d+\.\d+$/,
+  /^192\.168\.\d+\.\d+$/,
+  /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
+  /^169\.254\.\d+\.\d+$/,                    // link-local
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d+\.\d+$/, // CGNAT
+  /^127\.\d+\.\d+\.\d+$/,                    // loopback
+  /^localhost$/i,
+
+  // IPv6 — loopback and private
+  /^\[?::1\]?$/,                             // loopback
+  /^\[?fc[0-9a-f]{2}:/i,                    // ULA (fc00::/7 — private)
+  /^\[?fe80:/i,                              // link-local (fe80::/10)
+
+  // IPv6 ranges that can bypass the IPv4 checks above:
+  // ::ffff:x.x.x.x is an IPv4-mapped address — e.g. ::ffff:127.0.0.1
+  // resolves to loopback, bypassing all the IPv4 regex checks above.
+  /^\[?::ffff:/i,
+  // NAT64 prefix — maps IPv6 requests to IPv4 addresses, potentially
+  // reaching private ranges via the IPv4 block.
+  /^\[?64:ff9b:/i,
 ];
 
 /**
@@ -25,36 +47,36 @@ const BLOCKED_IP_RANGES = [
  * @returns The cleaned domain (e.g., `github.com`).
  */
 export function cleanDomain(url: string): string {
-	try {
-		const parsed = new URL(url.includes('://') ? url : `https://${url}`);
-		return parsed.hostname.replace(/^www\./, '');
-	} catch {
-		return url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-	}
+  try {
+    const parsed = new URL(url.includes('://') ? url : `https://${url}`);
+    return parsed.hostname.replace(/^www\./, '');
+  } catch {
+    return url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  }
 }
 
 /**
- * Checks if a URL is safe (HTTPS-only, no private IPs, no localhost).
+ * Checks if a URL is safe (HTTPS-only in prod, no private IPs, no localhost).
  * @param urlStr - The URL to validate.
  * @returns `true` if the URL is safe.
  */
 export function isSafeUrl(urlStr: string): boolean {
-	try {
-		const { protocol, hostname } = new URL(urlStr);
+  try {
+    const { protocol, hostname } = new URL(urlStr);
 
-		if (!ALLOWED_PROTOCOLS.has(protocol) || !hostname) {
-			return false;
-		}
+    if (!ALLOWED_PROTOCOLS.has(protocol) || !hostname) {
+      return false;
+    }
 
-		// Block private/loopback IPs
-		if (BLOCKED_IP_RANGES.some((regex) => regex.test(hostname))) {
-			return false;
-		}
+    // Block private/loopback IPs
+    if (BLOCKED_IP_RANGES.some((regex) => regex.test(hostname))) {
+      return false;
+    }
 
-		return true;
-	} catch {
-		return false;
-	}
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -62,17 +84,16 @@ export function isSafeUrl(urlStr: string): boolean {
  * @param text - The text to search (e.g., URL or link text).
  * @returns The extension (e.g., `"pdb"`) or `null` if none found.
  */
-// Searches any string for a supported extension. Returns e.g. "pdb" or null.
 export function findExtInText(text: string | null | undefined): string | null {
-	if (!text) return null;
-	const m = text.match(EXT_REGEX);
-	return m ? m[1].toLowerCase() : null;
+  if (!text) return null;
+  const m = text.match(EXT_REGEX);
+  return m ? m[1].toLowerCase() : null;
 }
 
 export function findExtInPageText(text: string | null | undefined): string | null {
-	if (!text) return null;
-	const m = text.match(TEXT_EXT_REGEX);
-	return m ? m[1].toLowerCase() : null;
+  if (!text) return null;
+  const m = text.match(TEXT_EXT_REGEX);
+  return m ? m[1].toLowerCase() : null;
 }
 
 /**
@@ -81,46 +102,42 @@ export function findExtInPageText(text: string | null | undefined): string | nul
  * @returns The match pattern (e.g., `*://github.com/*`).
  */
 export function getMatchPattern(domain: string): string {
-	return `*://${cleanDomain(domain)}/*`;
+  return `*://${cleanDomain(domain)}/*`;
 }
 
 export function resolveUrl(parsed: URL): string {
-	if (parsed.hostname === 'github.com') {
-		const base = parsed.href;
-		// 1. Handle file tree links (removes /blob/)
-		if (base.includes('/blob/')) {
-			return base.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-		}
-
-		// 2. Handle "Raw" button links (removes /raw/)
-		if (base.includes('/raw/')) {
-			return base.replace('github.com', 'raw.githubusercontent.com').replace('/raw/', '/');
-		}
-
-		return base.replace('github.com', 'raw.githubusercontent.com');
-	} else if (parsed.hostname.includes('gitlab')) {
-		const base = parsed.href.split('?')[0].split('#')[0];
-		const m = GITLAB_URL_RE.exec(base);
-		if (!m) return parsed.href;
-		const [, domain, project, ref, filePath] = m;
-		return (
-			`https://${domain}/api/v4/projects/` +
-			`${encodeURIComponent(project)}/repository/files/` +
-			`${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
-		);
-	} else {
-		return parsed.href;
-	}
+  if (parsed.hostname === 'github.com') {
+    const base = parsed.href;
+    if (base.includes('/blob/')) {
+      return base.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+    }
+    if (base.includes('/raw/')) {
+      return base.replace('github.com', 'raw.githubusercontent.com').replace('/raw/', '/');
+    }
+    return base.replace('github.com', 'raw.githubusercontent.com');
+  } else if (parsed.hostname.includes('gitlab')) {
+    const base = parsed.href.split('?')[0].split('#')[0];
+    const m = GITLAB_URL_RE.exec(base);
+    if (!m) return parsed.href;
+    const [, domain, project, ref, filePath] = m;
+    return (
+      `https://${domain}/api/v4/projects/` +
+      `${encodeURIComponent(project)}/repository/files/` +
+      `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
+    );
+  } else {
+    return parsed.href;
+  }
 }
 
 export function getFileNameFromBlob(blob: Blob, originalUrl?: string) {
-	let shortBlobUrl = URL.createObjectURL(blob);
-	let filename: string | undefined;
-	if (originalUrl) {
-		try {
-			filename = new URL(originalUrl).pathname.split('/').pop();
-			if (filename) shortBlobUrl += `#${filename}`;
-		} catch {}
-	}
-	return { shortBlobUrl, filename };
+  let shortBlobUrl = URL.createObjectURL(blob);
+  let filename: string | undefined;
+  if (originalUrl) {
+    try {
+      filename = new URL(originalUrl).pathname.split('/').pop();
+      if (filename) shortBlobUrl += `#${filename}`;
+    } catch { }
+  }
+  return { shortBlobUrl, filename };
 }
