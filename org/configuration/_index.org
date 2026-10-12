@@ -1,30 +1,4 @@
-#+TITLE: Configuration & Options
-#+HUGO_WEIGHT: 20
+#+TITLE: Configure your Mol* Linker extension
+#+HUGO_WEIGHT: 300
 
-* The Mol* Linker Options Page
-
-The Mol* Linker Options page lets you customize how molecular structures are rendered in the Mol* viewer. Instead of manually adjusting settings for each structure, you can define your preferred visual styles once and apply them automatically to all structures you open.
-
-* How It Works
-
-When you click a *Mol** badge on a website, the extension:
-1. Fetches the structure file from the remote URL.
-2. Opens a new tab with the Mol* viewer.
-3. Applies your saved settings to render the structure natively using Mol*'s high-performance engine.
-
-* Core Configuration Concepts
-
-To customize the viewer, you should understand these key concepts:
-
-- [[file:targets/][Targets]]: Predefined molecular components (Proteins, Nucleic Acids, Ligands, etc.) that you can style individually.
-- [[file:scene/][Scene Settings]]: Global settings like background color and camera position.
-- [[file:custom-rules/][Custom Rules]]: Advanced rules to highlight specific chains, residues, or atoms with custom styles, labels, and tooltips.
-
-* Accessing the Options Page
-
-1. Click the Mol* Linker extension icon in your browser toolbar.
-2. Click *Open Advanced Options*.
-
-Alternatively:
-1. Right-click the Mol* Linker extension icon.
-2. Select *Options* from the context menu.
+Mol* Linker is designed to be usable on custom domains in addition of the default ones. Look [[file:custom-domains.org][here]] to learn how to add them.

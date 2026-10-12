@@ -16,5 +16,6 @@
                       (if (file-equal-p default-directory org-root)
                           "docs"
                         (file-name-as-directory
-                         (concat "docs/" (directory-file-name rel-section)))))))
+                         ;; (concat "docs/" (directory-file-name rel-section)))))))
+                         (directory-file-name rel-section))))))
      (eval . (org-hugo-auto-export-mode)))))

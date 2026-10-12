@@ -1,5 +1,5 @@
 #+title: Misc
-#+HUGO_WEIGHT: 90
+#+HUGO_WEIGHT: 400
 
-Currently just tests
+Currently just test
 

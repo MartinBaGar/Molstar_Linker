@@ -1,54 +1,25 @@
-#+TITLE: Frequently Asked Questions
-#+WEIGHT: 50
+#+title: FAQ & Troubleshooting
+#+hugo_weight: 500
+#+draft: false
 
-* General Questions
+*Why doesn’t the badge appear next to my file?*
+- The file extension may not be supported.
+- The site may not be fully supported. Try refreshing the page or authorizing a custom domain.
+- The file link may be hidden or loaded dynamically. Wait for the page to fully load.
 
-** Where did my data go? Does this extension upload my proprietary files?
-*Absolutely not.* This is one of the biggest upgrades in Mol* Linker v2.0. 
-Older versions of this tool (and many other visualizers) had to redirect you to external servers. Mol* Linker now opens a *dedicated, local workspace* directly inside your browser. 
+*I get a download error when clicking the badge.*
+- The file URL may be too long (max 2048 characters). Shorten the filename or host it elsewhere.
+- The site may have CORS restrictions. Try opening the file in a new tab manually.
+- The file may be corrupted or in an unsupported format.
 
-When you click a badge, the extension securely downloads the file straight into your browser's active, temporary memory (RAM). It never touches your hard drive, and it is *never* uploaded or sent to any external visualization servers. The moment you close the tab, the data ceases to exist. It is 100% private.
+*It works on GitHub but not my institutional GitLab.*
+- Your institutional GitLab is likely a private instance. [[file:configuration/custom-domains.org][Authorize the domain]] in the extension’s *Options* tab.
+- Ensure the domain uses =https://= and is publicly accessible.
 
-** Why is the Mol* badge not appearing next to a "Download" button?
-To keep your Git repositories clean and uncluttered, Mol* Linker v2.0 uses a "Smart Visual Filter." 
+*The Mol* viewer fails to load the structure.*
+- The file may be corrupted or in an unsupported format. Verify the file integrity.
+- The extension’s sandbox may have failed to load. Refresh the page or reinstall the extension.
 
-On sites like GitHub and GitLab, the badge will *only* appear if the visible text of the link contains the actual file extension (for example, a link that explicitly says =SITO.pdb=). It will intentionally ignore generic "Download", "Raw", or "History" buttons. 
-
-/Note: On dedicated structure databases like RCSB or AlphaFold, this filter is disabled, and badges will appear on standard format buttons./
-
-** Why did my browser show an "Extension Context Invalidated" error?
-If you recently updated Mol* Linker via your browser's extension manager, any tabs that were already open prior to the update lose their connection to the extension's background router. Simply refresh the page (F5 or Ctrl/Cmd+R), and the badges will work perfectly again!
-
-** Why do my molecules appear blank when the workspace first loads?
-Mol* Linker relies entirely on the Custom Rules and Presets you define in the extension's Options page. If your structure contains a highly complex lipid or non-standard ligand (like =PIPC= in a =.gro= file), the default rules might not know how to draw it, resulting in an invisible molecule.
-
-To fix this, simply click the extension icon, open the *Studio / Options*, and add a *Custom Rule* specifically targeting that molecule's residue name. Refresh the page, and it will render perfectly every time!
-
-** Why did my massive molecule (or MD trajectory) fail to load?
-Mol* Linker is engineered with strict security and memory safeguards. Because the extension downloads the structural file directly into your browser's active RAM (to ensure your data is never uploaded to a third-party server), there is a hard-coded file size limit of *25 Megabytes*. 
-
-If you attempt to open an incredibly massive viral capsid =.cif= file or a multi-frame molecular dynamics =.gro= trajectory that exceeds 25 MB, the extension will intentionally block the download to prevent your web browser from freezing or crashing. 
-
-For files larger than 25 MB, we recommend downloading the file to your computer manually and opening it in the desktop version of Mol* or PyMOL.
-
-** Why did the badge not appear next to my download link?
-Mol* Linker's Smart Scanner looks at the URL, the HTML attributes, and the surrounding text to find a valid extension (like =.pdb= or =.cif=). If a database completely hides this information (e.g., a button that just says "Download File" with an opaque URL like =/file/1234=), the scanner will ignore it to avoid injecting badges onto standard PDFs or images. 
-*Solution:* Simply Right-Click the download link and select "Open in Mol* Workspace".
-
-** Why did the extension prompt me to select a format?
-When you use the Right-Click menu on an opaque link (a link that does not explicitly end in =.pdb=, =.cif=, etc.), the extension securely passes the file to the viewer but flags the format as "unknown". To prevent the Mol* engine from crashing while trying to parse a PDB as a Gromacs trajectory, it safely pauses and asks you to confirm the format before rendering.
-
-** Can I view local files from my computer?
-Yes! Click the extension icon to open the popup, and simply Drag and Drop your local structural file into the dashed box. You can also drag and drop files directly into an already open Mol* Workspace tab! The file is read locally and is never uploaded to the internet.
-
-** Why don’t labels appear in the scene?
-If labels are not appearing, check the following:
-- Ensure that labels are enabled in the *Scene Settings* section of the Studio.
-- Verify that the *Text Color* contrasts with the *Canvas Background Color* (e.g., white text on a white background will not be visible).
-- Check that the *Label Size* is large enough to be visible.
-
-** Why did I get a "Download Blocked" or XML error on Figshare/Zenodo?
-Browsers with strict privacy settings (especially Firefox) block "cross-origin redirects," which is how sites like Figshare route files to Amazon AWS servers. Mol* Linker detects this block to prevent the 3D engine from crashing. To fix it, simply add the site to your Authorized Custom Domains in the Advanced Studio to grant the extension a secure bypass pass.
-
-** Why did the extension prompt me to select a format?
-When you use the Right-Click menu on an opaque link (a link that does not explicitly end in =.pdb=, =.cif=, etc.), the extension securely passes the file to the viewer but flags the format as "unknown". To prevent the Mol* engine from crashing while trying to parse a PDB as a Gromacs trajectory, it safely pauses and asks you to confirm the format before rendering.
+*The badge appears but nothing happens when I click it.*
+- Site scripts may be blocking the click handler. Disable conflicting extensions or site scripts.
+- The extension context may be invalidated. Refresh the page or restart your browser.
