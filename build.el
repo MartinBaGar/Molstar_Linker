@@ -34,12 +34,18 @@
 
         ("static"
          :base-directory ,(site-path "org/")
-         :base-extension "png\\|jpg\\|jpeg\\|gif\\|svg\\|webp\\|css\\|js"
+         :base-extension "png\\|jpg\\|jpeg\\|gif\\|svg\\|webp\\|css\\|js\\|molx"
          :publishing-directory ,(site-path "docs/")
          :recursive t
          :publishing-function org-publish-attachment)
 
-        ("site" :components ("pages" "static"))))
+        ("molstar"
+         :base-directory ,(site-path "public/lib/")
+         :base-extension "js\\|css"
+         :publishing-directory ,(site-path "docs/assets/vendor/")
+         :publishing-function org-publish-attachment)
+
+        ("site" :components ("pages" "static" "molstar"))))
 
 ;; Publish only in batch, so loading this file in an open Emacs
 ;; just defines the project.

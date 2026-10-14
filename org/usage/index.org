@@ -21,4 +21,4 @@ Mol* Linker works out-of-the-box on the following sites. The badge appears autom
 | Nextcloud  | File extensions: Detected from file list elements.                            | Badge appears next to file links. URLs are constructed using WebDAV paths.                           |
 | FileSender | File extensions: Detected from download links or parent element text.         | Badge appears next to download links. Only single-file downloads are supported.                      |
 
-Get more information on [[file:usage/usage.org][how to use]] it there.
+Get more information on [[file:usage.org][how to use]] it there.

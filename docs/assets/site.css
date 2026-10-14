@@ -18,6 +18,9 @@
         --accent: #6cb2ff;
         --code: #22262d;
     }
+    :root:not([data-theme="light"]) .logo {
+        filter: invert(1);
+    }
 }
 
 :root[data-theme="dark"] {
@@ -28,6 +31,10 @@
     --side: #1b1e24;
     --accent: #6cb2ff;
     --code: #22262d;
+}
+
+:root[data-theme="dark"] .logo {
+    filter: invert(1);
 }
 
 body {
@@ -216,6 +223,19 @@ blockquote {
     cursor: pointer;
     font-size: 1rem;
 }
+
 #theme-toggle:hover {
     border-color: var(--accent);
+}
+
+#app,
+#app .msp-plugin,
+#app .msp-plugin-content,
+#app .msp-layout-region,
+#app .msp-layout-static,
+#app .msp-viewport,
+#app .msp-viewport > div,
+#app canvas {
+    border-radius: 8px;
+    overflow: hidden;
 }

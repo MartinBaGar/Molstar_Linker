@@ -30,3 +30,4 @@ node_modules/
 # WXT Generated Folders
 .wxt/
 .output/
+*~

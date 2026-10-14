@@ -161,11 +161,11 @@ adb reverse tcp:3000 tcp:3000 &&
 npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv3-dev -e js,json,html,css --delay 2 --exec 'adb push .output/molstar-linker-chromium-dev /sdcard/Download/'\"
 """
 
-# 9. DOCS SITE (Hugo)
+# 9. DOCS SITE (Org)
 [tasks.serve]
 description = "Start the Hugo development server (with drafts)"
-cmd         = "echo 'Starting Hugo server in $DOCS_DIR...' && hugo server -s $DOCS_DIR -D --disableFastRender --baseURL \"http://localhost:1313/\""
+cmd         = "xdg-open docs/index.html"
 
 [tasks.build-site]
-description = "Build the Hugo static site for production"
-cmd         = "hugo --minify"
+description = "Build the Org static site for production"
+cmd         = "emacs -Q --batch -l build.el"

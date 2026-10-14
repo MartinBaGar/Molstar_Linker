@@ -85,7 +85,7 @@
          (up (apply #'concat (make-list (1- (length (split-string rel "/"))) "../"))))
     (concat
      (format "<link rel=\"stylesheet\" href=\"%sassets/site.css\" />" up)
-     (format "<a class=\"brand\" href=\"%sindex.html\"><img src=\"%sassets/icon128.png\" alt=\"\" /> Mol* Linker</a>"
+     (format "<a class=\"brand\" href=\"%sindex.html\"><img class=\"logo\" src=\"%sassets/icon.svg\" alt=\"\" /> Mol* Linker</a>"
              up up)
      "<nav id=\"menu\">" (site-menu (site-path "org/") current up) "</nav>"
      "<button id=\"theme-toggle\" type=\"button\" title=\"Toggle light/dark\">&#9680;</button>"
