@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2026-10-14 Wed 02:10 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Custom Rules</title>
+<meta name="generator" content="Org Mode" />
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="stylesheet" href="../assets/site.css" /><a class="brand" href="../index.html"><img src="../assets/icon128.png" alt="" /> Mol* Linker</a><nav id="menu"><ul><li><details open><summary><a href="../usage/index.html">Getting Started</a></summary><ul><li><a href="../usage/installation.html">Installation</a></li><li><a href="../usage/usage.html">Opening a Structure</a></li><li><a class="active" href="../usage/custom-rules.html">Custom Rules</a></li></ul></details></li><li><details><summary><a href="../configuration/index.html">Configuration</a></summary><ul><li><a href="../configuration/custom-domains.html">Custom Domains</a></li></ul></details></li><li><details><summary><a href="../misc/index.html">Misc</a></summary><ul><li><a href="../misc/badge-data-flow.html">Badge data flow</a></li></ul></details></li><li><a href="../faq.html">FAQ & Troubleshooting</a></li></ul></nav><button id="theme-toggle" type="button" title="Toggle light/dark">&#9680;</button><script src="../assets/theme.js"></script>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Custom Rules</h1>
+</header><p>
+Power users can define default visual representations or styles for specific selections (e.g., chains, residues). Custom rules are applied automatically when opening a structure in the <b>Mol*</b> viewer.
+</p>
+
+<p>
+<b>How to Add a Custom Rule</b>:
+</p>
+<ol class="org-ol">
+<li>Open the <b>Mol</b> Linker popup* by clicking the extension icon in your browser toolbar.</li>
+<li>Navigate to the <b>Options</b> tab.</li>
+<li>In the <b>Custom Rules</b> section, click <b>Add Rule</b>.</li>
+<li>Fill in the fields using the <a href="https://molstar.org/viewer-docs/molviewspec">MolViewSpec expression language</a>:
+<ul class="org-ul">
+<li><b>Name</b>: A descriptive label (e.g., "Active Site").</li>
+<li><b>Selection</b>: A MolViewSpec selector (e.g., <code>{ "chain_id": "A", "residue_number": [100, 110] }</code>).</li>
+<li><b>Representation</b>: Choose a type (e.g., "highlight", "surface") and set properties like color or opacity.</li>
+</ul></li>
+<li>Click <b>Save</b>. The rule will apply to all future structures.</li>
+</ol>
+</div>
+</body>
+</html>

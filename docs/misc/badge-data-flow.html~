@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2026-10-14 Wed 01:13 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Badge data flow</title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav><a href="../index.html">Home</a> <a href="../usage/index.html">Usage</a> <a href="../configuration/index.html">Configuration</a> <a href="../misc/index.html">Misc</a> <a href="../faq.html">FAQ</a></nav>
+</div>
+<div id="content" class="content">
+<h1 class="title">Badge data flow</h1>
+<p>
+This diagram retraces the data flow from badge creation to structure file loading into a new Mol* tab. It aims to help understand the communication between each script and its underlying logic.
+</p>
+
+
+<div id="orgf60e63c" class="figure">
+<p><img src="../assets/badge-flow-diagram-preview.png" alt="badge-flow-diagram-preview.png" />
+</p>
+</div>
+</div>
+</body>
+</html>

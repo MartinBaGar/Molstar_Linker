@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2026-10-14 Wed 02:10 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FAQ &amp; Troubleshooting</title>
+<meta name="generator" content="Org Mode" />
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="stylesheet" href="assets/site.css" /><a class="brand" href="index.html"><img src="assets/icon128.png" alt="" /> Mol* Linker</a><nav id="menu"><ul><li><details><summary><a href="usage/index.html">Getting Started</a></summary><ul><li><a href="usage/installation.html">Installation</a></li><li><a href="usage/usage.html">Opening a Structure</a></li><li><a href="usage/custom-rules.html">Custom Rules</a></li></ul></details></li><li><details><summary><a href="configuration/index.html">Configuration</a></summary><ul><li><a href="configuration/custom-domains.html">Custom Domains</a></li></ul></details></li><li><details><summary><a href="misc/index.html">Misc</a></summary><ul><li><a href="misc/badge-data-flow.html">Badge data flow</a></li></ul></details></li><li><a class="active" href="faq.html">FAQ & Troubleshooting</a></li></ul></nav><button id="theme-toggle" type="button" title="Toggle light/dark">&#9680;</button><script src="assets/theme.js"></script>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">FAQ &amp; Troubleshooting</h1>
+</header><p>
+<b>Why doesn’t the badge appear next to my file?</b>
+</p>
+<ul class="org-ul">
+<li>The file extension may not be supported.</li>
+<li>The site may not be fully supported. Try refreshing the page or authorizing a custom domain.</li>
+<li>The file link may be hidden or loaded dynamically. Wait for the page to fully load.</li>
+</ul>
+
+<p>
+<b>I get a download error when clicking the badge.</b>
+</p>
+<ul class="org-ul">
+<li>The file URL may be too long (max 2048 characters). Shorten the filename or host it elsewhere.</li>
+<li>The site may have CORS restrictions. Try opening the file in a new tab manually.</li>
+<li>The file may be corrupted or in an unsupported format.</li>
+</ul>
+
+<p>
+<b>It works on GitHub but not my institutional GitLab.</b>
+</p>
+<ul class="org-ul">
+<li>Your institutional GitLab is likely a private instance. <a href="configuration/custom-domains.html">Authorize the domain</a> in the extension’s <b>Options</b> tab.</li>
+<li>Ensure the domain uses <code>https://</code> and is publicly accessible.</li>
+</ul>
+
+<p>
+<b>The Mol</b> viewer fails to load the structure.*
+</p>
+<ul class="org-ul">
+<li>The file may be corrupted or in an unsupported format. Verify the file integrity.</li>
+<li>The extension’s sandbox may have failed to load. Refresh the page or reinstall the extension.</li>
+</ul>
+
+<p>
+<b>The badge appears but nothing happens when I click it.</b>
+</p>
+<ul class="org-ul">
+<li>Site scripts may be blocking the click handler. Disable conflicting extensions or site scripts.</li>
+<li>The extension context may be invalidated. Refresh the page or restart your browser.</li>
+</ul>
+</div>
+</body>
+</html>
