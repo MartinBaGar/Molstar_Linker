@@ -6,7 +6,6 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [dependencies]
-hugo = ">=0.163.3,<0.164"
 nodejs = ">=26.4.0,<26.5"
 prettier = ">=3.9.3,<4"
 pnpm = ">=11.10.0,<12"
@@ -163,7 +162,7 @@ npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv
 
 # 9. DOCS SITE (Org)
 [tasks.serve]
-description = "Start the Hugo development server (with drafts)"
+description = "Open the website in the browser"
 cmd         = "xdg-open docs/index.html"
 
 [tasks.build-site]
