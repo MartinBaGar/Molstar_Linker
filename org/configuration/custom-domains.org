@@ -1,6 +1,5 @@
 #+title: Custom Domains
-#+hugo_weight: 310
-#+draft: false
+#+weight: 310
 
 Mol* Linker supports private instances of GitLab, Nextcloud, and other platforms. To enable the extension on custom domains:
 

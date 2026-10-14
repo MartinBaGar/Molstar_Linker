@@ -162,9 +162,17 @@ npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv
 
 # 9. DOCS SITE (Org)
 [tasks.serve]
-description = "Open the website in the browser"
-cmd         = "xdg-open docs/index.html"
+description = "Serve the docs on http://localhost:3000"
+cmd         = "pnpm dlx serve docs -l 3000"
+
+[tasks.serve-live]
+description = "Serve the docs with live reload on http://localhost:3000"
+cmd         = "pnpm dlx browser-sync start --server docs --files 'docs/**/*' --no-notify"
 
 [tasks.build-site]
 description = "Build the Org static site for production"
 cmd         = "emacs -Q --batch -l build.el"
+
+# [tasks.serve]
+# description = "Open the website in the browser"
+# cmd         = "xdg-open docs/index.html"

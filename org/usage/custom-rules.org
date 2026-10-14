@@ -1,5 +1,5 @@
 #+title: Custom Rules
-#+hugo_weight: 230
+#+weight: 230
 
 Power users can define default visual representations or styles for specific selections (e.g., chains, residues). Custom rules are applied automatically when opening a structure in the *Mol** viewer.
 

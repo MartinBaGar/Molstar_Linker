@@ -84,11 +84,11 @@
          (rel (file-relative-name current (site-path "org/")))
          (up (apply #'concat (make-list (1- (length (split-string rel "/"))) "../"))))
     (concat
-     (format "<link rel=\"stylesheet\" href=\"%sassets/site.css\" />" up)
+     (format "<link rel=\"stylesheet\" href=\"%sassets/site/site.css\" />" up)
      (format "<a class=\"brand\" href=\"%sindex.html\"><img class=\"logo\" src=\"%sassets/icon.svg\" alt=\"\" /> Mol* Linker</a>"
              up up)
      "<nav id=\"menu\">" (site-menu (site-path "org/") current up) "</nav>"
      "<button id=\"theme-toggle\" type=\"button\" title=\"Toggle light/dark\">&#9680;</button>"
-     (format "<script src=\"%sassets/theme.js\"></script>" up))))
+     (format "<script src=\"%sassets/site/theme.js\"></script>" up))))
 
 ;;; site.el ends here

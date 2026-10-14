@@ -1,7 +1,5 @@
 #+title: Installation
-#+hugo_weight: 210
-
-* Install Mol* Linker
+#+weight: 210
 
 Install Mol* Linker in two simple steps. Choose your browser below:
 
@@ -14,3 +12,5 @@ Install Mol* Linker in two simple steps. Choose your browser below:
 2. Click *Add to Firefox* and confirm the installation.
 
 The extension will activate automatically. No restart is required.
+
+You are now ready to [[file:usage.org][open structures]] in your browser !

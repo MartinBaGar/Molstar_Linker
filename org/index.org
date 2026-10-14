@@ -1,5 +1,3 @@
-#+title: Mol* Linker
-
 #+begin_export html
 <link rel="stylesheet" href="assets/vendor/molstar.css" />
 <div id="app" data-model="assets/models/welcome.molx"
@@ -25,6 +23,5 @@ Welcome to the official documentation for Mol* Linker!
 Researchers often encounter molecular structure files (.pdb, .cif, .gro, etc.) while browsing repositories, datasets, or institutional storage. Downloading these files manually just to visualize them in a separate tool disrupts workflows and slows discovery.
 
 Mol* Linker eliminates this friction. It automatically detects structure files on supported sites and injects a one-click badge to open them directly in the *Mol** web viewer. No downloads, no context-switching. Just instant, interactive visualization.
-
 
 Let's [[file:usage/index.org][get started]] !

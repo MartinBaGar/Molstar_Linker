@@ -13,7 +13,7 @@
 (load (site-path "tools/org-img.el"))
 (load (site-path "tools/site.el"))
 
-(setq org-img-dir (site-path "org/assets/"))
+(setq org-img-dir (site-path "org/assets/img"))
 
 (setq org-publish-project-alist
       `(("pages"

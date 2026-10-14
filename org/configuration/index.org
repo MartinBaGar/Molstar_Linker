@@ -1,5 +1,5 @@
 #+TITLE: Configuration
-#+HUGO_WEIGHT: 300
+#+WEIGHT: 300
 
 Mol* Linker is designed to be usable on custom domains in addition of the default ones.
-# Look [[file:custom-domains.org][here]] to learn how to add them.
+Look [[file:custom-domains.org][here]] to learn how to add them.

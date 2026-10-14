@@ -1,24 +1,23 @@
 #+TITLE: Getting Started
-#+HUGO_WEIGHT: 200
-#+hugo_section: docs/usage
+#+WEIGHT: 200
 
 ** Installation
-:PROPERTIES:
-:CUSTOM_ID: installation
-:END:
-
 If not installed yet, you can refer to [[file:installation.org][those]] instructions to get it on your browser
 
-** Websites supported by default
+** How to use it
+Using Mol* Linker should be intuitive as it will automatically add badges next to the structure files you want to see. Simply pay a visit to the supported websites and see what has changed ! Get more information on what it looks like and how to use it in [[file:usage.org][this section]].
+
+** Where to use it
 Mol* Linker works out-of-the-box on the following sites. The badge appears automatically next to supported file links.
 
-| *Site*       | *Trigger Condition*                                                             | *Caveats/Notes*                                                                                        |
-|------------+-------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------|
-| GitHub     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file tree or raw file button.                                |
-| GitLab     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file tree or download button.                                |
-| Figshare   | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to download links. File extension detection may fall back to parent element text. |
-| Zenodo     | File extensions: .pdb, .cif, .bcif, .mol, .sdf, .xyz, .ent, .ccp4, .mrc, .map | Badge appears next to file links in the file table.                                                  |
-| Nextcloud  | File extensions: Detected from file list elements.                            | Badge appears next to file links. URLs are constructed using WebDAV paths.                           |
-| FileSender | File extensions: Detected from download links or parent element text.         | Badge appears next to download links. Only single-file downloads are supported.                      |
+| *Site*       | *Caveats/Notes*                                                                                        |
+|------------+------------------------------------------------------------------------------------------------------|
+| GitHub     | Badge appears next to file links in the file tree or raw file button.                                |
+| GitLab     | Badge appears next to file links in the file tree or download button.                                |
+| Figshare   | Badge appears next to download links. File extension detection may fall back to parent element text. |
+| Zenodo     | Badge appears next to file links in the file table.                                                  |
+| Nextcloud  | Badge appears next to file links. URLs are constructed using WebDAV paths.                           |
+| FileSender | Badge appears next to download links. Only single-file downloads are supported.                      |
 
-Get more information on [[file:usage.org][how to use]] it there.
+In addition to the default websites, Mol* Linker can also open structures hosted on private instances of your favorite hosts (i.e myunit.gitlab.com). It is convenient if you work with private data that you don't want to expose to the public. Refer to the [[file:~/git-repos/molstar_linker/org/configuration/custom-domains.org][corresponding section]] to know more !
+

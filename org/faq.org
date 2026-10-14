@@ -1,6 +1,5 @@
 #+title: FAQ & Troubleshooting
-#+hugo_weight: 500
-#+draft: false
+#+weight: 500
 
 *Why doesn’t the badge appear next to my file?*
 - The file extension may not be supported.
