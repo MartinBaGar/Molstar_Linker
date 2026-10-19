@@ -108,7 +108,9 @@
       resetInactivityTimer();
       const response = await fetch(rawUrl, { signal: controller.signal });
       if (!response.ok)
-        throw new Error(`${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch file: ${response.status} ${response.statusText}`,
+        );
 
       const contentLength = response.headers.get("Content-Length");
       const total = contentLength ? parseInt(contentLength, 10) : null;
@@ -123,22 +125,6 @@
         if (blob.size > MAX_BYTES)
           throw new Error("File exceeds the size limit.");
         finalBuffer = await blob.arrayBuffer();
-      } else if (total) {
-        finalBuffer = new ArrayBuffer(total);
-        const view = new Uint8Array(finalBuffer);
-        const reader = response.body.getReader();
-        let offset = 0;
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          resetInactivityTimer();
-          if (offset + value.length > total)
-            throw new Error("Response exceeded declared size.");
-          view.set(value, offset);
-          offset += value.length;
-          loadingMessage = `Downloading structure… ${Math.round((offset / total) * 100)}%`;
-        }
       } else {
         const reader = response.body.getReader();
         const chunks: Uint8Array[] = [];
@@ -148,11 +134,21 @@
           const { done, value } = await reader.read();
           if (done) break;
           resetInactivityTimer();
+
           chunks.push(value);
           received += value.length;
+
           if (received > MAX_BYTES)
             throw new Error("File exceeds the size limit.");
-          loadingMessage = `Downloading structure… ${(received / (1024 * 1024)).toFixed(1)} MB`;
+
+          if (total && received <= total) {
+            // Standard progress based on compressed Content-Length
+            loadingMessage = `Downloading structure… ${Math.round((received / total) * 100)}%`;
+          } else {
+            // If the stream decompresses to a size larger than the Content-Length header,
+            // fallback to showing the MB downloaded to avoid >100% progress
+            loadingMessage = `Downloading structure… ${(received / (1024 * 1024)).toFixed(1)} MB`;
+          }
         }
 
         const combined = new Uint8Array(received);
@@ -163,7 +159,6 @@
         }
         finalBuffer = combined.buffer;
       }
-
       loadingMessage = "Preparing viewer…";
       spawnIframe(finalBuffer, mimeType ?? null, safeFormat, rawUrl);
     } catch (error: unknown) {
@@ -238,14 +233,14 @@
   <div id="loading">
     <div
       style="
-                        background: white;
-                        padding: 20px 30px;
-                        border-radius: 8px;
-                        text-align: center;
-                        color: #333;
-                        max-width: 400px;
-                        margin: 0 auto;
-                "
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      text-align: center;
+      color: #333;
+      max-width: 400px;
+      margin: 0 auto;
+      "
     >
       <h3 style="margin-top: 0; color: #d73a49">Download Blocked</h3>
       <p
