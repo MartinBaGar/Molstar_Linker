@@ -24,6 +24,7 @@
          :publishing-function org-html-publish-to-html
          :html-doctype "html5"
          :html-html5-fancy t
+         :time-stamp-file nil
          :with-toc 3
          :section-numbers nil
          :with-author nil

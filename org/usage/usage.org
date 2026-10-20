@@ -9,20 +9,22 @@ There are two ways to visualize your file with Mol* Linker:
 1. Spot a molecular structure file (e.g., .pdb, .cif) on a supported site. A green *Mol** badge appears next to the file link or download button.
 
 2. Click the badge.
-#+ATTR_HTML: :width 70% :class center-image
-[[img:github_mol_badge.png]]
+ #+ATTR_HTML: :width 70% :class center-image
+ [[img:github_mol_badge.png]]
 
 3. The file opens in the Mol* web viewer in a new tab.
-#+ATTR_HTML: :width 70% :class center-image
-[[img:github_mol_tab.png]]
+ #+ATTR_HTML: :width 70% :class center-image
+ [[img:github_mol_tab.png]]
 
 The badge appears automatically, no configuration required.
 
 ** Context menu
 1. Spot a molecular structure file (e.g., =.pdb=, =.cif=) on a supported site.
+   
 2. Righ-click on the link to download the file. The context menu should appear.
-#+ATTR_HTML: :width 70% :class center-image
-[[img:rcsb_context-menu.png]]
+ #+ATTR_HTML: :width 70% :class center-image
+ [[img:rcsb_context-menu.png]]
+ 
 3. Click on "Open in Mol* Viewer" to visualize your file in a new tab.
 
 
