@@ -2,22 +2,16 @@
 #+WEIGHT: 200
 
 ** Installation
-If not installed yet, you can refer to [[file:installation.org][those]] instructions to get it on your browser
+Mol* Linker is available and fully compatible on Firefox and Chromium web browsers. It can also be used on mobile officially on Firefox and non-officially on Chromium solutions. Refer to the [[file:installation.org][Installation section]] for more information. 
 
 ** How to use it
-Using Mol* Linker should be intuitive as it will automatically add badges next to the structure files you want to see. Simply pay a visit to the supported websites and see what has changed ! Get more information on what it looks like and how to use it in [[file:usage.org][this section]].
+Having Mol* Linker enabled will automatically inject badges next to the structure files you want to see. Simply pay a visit to the supported websites and see what has changed ! You can also open your file from the browser context menu (right-click). Get more information on what it looks like and how to use it in the [[file:usage.org][Usage section]].
 
 ** Where to use it
 Mol* Linker works out-of-the-box on the following sites. The badge appears automatically next to supported file links.
 
-| *Site*       | *Caveats/Notes*                                                                                        |
-|------------+------------------------------------------------------------------------------------------------------|
-| GitHub     | Badge appears next to file links in the file tree or raw file button.                                |
-| GitLab     | Badge appears next to file links in the file tree or download button.                                |
-| Figshare   | Badge appears next to download links. File extension detection may fall back to parent element text. |
-| Zenodo     | Badge appears next to file links in the file table.                                                  |
-| Nextcloud  | Badge appears next to file links. URLs are constructed using WebDAV paths.                           |
-| FileSender | Badge appears next to download links. Only single-file downloads are supported.                      |
+- *Code/Version Control:* GitHub, GitLab
+- *Data/Research Repositories:* Figshare, Zenodo
+- *File Storage/Sharing:* Nextcloud, FileSender
 
-In addition to the default websites, Mol* Linker can also open structures hosted on private instances of your favorite hosts (i.e myunit.gitlab.com). It is convenient if you work with private data that you don't want to expose to the public. Refer to the [[file:~/git-repos/molstar_linker/org/configuration/custom-domains.org][corresponding section]] to know more !
-
+In addition to the default websites, Mol* Linker can also open structures hosted on private instances of your favorite hosts (i.e myunit.gitlab.com). It is convenient if you work with private data that you don't want to expose to the public. Refer to the [[file:../configuration/custom-domains.org][Custom Domains section]] to know more !

@@ -24,6 +24,9 @@ importers:
       '@wxt-dev/module-svelte':
         specifier: ^2.0.5
         version: 2.0.5(svelte@5.56.4)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.27.7)(jiti@2.7.0))(wxt@0.20.27(@types/node@26.1.1)(jiti@2.7.0)(rolldown@1.1.5))
+      lightbox3:
+        specifier: ^1.4.0
+        version: 1.4.0
       prettier:
         specifier: ^3.8.3
         version: 3.9.9
@@ -1396,6 +1399,9 @@ packages:
 
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
+
+  lightbox3@1.4.0:
+    resolution: {integrity: sha512-1JHKBAZC7OXjAKrXWDR4msoOUJuF4FNsgwsQJh9ng/EU10HufuYGz/oLkvCDT5k75kXoJKVYxUJXLn/0mqzuIA==}
 
   lighthouse-logger@2.0.2:
     resolution: {integrity: sha512-vWl2+u5jgOQuZR55Z1WM0XDdrJT6mzMP8zHUct7xTlWhuQs+eV0g+QL0RQdFjT54zVmbhLCP8vIVpy1wGn/gCg==}
@@ -3768,6 +3774,8 @@ snapshots:
   lie@3.3.0:
     dependencies:
       immediate: 3.0.6
+
+  lightbox3@1.4.0: {}
 
   lighthouse-logger@2.0.2:
     dependencies:

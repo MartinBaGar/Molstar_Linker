@@ -1,7 +1,7 @@
 #+begin_export html
 <link rel="stylesheet" href="assets/vendor/molstar.css" />
 <div id="app" data-model="assets/models/welcome.molx"
-     style="position: relative; width: 100%; height: 300px; border-radius: 8px; overflow: hidden; margin-top: 2rem;"></div>
+     style="position: relative; width: 100%; height: 200px; border-radius: 8px; overflow: hidden; margin-top: 2rem;"></div>
 <script src="assets/vendor/molstar.js"></script>
 <script>
   molstar.Viewer.create('app', {

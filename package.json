@@ -28,6 +28,7 @@
   "devDependencies": {
     "@tsconfig/svelte": "^5.0.8",
     "@wxt-dev/module-svelte": "^2.0.5",
+    "lightbox3": "^1.4.0",
     "prettier": "^3.8.3",
     "prettier-plugin-svelte": "^4.1.0",
     "svelte-check": "^4.7.2",

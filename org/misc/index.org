@@ -1,5 +1,6 @@
 #+title: Misc
 #+WEIGHT: 400
 
-Additional information on various aspects of the extension.
+Additional information on the extension.
 
+Consult this [[file:badge-data-flow.org][Badge Data Flow]] diagram to know what is happening behind the scenes from the link detection to the badge injection and click.

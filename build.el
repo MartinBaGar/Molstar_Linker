@@ -45,7 +45,13 @@
          :publishing-directory ,(site-path "docs/assets/vendor/")
          :publishing-function org-publish-attachment)
 
-        ("site" :components ("pages" "static" "molstar"))))
+        ("lightbox"
+         :base-directory ,(site-path "node_modules/lightbox3/dist/")
+         :base-extension "js\\|css"
+         :publishing-directory ,(site-path "docs/assets/vendor/")
+         :publishing-function org-publish-attachment)
+
+        ("site" :components ("pages" "static" "molstar" "lightbox"))))
 
 ;; Publish only in batch, so loading this file in an open Emacs
 ;; just defines the project.

@@ -8,14 +8,11 @@
 
 *I get a download error when clicking the badge.*
 - The file URL may be too long (max 2048 characters). Shorten the filename or host it elsewhere.
-- The site may have CORS restrictions. Try opening the file in a new tab manually.
-- The file may be corrupted or in an unsupported format.
 
 *It works on GitHub but not my institutional GitLab.*
 - Your institutional GitLab is likely a private instance. [[file:configuration/custom-domains.org][Authorize the domain]] in the extension’s *Options* tab.
-- Ensure the domain uses =https://= and is publicly accessible.
 
-*The Mol* viewer fails to load the structure.*
+*The Mol​* viewer fails to load the structure.*
 - The file may be corrupted or in an unsupported format. Verify the file integrity.
 - The extension’s sandbox may have failed to load. Refresh the page or reinstall the extension.
 

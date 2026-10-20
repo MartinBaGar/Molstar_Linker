@@ -2,4 +2,5 @@
   . ((eval . (setq-local org-img-dir
                          (expand-file-name
                           "org/assets/img"
-                          (locate-dominating-file default-directory ".dir-locals.el")))))))
+                          (locate-dominating-file default-directory ".dir-locals.el"))))
+     (eval . (setq-local org-link-file-path-type 'relative)))))

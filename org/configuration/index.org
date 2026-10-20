@@ -1,5 +1,6 @@
 #+TITLE: Configuration
 #+WEIGHT: 300
 
-Mol* Linker is designed to be usable on custom domains in addition of the default ones.
-Look [[file:custom-domains.org][here]] to learn how to add them.
+Currently, Mol* Linker is a usable but not customizable tool.
+
+That being said, you can currently configure what sites it should work on. Refer to the [[file:custom-domains.org][Custom Domains]] for additional information.

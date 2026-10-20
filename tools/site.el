@@ -85,10 +85,12 @@
          (up (apply #'concat (make-list (1- (length (split-string rel "/"))) "../"))))
     (concat
      (format "<link rel=\"stylesheet\" href=\"%sassets/site/site.css\" />" up)
-     (format "<a class=\"brand\" href=\"%sindex.html\"><img class=\"logo\" src=\"%sassets/icon.svg\" alt=\"\" /> Mol* Linker</a>"
-             up up)
+     (format "<a class=\"brand\" href=\"%sindex.html\"><img class=\"logo\" src=\"%sassets/icon.svg\" alt=\"\" /> Mol* Linker</a>" up up)
      "<nav id=\"menu\">" (site-menu (site-path "org/") current up) "</nav>"
      "<button id=\"theme-toggle\" type=\"button\" title=\"Toggle light/dark\">&#9680;</button>"
+     (format "<link rel=\"stylesheet\" href=\"%sassets/vendor/lightbox3.css\" />" up)
+     (format "<script src=\"%sassets/site/lightbox-wrap.js\"></script>" up)
+     (format "<script src=\"%sassets/vendor/lightbox3.min.js\"></script>" up)
      (format "<script src=\"%sassets/site/theme.js\"></script>" up))))
 
 ;;; site.el ends here

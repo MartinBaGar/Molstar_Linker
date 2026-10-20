@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2026-10-14 Wed 19:04 -->
+<!-- 2026-10-20 Tue 13:49 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Custom Domains</title>
@@ -9,7 +9,7 @@
 </head>
 <body>
 <div id="preamble" class="status">
-<link rel="stylesheet" href="../assets/site/site.css" /><a class="brand" href="../index.html"><img class="logo" src="../assets/icon.svg" alt="" /> Mol* Linker</a><nav id="menu"><ul><li><details><summary><a href="../usage/index.html">Getting Started</a></summary><ul><li><a href="../usage/installation.html">Installation</a></li><li><a href="../usage/usage.html">Opening a Structure</a></li><li><a href="../usage/custom-rules.html">Custom Rules</a></li></ul></details></li><li><details open><summary><a href="../configuration/index.html">Configuration</a></summary><ul><li><a class="active" href="../configuration/custom-domains.html">Custom Domains</a></li></ul></details></li><li><details><summary><a href="../misc/index.html">Misc</a></summary><ul><li><a href="../misc/badge-data-flow.html">Badge data flow</a></li></ul></details></li><li><a href="../faq.html">FAQ & Troubleshooting</a></li></ul></nav><button id="theme-toggle" type="button" title="Toggle light/dark">&#9680;</button><script src="../assets/site/theme.js"></script>
+<link rel="stylesheet" href="../assets/site/site.css" /><a class="brand" href="../index.html"><img class="logo" src="../assets/icon.svg" alt="" /> Mol* Linker</a><nav id="menu"><ul><li><details><summary><a href="../usage/index.html">Getting Started</a></summary><ul><li><a href="../usage/installation.html">Installation</a></li><li><a href="../usage/usage.html">Opening a Structure</a></li><li><a href="../usage/custom-rules.html">Custom Rules</a></li></ul></details></li><li><details open><summary><a href="../configuration/index.html">Configuration</a></summary><ul><li><a class="active" href="../configuration/custom-domains.html">Custom Domains</a></li></ul></details></li><li><details><summary><a href="../misc/index.html">Misc</a></summary><ul><li><a href="../misc/badge-data-flow.html">Badge data flow</a></li></ul></details></li><li><a href="../faq.html">FAQ & Troubleshooting</a></li></ul></nav><button id="theme-toggle" type="button" title="Toggle light/dark">&#9680;</button><link rel="stylesheet" href="../assets/vendor/lightbox3.css" /><script src="../assets/site/lightbox-wrap.js"></script><script src="../assets/vendor/lightbox3.min.js"></script><script src="../assets/site/theme.js"></script>
 </div>
 <div id="content" class="content">
 <header>
@@ -19,25 +19,46 @@ Mol* Linker supports private instances of GitLab, Nextcloud, and other platforms
 </p>
 
 <ol class="org-ol">
-<li>Open the <b>Mol</b> Linker popup* by clicking the extension icon in your browser toolbar.</li>
-<li>Navigate to the <b>Options</b> tab.</li>
-<li>In the <b>Custom Domains</b> section, enter the domain (e.g., <code>institutional.gitlab.com</code>).</li>
-<li>Click <b>Authorize</b>. Your browser will prompt you to grant permissions for the domain.</li>
-<li>Confirm the permission request.</li>
+<li><p>
+Visit the private instance hosting your file.
+</p>
+
+<figure id="orgf3b3bef">
+<img src="../assets/img/gitlab_instance.png" alt="gitlab_instance.png" width="70%" class="center-image">
+
+</figure></li>
+
+<li><p>
+Open the Mol* Linker popup by clicking the extension icon in your browser toolbar.
+</p>
+
+<figure id="orgf9824bb">
+<img src="../assets/img/gitlab_instance_auth_popup.png" alt="gitlab_instance_auth_popup.png" width="70%" class="center-image">
+
+</figure></li>
+
+<li><p>
+Click on the "Authorize This Domain" button which will allow Mol* Linker the request authorizations for your instance.
+</p>
+
+<figure id="org257b5c7">
+<img src="../assets/img/gitlab_instance_perm_request.png" alt="gitlab_instance_perm_request.png" width="70%" class="center-image">
+
+</figure></li>
+
+<li><p>
+Allow the new permissions request.
+</p>
+
+<figure id="org425918e">
+<img src="../assets/img/gitlab_instance_badge_tab.png" alt="gitlab_instance_badge_tab.png" width="70%" class="center-image">
+
+</figure></li>
 </ol>
 
 <p>
-The extension will now inject badges on the authorized domain. No page refresh is required.
+You should now be able to see a badge appear.
 </p>
-
-<p>
-<b>Friction Points</b>:
-</p>
-<ul class="org-ul">
-<li>You must grant permissions for each custom domain individually.</li>
-<li>The domain must use <code>https://</code> and be publicly accessible (no private IP addresses).</li>
-<li>If the badge doesn’t appear, check the <a href="faq.html">FAQ</a> for troubleshooting steps.</li>
-</ul>
 </div>
 </body>
 </html>

@@ -31,3 +31,5 @@ node_modules/
 .wxt/
 .output/
 *~
+*.xcf
+*.bkp

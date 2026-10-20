@@ -172,7 +172,3 @@ cmd         = "pnpm dlx browser-sync start --server docs --files 'docs/**/*' --n
 [tasks.build-site]
 description = "Build the Org static site for production"
 cmd         = "emacs -Q --batch -l build.el"
-
-# [tasks.serve]
-# description = "Open the website in the browser"
-# cmd         = "xdg-open docs/index.html"
