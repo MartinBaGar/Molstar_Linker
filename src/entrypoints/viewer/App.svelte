@@ -16,6 +16,11 @@
   let pendingUrl = "";
 
   let currentIframe: HTMLIFrameElement | null = null;
+  let sandboxIsReady = false;
+
+  // If the sandbox page never reports SANDBOX_READY (blocked script, CSP error…)
+  // show an error instead of spinning forever on "Preparing viewer…".
+  const SANDBOX_START_TIMEOUT_MS = 20_000;
 
   // ---------------------------------------------------------------------------
   // 2. Iframe Management
@@ -31,10 +36,10 @@
     format: string | null,
     rawUrl: string | null,
   ): void {
+    // Validate the sender by window reference, never by origin: the sandbox has
+    // an opaque ("null") origin in both Chrome and Firefox. event.source is set
+    // by the browser and cannot be spoofed by the sender.
     const molstarReadyListener = (e: MessageEvent) => {
-      // Validate sender by window reference.
-      // The sandbox has origin "null" in Chrome so origin checks are unreliable.
-      // event.source is set by the browser and cannot be spoofed.
       if (
         e.data?.action !== "MOLSTAR_READY" ||
         e.source !== currentIframe?.contentWindow
@@ -54,7 +59,7 @@
       window.removeEventListener("message", molstarReadyListener);
       window.removeEventListener("message", molstarErrorListener);
       errorMessage = e.data.error
-        ? `Mol* failed to load the structure: ${e.data.error}`
+        ? `Mol* failed to load the structure: ${String(e.data.error)}`
         : "Mol* failed to load the structure.";
       isLoading = false;
     };
@@ -71,11 +76,10 @@
         format,
         originalUrl: rawUrl,
       };
+      // "*" is required: a sandboxed page has an opaque origin, so there is no
+      // origin string we could target. Security is enforced on the RECEIVE side
+      // with event.source checks.
       if (buffer) {
-        // '*' is required here — Chrome assigns origin "null" to
-        // sandboxed iframes, so a targeted origin would silently drop the message.
-        // Security is enforced on the RECEIVE side via event.source checks above,
-        // which the browser sets and which cannot be spoofed by any sender.
         currentIframe!.contentWindow!.postMessage(payload, "*", [buffer]);
       } else {
         currentIframe!.contentWindow!.postMessage(payload, "*");
@@ -106,7 +110,18 @@
 
     try {
       resetInactivityTimer();
-      const response = await fetch(rawUrl, { signal: controller.signal });
+      const response = await fetch(rawUrl, {
+        signal: controller.signal,
+        credentials: "omit",
+      });
+
+      // A safe URL may redirect somewhere unsafe (localhost, LAN…).
+      // Never display content that came from a blocked destination.
+      if (response.redirected && !isSafeUrl(response.url)) {
+        controller.abort();
+        throw new Error("Redirect to an unsafe or restricted URL blocked.");
+      }
+
       if (!response.ok)
         throw new Error(
           `Failed to fetch file: ${response.status} ${response.statusText}`,
@@ -145,8 +160,8 @@
             // Standard progress based on compressed Content-Length
             loadingMessage = `Downloading structure… ${Math.round((received / total) * 100)}%`;
           } else {
-            // If the stream decompresses to a size larger than the Content-Length header,
-            // fallback to showing the MB downloaded to avoid >100% progress
+            // If the stream decompresses to a size larger than Content-Length,
+            // show MB downloaded to avoid >100% progress
             loadingMessage = `Downloading structure… ${(received / (1024 * 1024)).toFixed(1)} MB`;
           }
         }
@@ -183,13 +198,25 @@
   // ---------------------------------------------------------------------------
   // 4. Initialization
   // ---------------------------------------------------------------------------
-  onMount(async () => {
+  onMount(() => {
     const onSandboxReady = (e: MessageEvent) => {
-      if (e.data?.action !== "SANDBOX_READY") return;
+      if (
+        e.data?.action !== "SANDBOX_READY" ||
+        e.source !== currentIframe?.contentWindow
+      )
+        return;
       window.removeEventListener("message", onSandboxReady);
+      sandboxIsReady = true;
       sandboxReadyResolve?.();
     };
     window.addEventListener("message", onSandboxReady);
+
+    const startupTimer = setTimeout(() => {
+      if (sandboxIsReady || errorMessage) return;
+      errorMessage =
+        "The viewer did not start. Reload the tab; if this persists, check the browser console.";
+      isLoading = false;
+    }, SANDBOX_START_TIMEOUT_MS);
 
     const urlParams = new URLSearchParams(window.location.search);
     const rawUrl = urlParams.get("fileUrl");
@@ -198,28 +225,28 @@
     if (!rawUrl) {
       loadingMessage = "Opening empty workspace…";
       spawnIframe(null, null, null, null);
-      return;
-    }
-
-    if (!isSafeUrl(rawUrl)) {
+    } else if (!isSafeUrl(rawUrl)) {
       errorMessage = "Error: request to unsafe or restricted URL blocked.";
       isLoading = false;
-      return;
-    }
-
-    if (!ALL_EXTENSIONS.has(format)) {
+    } else if (!ALL_EXTENSIONS.has(format)) {
       promptForFormat(rawUrl);
-      return;
+    } else {
+      bootWorkspace(rawUrl, format);
     }
 
-    bootWorkspace(rawUrl, format);
+    return () => {
+      clearTimeout(startupTimer);
+      window.removeEventListener("message", onSandboxReady);
+    };
   });
 
-  // The runtime message bus is extension-internal — no origin check needed.
-  // But we still use '*' on the forward into the iframe for the same reason
-  // as above: the sandbox origin is "null" in Chrome.
-  browser.runtime.onMessage.addListener((message) => {
-    if (message.action !== "SETTINGS_UPDATED") return;
+  // Settings pushed from the options/popup page are forwarded to the sandbox.
+  // The runtime bus also carries messages from content scripts (which run in
+  // web pages), so only accept senders that are extension pages of ours.
+  browser.runtime.onMessage.addListener((message: any, sender: any) => {
+    if (message?.action !== "SETTINGS_UPDATED") return;
+    if (sender?.id !== browser.runtime.id) return;
+    if (!sender?.url?.startsWith(browser.runtime.getURL(""))) return;
     if (!currentIframe?.contentWindow) return;
 
     currentIframe.contentWindow.postMessage(
@@ -242,7 +269,7 @@
       margin: 0 auto;
       "
     >
-      <h3 style="margin-top: 0; color: #d73a49">Download Blocked</h3>
+      <h3 style="margin-top: 0; color: #d73a49">Could not open structure</h3>
       <p
         style="font-size: 14px; color: #555; margin-bottom: 0; line-height: 1.5"
       >

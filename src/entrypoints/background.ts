@@ -1,10 +1,14 @@
 import { isSafeUrl, resolveUrl, findExtInText } from "~/utils/links.js";
+import { DOMAIN_RE, PermissionsManager } from "~/core/permissions.js";
 
 if (typeof browser !== "undefined" && !browser.commands) {
   (browser as any).commands = {
     onCommand: { addListener: () => {} },
   };
 }
+
+// Format hints are file extensions ("pdb", "cif", "unknown"…), nothing else.
+const FORMAT_RE = /^[a-z0-9]{0,16}$/i;
 
 export default defineBackground(() => {
   // ---------------------------------------------------------------------------
@@ -34,6 +38,7 @@ export default defineBackground(() => {
       const extension = findExtInText(info.linkUrl) || "unknown";
       const url = new URL(info.linkUrl);
       const resolvedUrl = resolveUrl(url);
+      if (!isSafeUrl(resolvedUrl)) return;
 
       const viewerUrl = new URL(browser.runtime.getURL("/viewer.html"));
       viewerUrl.searchParams.append("fileUrl", resolvedUrl);
@@ -47,18 +52,20 @@ export default defineBackground(() => {
   // FEATURE 2: Message router — handles "open_viewer" from content scripts
   // ---------------------------------------------------------------------------
   browser.runtime.onMessage.addListener((message: any, sender: any) => {
-    if (message.action !== "open_viewer") return;
+    if (message?.action !== "open_viewer") return;
 
-    // Must come from a real tab
-    if (!sender.tab?.id) return;
+    // Must come from a real tab of this extension
+    if (!sender?.tab?.id || sender.id !== browser.runtime.id) return;
 
-    // Validate URL and format before building the viewer URL
-    if (!message.url || !isSafeUrl(message.url)) return;
-    // if (!ALL_EXTENSIONS.has(message.format)) return;
+    // Validate URL and format before building the viewer URL.
+    // (The viewer re-validates both; this is defense in depth.)
+    if (typeof message.url !== "string" || !isSafeUrl(message.url)) return;
+    const format = typeof message.format === "string" ? message.format : "";
+    if (!FORMAT_RE.test(format)) return;
 
     const viewerUrl = new URL(browser.runtime.getURL("/viewer.html"));
     viewerUrl.searchParams.append("fileUrl", message.url);
-    viewerUrl.searchParams.append("format", message.format);
+    viewerUrl.searchParams.append("format", format);
 
     browser.tabs.create({ url: viewerUrl.toString() });
   });
@@ -68,7 +75,8 @@ export default defineBackground(() => {
     domain: string,
     pattern: string,
   ): Promise<void> {
-    const id = `ms-script-${domain.replace(/\./g, "-")}`;
+    const id = PermissionsManager.getScriptId(domain);
+
     try {
       if (browser.scripting?.registerContentScripts) {
         // Chrome MV3 Path
@@ -140,8 +148,9 @@ export default defineBackground(() => {
     };
 
     for (const domain of data.customDomains) {
+      if (typeof domain !== "string" || !DOMAIN_RE.test(domain)) continue;
       const pattern = `*://${domain}/*`;
-      // Just register for future loads (no need to active-inject on browser startup)
+      // Just register for future loads (no need to active-inject on startup)
       await registerScriptForDomain(domain, pattern);
     }
   }
@@ -154,7 +163,8 @@ export default defineBackground(() => {
 
     for (const origin of permissions.origins) {
       const domain = origin.replace(/^\*:\/\//, "").replace(/\/\*$/, "");
-      if (!domain) continue;
+      // Skips "*" / <all_urls>: we never auto-inject into every website.
+      if (!domain || !DOMAIN_RE.test(domain)) continue;
 
       try {
         // 1. Save to storage so the startup script remembers it next time

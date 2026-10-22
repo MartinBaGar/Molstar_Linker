@@ -21,19 +21,19 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "molstar": "^5.5.0",
-    "svelte": "^5.56.4",
+    "molstar": "^5.12.0",
+    "svelte": "^5.57.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@tsconfig/svelte": "^5.0.8",
     "@wxt-dev/module-svelte": "^2.0.5",
     "lightbox3": "^1.4.0",
-    "prettier": "^3.8.3",
-    "prettier-plugin-svelte": "^4.1.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-svelte": "^4.1.1",
     "svelte-check": "^4.7.2",
     "typescript": "^6.0.3",
-    "wxt": "^0.20.27"
+    "wxt": "^0.21.4"
   },
   "repository": {
     "type": "git",

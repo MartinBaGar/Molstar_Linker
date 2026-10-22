@@ -9,6 +9,19 @@ declare global {
 
 let viewerInstance: Viewer | null = null;
 
+const FORMAT_RE = /^[a-z0-9]{1,16}$/i;
+
+function isValidInit(msg: any): msg is InitMolstarMessage {
+  if (msg.buffer === null) return true; // empty workspace
+  return (
+    msg.buffer instanceof ArrayBuffer &&
+    typeof msg.format === "string" &&
+    FORMAT_RE.test(msg.format) &&
+    (msg.mimeType === null || typeof msg.mimeType === "string") &&
+    (msg.originalUrl === null || typeof msg.originalUrl === "string")
+  );
+}
+
 // 1. Dynamically inject the CSS to bypass Vite's HTML parser
 const cssLink = document.createElement("link");
 cssLink.rel = "stylesheet";
@@ -22,22 +35,25 @@ script.src = "/lib/molstar.js";
 
 // 3. Wait for the physical file to load before setting up listeners
 script.onload = () => {
-  console.log("✅ Molstar script loaded natively!");
-
-  // Set up the message listener ONLY after Molstar is globally available
   window.addEventListener("message", async (event: MessageEvent<any>) => {
-    // Verify the message came from our parent window (viewer.html).
-    // We use event.source instead of event.origin because Chrome assigns origin
-    // "null" to sandboxed iframes, making origin checks unreliable cross-browser.
-    // event.source is set by the browser and cannot be spoofed by the sender.
+    // Only accept messages from our parent (viewer.html). event.source is set
+    // by the browser and can't be spoofed; origin is "null" for sandboxed
+    // pages in both Chrome and Firefox, so it can't be used.
     if (event.source !== window.parent) return;
 
     const msg = event.data;
-    if (!msg) return;
+    if (!msg || typeof msg !== "object") return;
 
     if (msg.action === "INIT_MOLSTAR") {
-      const { buffer, mimeType, format, originalUrl } =
-        msg as InitMolstarMessage;
+      if (!isValidInit(msg)) {
+        window.parent.postMessage(
+          { action: "MOLSTAR_ERROR", error: "Invalid init message" },
+          "*",
+        );
+        return;
+      }
+
+      const { buffer, mimeType, format, originalUrl } = msg;
       let shortBlobUrl: string | undefined;
 
       try {
@@ -49,8 +65,6 @@ script.onload = () => {
         }
 
         if (buffer === null) {
-          // Send to parent. '*' is used here because the sandbox origin is "null"
-          // in Chrome, so we cannot specify a target origin from this side.
           window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");
           return;
         }
@@ -60,15 +74,10 @@ script.onload = () => {
         shortBlobUrl = result.shortBlobUrl;
 
         if (format === "molx" || format === "molj") {
-          console.log("toto");
-          try {
-            const file = new File([blob], `snapshot.${format}`);
-            await viewerInstance.plugin.managers.snapshot.open(file);
-            console.log(`${format} loaded`);
-          } catch (e) {
-            console.error("Failed to open snapshot", e);
-          }
-          window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");
+          // Errors propagate to the catch below so the user sees them
+          // instead of a blank viewer that claims to be ready.
+          const file = new File([blob], `snapshot.${format}`);
+          await viewerInstance.plugin.managers.snapshot.open(file);
         } else {
           await NativeBuilder.buildNativeScene(
             viewerInstance.plugin,
@@ -76,8 +85,8 @@ script.onload = () => {
             format!,
             result.filename!,
           );
-          window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");
         }
+        window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");
       } catch (err) {
         console.error("Mol* Sandbox: failed to load structure natively", err);
         window.parent.postMessage(
@@ -91,9 +100,20 @@ script.onload = () => {
 
     if (msg.action === "APPLY_REPRESENTATION") {
       if (!viewerInstance) return;
-      const plugin = viewerInstance.plugin;
-      const settings = msg.settings;
-      customRuleToRep(plugin, settings);
+      try {
+        const { applied, errors } = await customRuleToRep(
+          viewerInstance.plugin,
+          msg.settings,
+        );
+        if (errors.length > 0) {
+          console.warn(
+            `Mol* Sandbox: ${applied} rule(s) applied, ${errors.length} failed:`,
+            errors,
+          );
+        }
+      } catch (err) {
+        console.error("Mol* Sandbox: failed to apply custom rules", err);
+      }
     }
   });
 
