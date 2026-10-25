@@ -1,26 +1,13 @@
 import type { Viewer } from "molstar/lib/apps/viewer/app";
-import type { InitMolstarMessage } from "~/types/index.js";
 import { NativeBuilder, customRuleToRep } from "~/core/native-builder.js";
 import { getFileNameFromBlob } from "~/utils/links.js";
+import { isValidInit } from "~/utils/messaging.js";
 
 declare global {
   const molstar: typeof import("molstar/lib/apps/viewer/app");
 }
 
 let viewerInstance: Viewer | null = null;
-
-const FORMAT_RE = /^[a-z0-9]{1,16}$/i;
-
-function isValidInit(msg: any): msg is InitMolstarMessage {
-  if (msg.buffer === null) return true; // empty workspace
-  return (
-    msg.buffer instanceof ArrayBuffer &&
-    typeof msg.format === "string" &&
-    FORMAT_RE.test(msg.format) &&
-    (msg.mimeType === null || typeof msg.mimeType === "string") &&
-    (msg.originalUrl === null || typeof msg.originalUrl === "string")
-  );
-}
 
 // 1. Dynamically inject the CSS to bypass Vite's HTML parser
 const cssLink = document.createElement("link");
@@ -42,7 +29,6 @@ script.onload = () => {
     if (event.source !== window.parent) return;
 
     const msg = event.data;
-    if (!msg || typeof msg !== "object") return;
 
     if (msg.action === "INIT_MOLSTAR") {
       if (!isValidInit(msg)) {
@@ -94,7 +80,9 @@ script.onload = () => {
           "*",
         );
       } finally {
-        if (shortBlobUrl) URL.revokeObjectURL(shortBlobUrl.split("#")[0]);
+        if (shortBlobUrl) {
+          URL.revokeObjectURL(shortBlobUrl.split("#")[0] ?? shortBlobUrl);
+        }
       }
     }
 
