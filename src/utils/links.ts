@@ -90,7 +90,7 @@ export function isSafeUrl(urlStr: string): boolean {
 export function findExtInText(text: string | null | undefined): string | null {
   if (!text) return null;
   const m = text.match(EXT_REGEX);
-  return m ? m[1].toLowerCase() : null;
+  return m?.[1]?.toLowerCase() ?? null;
 }
 
 export function findExtInPageText(
@@ -98,7 +98,7 @@ export function findExtInPageText(
 ): string | null {
   if (!text) return null;
   const m = text.match(TEXT_EXT_REGEX);
-  return m ? m[1].toLowerCase() : null;
+  return m?.[1]?.toLowerCase() ?? null;
 }
 
 /**
@@ -123,10 +123,11 @@ export function resolveUrl(parsed: URL): string {
     }
     return base.replace("github.com", "raw.githubusercontent.com");
   } else if (parsed.hostname.includes("gitlab")) {
-    const base = parsed.href.split("?")[0].split("#")[0];
+    const base = parsed.href.split("?")[0]?.split("#")[0] ?? parsed.href;
     const m = GITLAB_URL_RE.exec(base);
     if (!m) return parsed.href;
     const [, , project, ref, filePath] = m;
+    if (!project || !ref || !filePath) return parsed.href;
     return (
       // parsed.host (not the regex capture) so userinfo can never leak in
       `https://${parsed.host}/api/v4/projects/` +
@@ -141,9 +142,9 @@ export function resolveUrl(parsed: URL): string {
 function fileNameFromUrl(urlStr: string): string | undefined {
   try {
     const u = new URL(urlStr);
-    // GitLab API form: .../repository/files/<url-encoded path>/raw
     const gl = /\/repository\/files\/([^/]+)\/raw$/.exec(u.pathname);
-    const path = gl ? decodeURIComponent(gl[1]) : u.pathname;
+    const encoded = gl?.[1];
+    const path = encoded ? decodeURIComponent(encoded) : u.pathname;
     return path.split("/").pop() || undefined;
   } catch {
     return undefined;
