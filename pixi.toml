@@ -41,6 +41,10 @@ outputs     = ["node_modules/.pnpm/lock.yaml"]
 description = "Type-check the project without emitting output"
 cmd         = "pnpm check"
 
+[tasks.test]
+description = "Run vitests"
+cmd         = "pnpm test"
+
 [tasks.bump]
 description = "Bump the extension version in package.json"
 args        = ["version"]
@@ -52,11 +56,11 @@ echo "✅ Version bumped to {{ version }} in package.json"
 
 # 4. BUILD
 [tasks.build-chrome]
-description = "Build the Chrome (MV3) extension with Vite into dist/chrome/"
+description = "Build the Chrome extension with Vite into dist/chrome/"
 cmd         = "pnpm run build-chrome"
 
 [tasks.build-firefox]
-description = "Build the Firefox (MV2) extension with Vite into dist/firefox/"
+description = "Build the Firefox extension with Vite into dist/firefox/"
 cmd         = "pnpm run build-firefox"
 
 [tasks.build]
