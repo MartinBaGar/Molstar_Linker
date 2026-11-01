@@ -1,7 +1,8 @@
+import * as v from "valibot";
+import { InitMolstarMessageSchema } from "~/core/schemas";
 import type { Viewer } from "molstar/lib/apps/viewer/app";
 import { NativeBuilder, customRuleToRep } from "~/core/native-builder.js";
 import { getFileNameFromBlob } from "~/utils/links.js";
-import { isValidInit } from "~/utils/messaging.js";
 
 declare global {
   const molstar: typeof import("molstar/lib/apps/viewer/app");
@@ -29,17 +30,18 @@ script.onload = () => {
     if (event.source !== window.parent) return;
 
     const msg = event.data;
-
+    if (!msg || typeof msg !== "object") return;
     if (msg.action === "INIT_MOLSTAR") {
-      if (!isValidInit(msg)) {
+      const parsed = v.safeParse(InitMolstarMessageSchema, msg);
+      if (!parsed.success) {
+        console.warn("Mol* Sandbox: rejected message", parsed.issues);
         window.parent.postMessage(
           { action: "MOLSTAR_ERROR", error: "Invalid init message" },
           "*",
         );
         return;
       }
-
-      const { buffer, mimeType, format, originalUrl } = msg;
+      const init = parsed.output;
       let shortBlobUrl: string | undefined;
 
       try {
@@ -47,29 +49,31 @@ script.onload = () => {
           viewerInstance = await molstar.Viewer.create("app", {
             layoutIsExpanded: false,
             layoutShowControls: false,
+            layoutShowRemoteState: false,
           });
         }
 
-        if (buffer === null) {
+        if (init.buffer === null) {
           window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");
           return;
         }
 
+        const { buffer, mimeType, format, originalUrl } = init;
+
         const blob = new Blob([buffer], { type: mimeType ?? undefined });
         const result = getFileNameFromBlob(blob, originalUrl ?? undefined);
         shortBlobUrl = result.shortBlobUrl;
+        const filename = result.filename ?? `structure.${format}`;
 
         if (format === "molx" || format === "molj") {
-          // Errors propagate to the catch below so the user sees them
-          // instead of a blank viewer that claims to be ready.
           const file = new File([blob], `snapshot.${format}`);
           await viewerInstance.plugin.managers.snapshot.open(file);
         } else {
           await NativeBuilder.buildNativeScene(
             viewerInstance.plugin,
             shortBlobUrl,
-            format!,
-            result.filename!,
+            format,
+            filename,
           );
         }
         window.parent.postMessage({ action: "MOLSTAR_READY" }, "*");

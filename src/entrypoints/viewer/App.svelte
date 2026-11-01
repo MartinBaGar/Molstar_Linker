@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { InitMolstarMessage } from "~/types/index.js";
+  // import type { InitMolstarMessage } from "~/types/index.js";
   import { ALL_EXTENSIONS } from "~/core/extensions";
   import { isSafeUrl, MAX_BYTES } from "~/utils/links.js";
+  import type { InitMolstarMessage } from "~/core/schemas";
 
   // ---------------------------------------------------------------------------
   // 1. Svelte State
@@ -69,20 +70,24 @@
 
     sandboxReady.then(() => {
       loadingMessage = "Loading structure into viewer…";
-      const payload: InitMolstarMessage = {
-        action: "INIT_MOLSTAR",
-        buffer,
-        mimeType,
-        format,
-        originalUrl: rawUrl,
-      };
-      // "*" is required: a sandboxed page has an opaque origin, so there is no
-      // origin string we could target. Security is enforced on the RECEIVE side
-      // with event.source checks.
-      if (buffer) {
-        currentIframe!.contentWindow!.postMessage(payload, "*", [buffer]);
+      const target = currentIframe?.contentWindow;
+      if (!target) return;
+
+      if (buffer && format) {
+        const payload: InitMolstarMessage = {
+          action: "INIT_MOLSTAR",
+          buffer,
+          mimeType,
+          format,
+          originalUrl: rawUrl,
+        };
+        target.postMessage(payload, "*", [buffer]);
       } else {
-        currentIframe!.contentWindow!.postMessage(payload, "*");
+        const payload: InitMolstarMessage = {
+          action: "INIT_MOLSTAR",
+          buffer: null,
+        };
+        target.postMessage(payload, "*");
       }
     });
   }

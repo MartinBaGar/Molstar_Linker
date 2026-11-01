@@ -1,7 +1,7 @@
 {
-  "name": "molstar_linker",
-  "version": "3.1.0",
-  "description": "[![Chrome Web Store](https://img.shields.io/badge/Chrome-Available-blue?logo=google-chrome)](#) [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox)](#)",
+  "name": "Mol* Linker",
+  "version": "3.2.0",
+  "description": "Instantly view molecular structure in your browser using Mol*.",
   "directories": {
     "doc": "docs"
   },
@@ -23,7 +23,8 @@
   "dependencies": {
     "molstar": "^5.12.0",
     "svelte": "^5.57.2",
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "valibot": "^1.5.0"
   },
   "devDependencies": {
     "@tsconfig/svelte": "^5.0.8",
