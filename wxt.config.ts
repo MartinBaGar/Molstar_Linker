@@ -6,37 +6,46 @@ import { DataFormatRegistry } from "molstar/lib/mol-plugin-state/formats/registr
 const VIRTUAL_MODULE_ID = "virtual:molstar-extensions";
 const RESOLVED_VIRTUAL_MODULE_ID = "\0" + VIRTUAL_MODULE_ID;
 
-// Mol* ships third-party WebAssembly glue (Emscripten "embind") that builds
-// functions from strings at runtime, so it needs eval. We therefore only run
-// Mol* inside a sandboxed page (opaque origin, no extension API access):
-//   - Chrome:  manifest `sandbox.pages` (added by WXT) + CSP sandbox policy.
-//   - Firefox: `sandbox` manifest key (Firefox 154+). WXT does not emit it for
-//     Firefox, so it is injected in the build:manifestGenerated hook below.
-// Extension pages themselves never get 'unsafe-eval'.
-const SANDBOX_FLAGS =
-  "sandbox allow-scripts allow-forms allow-popups allow-modals";
-const SANDBOX_SCRIPT_SRC = "'self' 'unsafe-eval' 'wasm-unsafe-eval'";
+const SANDBOX_FLAGS = "sandbox allow-scripts allow-downloads";
+const SANDBOX_SCRIPT_SRC = "'self' 'unsafe-eval'";
 
-function sandboxCsp(dev: boolean, withInline: boolean): string {
-  const devHosts = dev ? " http://localhost:3000 ws://localhost:3000" : "";
-  const inline = withInline ? " 'unsafe-inline'" : "";
-  // The sandbox only needs blob: (the file the viewer hands it) and data:.
-  // Everything else (fetch/XHR/WebSocket) is blocked, so a compromised parser
-  // cannot send an unpublished structure anywhere. Dev adds the HMR server.
-  const connect = `blob: data:${devHosts}`;
-  return `${SANDBOX_FLAGS}; script-src ${SANDBOX_SCRIPT_SRC}${inline}${devHosts}; connect-src ${connect}; child-src 'self'; object-src 'none';`;
+// Files the sandboxed page loads (scripts, styles, Mol* bundle). HTML pages are
+// deliberately NOT listed, so websites cannot frame viewer/options/sandbox.
+const SANDBOX_WAR_PATHS = ["chunks/*", "assets/*", "lib/*"];
+
+function sandboxCsp(dev: boolean): string {
+  const devHosts = dev ? ["http://localhost:3000", "ws://localhost:3000"] : [];
+  const connect = ["'self'", "blob:", "data:", ...devHosts].join(" ");
+  const script = [SANDBOX_SCRIPT_SRC, ...devHosts].join(" ");
+
+  return (
+    [
+      SANDBOX_FLAGS,
+      "default-src 'none'",
+      `script-src ${script}`,
+      `connect-src ${connect}`,
+      "img-src 'self' blob: data:",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self' data:",
+      "worker-src 'self' blob:",
+      "child-src 'self'",
+      "object-src 'none'",
+      "base-uri 'none'",
+      "form-action 'none'",
+    ].join("; ") + ";"
+  );
 }
 
 function copyMolstarJs(destFolder: string): void {
   const src = path.resolve("node_modules/molstar/build/viewer/molstar.js");
   const js = fs
     .readFileSync(src, "utf8")
-    // The .map file is not shipped; avoid devtools 404 noise.
     .replace(/\/\/# sourceMappingURL=.*$/m, "");
   fs.writeFileSync(path.join(destFolder, "molstar.js"), js);
 }
 
 export default defineConfig({
+  manifestVersion: 3,
   srcDir: "src",
   modules: ["@wxt-dev/module-svelte"],
 
@@ -51,12 +60,12 @@ export default defineConfig({
         },
         load(id) {
           if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-            const snapshots = new Array("molj", "molx");
             const reg = new DataFormatRegistry();
             const ext = [
-              ...Array.from(reg.extensions),
-              ...Array.from(reg.binaryExtensions),
-              ...Array.from(snapshots),
+              ...reg.extensions,
+              ...reg.binaryExtensions,
+              "molj",
+              "molx",
             ];
 
             return `export const ALL_EXTENSIONS = new Set(${JSON.stringify(ext)});`;
@@ -90,55 +99,29 @@ export default defineConfig({
     },
 
     // WXT drops the sandbox key for Firefox ("Sandboxed pages not supported by
-    // Firefox"), but Firefox 154+ supports it. Add it back by hand.
+    // Firefox"), but Firefox 154+ supports it.
     "build:manifestGenerated": (wxt, manifest) => {
+      const m = manifest as any;
+      m.sandbox = { pages: ["sandbox.html"] };
+      m.content_security_policy = {
+        ...(m.content_security_policy ?? {}),
+        sandbox: sandboxCsp(wxt.config.command === "serve"),
+      };
+
       if (wxt.config.browser !== "firefox") return;
 
-      const m = manifest as any;
-      const csp = sandboxCsp(wxt.config.command === "serve", false);
-
-      if (m.manifest_version === 3) {
-        m.sandbox = { pages: ["sandbox.html"] };
-        m.content_security_policy = {
-          ...(m.content_security_policy ?? {}),
-          sandbox: csp,
-        };
-      } else {
-        // MV2: the sandbox CSP lives inside the `sandbox` key.
-        m.sandbox = { pages: ["sandbox.html"], content_security_policy: csp };
-
-        // The sandbox has an opaque origin, so Firefox treats it like a web
-        // page: every extension file it loads must be web-accessible
-        // (MV2 syntax = flat list of strings). HTML pages are deliberately
-        // NOT listed, so websites cannot frame viewer/options/sandbox.
-        const war: string[] = Array.isArray(m.web_accessible_resources)
-          ? m.web_accessible_resources
-          : [];
-        for (const p of ["chunks/*", "assets/*", "lib/*"]) {
-          if (!war.includes(p)) war.push(p);
-        }
-        m.web_accessible_resources = war;
-      }
+      m.web_accessible_resources = [
+        ...(m.web_accessible_resources ?? []),
+        { resources: SANDBOX_WAR_PATHS, matches: ["<all_urls>"] },
+      ];
     },
   },
 
-  manifest: ({ browser, command }) => {
+  manifest: ({ browser }) => {
     const isFirefox = browser === "firefox";
-    const isDev = command === "serve";
 
     return {
-      name: "Mol* Linker",
-      version: "3.2.0",
-      description:
-        "Instantly view molecular structure in your browser using Mol*.",
-
-      action: {
-        default_title: "Mol* Linker Quick Settings",
-      },
-
-      permissions: isFirefox
-        ? ["activeTab", "storage", "contextMenus", "tabs"]
-        : ["activeTab", "storage", "contextMenus", "scripting"],
+      permissions: ["activeTab", "storage", "contextMenus", "scripting"],
 
       host_permissions: [
         "*://*.github.com/*",
@@ -147,19 +130,7 @@ export default defineConfig({
         "*://*.zenodo.org/*",
       ],
 
-      ...(isFirefox
-        ? { optional_permissions: ["*://*/*"] }
-        : { optional_host_permissions: ["*://*/*"] }),
-
-      content_security_policy: {
-        // No 'unsafe-eval' on extension pages in either browser.
-        extension_pages: "script-src 'self'; object-src 'none';",
-
-        ...(!isFirefox && {
-          // Dev server needs the loose policy (HMR). Test CSP changes with a production build.
-          sandbox: sandboxCsp(isDev, true),
-        }),
-      },
+      optional_host_permissions: ["*://*/*"],
 
       ...(isFirefox && {
         browser_specific_settings: {
