@@ -1,41 +1,28 @@
-// Hostname we are willing to request access for and register scripts on.
-// Optional "*." prefix for subdomains. No scheme, port, path, or bare "*".
-export const DOMAIN_RE = /^(\*\.)?[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/;
+const DOMAIN_RE = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/;
 
-/**
- * Turns user input or a full URL ("https://gitlab.my-lab.org/foo",
- * "*.my-lab.org", ...) into a plain hostname, or null if unacceptable.
- */
 export function normalizeDomain(input: string): string | null {
-  let s = String(input ?? "")
-    .trim()
-    .toLowerCase();
-  if (!s || /[\s@]/.test(s)) return null;
+  let s = input.trim().toLowerCase();
+  const wildcard = s.startsWith("*.");
+  if (wildcard) s = s.slice(2);
+  if (!s.includes("://")) s = `https://${s}`;
 
-  s = s.replace(/^(?:\*|[a-z][a-z0-9+.-]*):\/\//, ""); // scheme
-  s = s.replace(/[/?#].*$/, ""); // path, query, hash
-  s = s.replace(/:\d{1,5}$/, ""); // port (match patterns ignore it)
-
-  let wildcard = false;
-  if (s.startsWith("*.")) {
-    wildcard = true;
-    s = s.slice(2);
-  }
-
+  let url: URL;
   try {
-    s = new URL(`https://${s}`).hostname; // lowercases + punycodes IDNs
+    url = new URL(s);
   } catch {
     return null;
   }
 
-  const result = (wildcard ? "*." : "") + s;
-  return result.length <= 253 && DOMAIN_RE.test(result) ? result : null;
+  if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+  if (url.username || url.password) return null;
+
+  const host = url.hostname;
+  if (!host.includes(".") || host.length > 253 || !DOMAIN_RE.test(host))
+    return null;
+  return wildcard ? `*.${host}` : host;
 }
 
 export const PermissionsManager = {
-  // Backwards-compatible: accepts a URL or a hostname.
-  // Returns "" when the input is not an acceptable host
-  // (about:, moz-extension:, bare "*", ...).
   cleanDomain(url: string): string {
     return normalizeDomain(url) ?? "";
   },

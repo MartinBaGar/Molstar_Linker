@@ -1,11 +1,5 @@
 import { isSafeUrl, resolveUrl, findExtInText } from "~/utils/links.js";
-import { DOMAIN_RE, PermissionsManager } from "~/core/permissions.js";
-
-if (typeof browser !== "undefined" && !browser.commands) {
-  (browser as any).commands = {
-    onCommand: { addListener: () => {} },
-  };
-}
+import { PermissionsManager, normalizeDomain } from "~/core/permissions.js";
 
 // Format hints are file extensions ("pdb", "cif", "unknown"…), nothing else.
 const FORMAT_RE = /^[a-z0-9]{0,16}$/i;
@@ -76,30 +70,19 @@ export default defineBackground(() => {
     pattern: string,
   ): Promise<void> {
     const id = PermissionsManager.getScriptId(domain);
-
     try {
-      if (browser.scripting?.registerContentScripts) {
-        // Chrome MV3 Path
-        const existing = await browser.scripting.getRegisteredContentScripts({
-          ids: [id],
-        });
-        if (existing.length === 0) {
-          await browser.scripting.registerContentScripts([
-            {
-              id,
-              matches: [pattern],
-              js: ["content-scripts/content.js"],
-              runAt: "document_end",
-            },
-          ]);
-        }
-      } else if ((browser as any).contentScripts?.register) {
-        // Firefox MV2 Path
-        await (browser as any).contentScripts.register({
-          matches: [pattern],
-          js: [{ file: "content-scripts/content.js" }],
-          runAt: "document_end",
-        });
+      const existing = await browser.scripting.getRegisteredContentScripts({
+        ids: [id],
+      });
+      if (existing.length === 0) {
+        await browser.scripting.registerContentScripts([
+          {
+            id,
+            matches: [pattern],
+            js: ["content-scripts/content.js"],
+            runAt: "document_end",
+          },
+        ]);
       }
     } catch (err) {
       console.warn(
@@ -114,23 +97,19 @@ export default defineBackground(() => {
     try {
       const tabs = await browser.tabs.query({ url: pattern });
       for (const tab of tabs) {
-        if (!tab.id) continue;
-        if (browser.scripting?.executeScript) {
-          await browser.scripting
-            .executeScript({
-              target: { tabId: tab.id },
-              files: ["/content-scripts/content.js"],
-            })
-            .catch(() => {});
-        } else {
-          await (browser.tabs as any)
-            .executeScript(tab.id, { file: "content-scripts/content.js" })
-            .catch(() => {});
+        if (tab.id == null) continue;
+        try {
+          await browser.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ["/content-scripts/content.js"],
+          });
+        } catch (err) {
+          console.warn("Mol* Linker — inject failed:", err);
         }
       }
     } catch (err) {
       console.warn(
-        `Mol* Linker — failed to inject into active tabs for ${pattern}:`,
+        `Mol* Linker — failed to inject into tabs for ${pattern}:`,
         err,
       );
     }
@@ -148,7 +127,8 @@ export default defineBackground(() => {
     };
 
     for (const domain of data.customDomains) {
-      if (typeof domain !== "string" || !DOMAIN_RE.test(domain)) continue;
+      if (typeof domain !== "string" || normalizeDomain(domain) !== domain)
+        continue;
       const pattern = `*://${domain}/*`;
       // Just register for future loads (no need to active-inject on startup)
       await registerScriptForDomain(domain, pattern);
@@ -164,7 +144,7 @@ export default defineBackground(() => {
     for (const origin of permissions.origins) {
       const domain = origin.replace(/^\*:\/\//, "").replace(/\/\*$/, "");
       // Skips "*" / <all_urls>: we never auto-inject into every website.
-      if (!domain || !DOMAIN_RE.test(domain)) continue;
+      if (!domain || normalizeDomain(domain) !== domain) continue;
 
       try {
         // 1. Save to storage so the startup script remembers it next time
