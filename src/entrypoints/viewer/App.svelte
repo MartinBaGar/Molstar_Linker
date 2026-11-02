@@ -104,7 +104,7 @@
 
     const controller = new AbortController();
     const INACTIVITY_TIMEOUT_MS = 30_000;
-    let inactivityTimer: ReturnType<typeof setTimeout>;
+    let inactivityTimer: ReturnType<typeof setTimeout> | undefined;
     const resetInactivityTimer = () => {
       clearTimeout(inactivityTimer);
       inactivityTimer = setTimeout(

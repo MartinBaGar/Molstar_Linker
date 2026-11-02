@@ -4,6 +4,13 @@ import { PermissionsManager, normalizeDomain } from "~/core/permissions.js";
 // Format hints are file extensions ("pdb", "cif", "unknown"…), nothing else.
 const FORMAT_RE = /^[a-z0-9]{0,16}$/i;
 
+function openViewer(fileUrl: string, format: string): void {
+  const viewerUrl = new URL(browser.runtime.getURL("/viewer.html"));
+  viewerUrl.searchParams.append("fileUrl", fileUrl);
+  viewerUrl.searchParams.append("format", format);
+  browser.tabs.create({ url: viewerUrl.toString() });
+}
+
 export default defineBackground(() => {
   // ---------------------------------------------------------------------------
   // FEATURE 1: Context menu — "Open in Mol* Viewer"
@@ -34,11 +41,7 @@ export default defineBackground(() => {
       const resolvedUrl = resolveUrl(url);
       if (!isSafeUrl(resolvedUrl)) return;
 
-      const viewerUrl = new URL(browser.runtime.getURL("/viewer.html"));
-      viewerUrl.searchParams.append("fileUrl", resolvedUrl);
-      viewerUrl.searchParams.append("format", extension);
-
-      browser.tabs.create({ url: viewerUrl.toString() });
+      openViewer(resolvedUrl, extension);
     });
   }
 
@@ -57,11 +60,7 @@ export default defineBackground(() => {
     const format = typeof message.format === "string" ? message.format : "";
     if (!FORMAT_RE.test(format)) return;
 
-    const viewerUrl = new URL(browser.runtime.getURL("/viewer.html"));
-    viewerUrl.searchParams.append("fileUrl", message.url);
-    viewerUrl.searchParams.append("format", format);
-
-    browser.tabs.create({ url: viewerUrl.toString() });
+    openViewer(message.url, format);
   });
 
   // --- HELPER 1: Register script for future page loads ---
