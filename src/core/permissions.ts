@@ -67,14 +67,16 @@ export const PermissionsManager = {
   },
 
   async revokeAndUnregister(input: string): Promise<boolean> {
-    // Old entries may not be normalized; always let the user remove them.
+    // Old entries may not be normalized (e.g. "https://github.com"),
+    // so the user must always be able to remove them.
     const clean = this.cleanDomain(input);
-    const domain = clean || input;
 
     try {
       if (clean) {
         const id = this.getScriptId(clean);
 
+        // Rejects if nothing was registered under this id. That's fine:
+        // we still want to remove the permission and the stored entry.
         await browser.scripting
           .unregisterContentScripts({ ids: [id] })
           .catch(() => {});
@@ -88,7 +90,9 @@ export const PermissionsManager = {
         customDomains: [],
       })) as { customDomains: string[] };
       await browser.storage.sync.set({
-        customDomains: data.customDomains.filter((d) => d !== domain),
+        customDomains: data.customDomains.filter(
+          (d) => d !== clean && d !== input,
+        ),
       });
 
       return true;
