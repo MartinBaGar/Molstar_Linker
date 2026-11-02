@@ -61,3 +61,56 @@ describe("isSafeUrl", () => {
     expect(isSafeUrl("http://example.com/a.pdb")).toBe(import.meta.env.DEV);
   });
 });
+
+describe("resolveUrl", () => {
+  it.each([
+    // GitHub: blob and raw pages -> raw.githubusercontent.com
+    [
+      "https://github.com/user/repo/blob/main/a.pdb",
+      "https://raw.githubusercontent.com/user/repo/main/a.pdb",
+    ],
+    [
+      "https://github.com/user/repo/raw/main/a.pdb",
+      "https://raw.githubusercontent.com/user/repo/main/a.pdb",
+    ],
+    // GitLab: file page -> API URL
+    [
+      "https://gitlab.com/group/proj/-/blob/main/dir/a.pdb",
+      "https://gitlab.com/api/v4/projects/group%2Fproj/repository/files/dir%2Fa.pdb/raw?ref=main",
+    ],
+    // Other hosts are left alone
+    ["https://example.org/data/a.pdb", "https://example.org/data/a.pdb"],
+  ])("rewrites %j", (input, expected) => {
+    expect(resolveUrl(new URL(input))).toBe(expected);
+  });
+
+  it.each([
+    [
+      "https://github.com/blob/repo/blob/main/a.pdb", // user named "blob"
+      "https://raw.githubusercontent.com/blob/repo/main/a.pdb",
+    ],
+    [
+      "https://github.com/user/repo/raw/main/blob/a.pdb", // folder named "blob"
+      "https://raw.githubusercontent.com/user/repo/main/blob/a.pdb",
+    ],
+  ])("keeps names that look like path markers: %j", (input, expected) => {
+    expect(resolveUrl(new URL(input))).toBe(expected);
+  });
+
+  it.each([
+    [
+      "https://git.my-lab.org/group/proj/-/blob/main/a.pdb", // self-hosted
+      "https://git.my-lab.org/api/v4/projects/group%2Fproj/repository/files/a.pdb/raw?ref=main",
+    ],
+    [
+      "https://gitlab.com/group/proj/-/blob/main/a.pdb?ref_type=heads", // query string GitLab adds
+      "https://gitlab.com/api/v4/projects/group%2Fproj/repository/files/a.pdb/raw?ref=main",
+    ],
+    [
+      "https://example.org/a/-/b", // not a file URL, left alone
+      "https://example.org/a/-/b",
+    ],
+  ])("handles GitLab-style URL %j", (input, expected) => {
+    expect(resolveUrl(new URL(input))).toBe(expected);
+  });
+});

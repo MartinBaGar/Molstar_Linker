@@ -110,33 +110,28 @@ export function getMatchPattern(domain: string): string {
 
 export function resolveUrl(parsed: URL): string {
   if (parsed.hostname === "github.com") {
-    const base = parsed.href;
-    if (base.includes("/blob/")) {
-      return base
-        .replace("github.com", "raw.githubusercontent.com")
-        .replace("/blob/", "/");
+    // pathname is "/owner/repo/blob/ref/path": the marker is the 3rd segment
+    const [, owner, repo, marker, ...rest] = parsed.pathname.split("/");
+    const rawUrl = new URL(parsed.href);
+    rawUrl.hostname = "raw.githubusercontent.com";
+    if (marker === "blob" || marker === "raw") {
+      rawUrl.pathname = ["", owner, repo, ...rest].join("/");
     }
-    if (base.includes("/raw/")) {
-      return base
-        .replace("github.com", "raw.githubusercontent.com")
-        .replace("/raw/", "/");
-    }
-    return base.replace("github.com", "raw.githubusercontent.com");
-  } else if (parsed.hostname.includes("gitlab")) {
-    const base = parsed.href.split("?")[0]?.split("#")[0] ?? parsed.href;
-    const m = GITLAB_URL_RE.exec(base);
-    if (!m) return parsed.href;
-    const [, , project, ref, filePath] = m;
-    if (!project || !ref || !filePath) return parsed.href;
-    return (
-      // parsed.host (not the regex capture) so userinfo can never leak in
-      `https://${parsed.host}/api/v4/projects/` +
-      `${encodeURIComponent(project)}/repository/files/` +
-      `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
-    );
-  } else {
-    return parsed.href;
+    return rawUrl.href;
   }
+
+  // GitLab (gitlab.com or self-hosted): recognised by the "/-/blob/" shape.
+  const base = parsed.href.split("?")[0]?.split("#")[0] ?? parsed.href;
+  const m = GITLAB_URL_RE.exec(base);
+  if (!m) return parsed.href;
+  const [, , project, ref, filePath] = m;
+  if (!project || !ref || !filePath) return parsed.href;
+  return (
+    // parsed.host (not the regex capture) so userinfo can never leak in
+    `https://${parsed.host}/api/v4/projects/` +
+    `${encodeURIComponent(project)}/repository/files/` +
+    `${encodeURIComponent(filePath)}/raw?ref=${encodeURIComponent(ref)}`
+  );
 }
 
 function fileNameFromUrl(urlStr: string): string | undefined {
