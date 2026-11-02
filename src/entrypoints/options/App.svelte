@@ -55,7 +55,7 @@
     const dom = normalizeDomain(newDomainInput);
     if (!dom) {
       domainError =
-        "Enter a hostname such as gitlab.my-lab.org (or *.my-lab.org for all subdomains).";
+        "Enter a hostname such as gitlab.my-lab.org. Each host must be added separately.";
       return;
     }
     if (await PermissionsManager.requestAndRegister(dom)) {

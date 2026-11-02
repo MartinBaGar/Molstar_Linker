@@ -7,7 +7,6 @@ describe("normalizeDomain", () => {
     ["https://github.com/user/repo?x=1#top", "github.com"],
     ["GitHub.COM", "github.com"],
     ["github.com:8080", "github.com"],
-    ["*.example.org", "*.example.org"],
     ["münchen.de", "xn--mnchen-3ya.de"],
   ])("accepts %j -> %j", (input, expected) => {
     expect(normalizeDomain(input)).toBe(expected);
@@ -23,6 +22,7 @@ describe("normalizeDomain", () => {
     "localhost",
     "ftp://example.com",
     "*.*.example.com",
+    "*.example.org",
   ])("rejects %j", (input) => {
     expect(normalizeDomain(input)).toBeNull();
   });
@@ -31,7 +31,7 @@ describe("normalizeDomain", () => {
     expect(normalizeDomain("a".repeat(254) + ".com")).toBeNull();
   });
 
-  it.each(["github.com", "*.example.org", "münchen.de"])(
+  it.each(["github.com", "münchen.de"])(
     "output of %j is stable when normalized again",
     (input) => {
       const once = normalizeDomain(input);

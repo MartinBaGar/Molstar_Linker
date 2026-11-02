@@ -2,8 +2,6 @@ const DOMAIN_RE = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/;
 
 export function normalizeDomain(input: string): string | null {
   let s = input.trim().toLowerCase();
-  const wildcard = s.startsWith("*.");
-  if (wildcard) s = s.slice(2);
   if (!s.includes("://")) s = `https://${s}`;
 
   let url: URL;
@@ -19,7 +17,7 @@ export function normalizeDomain(input: string): string | null {
   const host = url.hostname;
   if (!host.includes(".") || host.length > 253 || !DOMAIN_RE.test(host))
     return null;
-  return wildcard ? `*.${host}` : host;
+  return host;
 }
 
 export const PermissionsManager = {
