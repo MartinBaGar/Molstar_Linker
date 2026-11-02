@@ -18,7 +18,7 @@ export default defineBackground(() => {
       });
     });
 
-    browser.contextMenus.onClicked.addListener((info: any, _tab: any) => {
+    browser.contextMenus.onClicked.addListener((info) => {
       if (info.menuItemId !== "open-molstar" || !info.linkUrl) return;
 
       if (!isSafeUrl(info.linkUrl)) {
@@ -45,7 +45,7 @@ export default defineBackground(() => {
   // ---------------------------------------------------------------------------
   // FEATURE 2: Message router — handles "open_viewer" from content scripts
   // ---------------------------------------------------------------------------
-  browser.runtime.onMessage.addListener((message: any, sender: any) => {
+  browser.runtime.onMessage.addListener((message, sender) => {
     if (message?.action !== "open_viewer") return;
 
     // Must come from a real tab of this extension
