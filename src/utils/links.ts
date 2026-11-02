@@ -2,10 +2,7 @@ import { EXT_REGEX, TEXT_EXT_REGEX } from "~/core/extensions.js";
 export const GITLAB_URL_RE =
   /^https?:\/\/([^/]+)\/(.+?)\/-\/(?:blob|raw)\/([^/]+)\/(.+)$/;
 
-export const MAX_URL_LENGTH = 2048; // chars
-
-// Real molecular structure files are almost never above 500 MB.
-// A huge file could crash the browser tab and be used as a denial-of-service vector.
+export const MAX_URL_LENGTH = 2048;
 export const MAX_BYTES = 1000 * 1024 * 1024; // 1000 MB
 
 // HTTP is allowed only in development builds.
