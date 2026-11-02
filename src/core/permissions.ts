@@ -75,11 +75,9 @@ export const PermissionsManager = {
       if (clean) {
         const id = this.getScriptId(clean);
 
-        if (browser.scripting?.unregisterContentScripts) {
-          await browser.scripting
-            .unregisterContentScripts({ ids: [id] })
-            .catch(() => {});
-        }
+        await browser.scripting
+          .unregisterContentScripts({ ids: [id] })
+          .catch(() => {});
 
         await browser.permissions.remove({
           origins: [this.getMatchPattern(clean)],

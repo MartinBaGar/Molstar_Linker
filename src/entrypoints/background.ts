@@ -16,6 +16,8 @@ export default defineBackground(() => {
   // FEATURE 1: Context menu — "Open in Mol* Viewer"
   // ---------------------------------------------------------------------------
 
+  // Firefox for Android has no contextMenus API (the permission can be
+  // declared, but browser.contextMenus is undefined there).
   if (browser.contextMenus) {
     browser.runtime.onInstalled.addListener(() => {
       browser.contextMenus.create({
