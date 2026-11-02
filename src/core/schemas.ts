@@ -30,4 +30,9 @@ export const InitMolstarMessageSchema = v.union([
   LoadInitSchema,
 ]);
 
+export const SettingsUpdatedSchema = v.object({
+  action: v.literal("SETTINGS_UPDATED"),
+  settings: v.unknown(),
+});
+
 export type InitMolstarMessage = v.InferOutput<typeof InitMolstarMessageSchema>;
