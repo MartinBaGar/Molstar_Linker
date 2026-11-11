@@ -96,9 +96,11 @@ chrome=(.output/*-"$version"-chrome.zip)
 firefox=(.output/*-"$version"-firefox.zip)
 sources=(.output/*-"$version"-sources.zip)
 
-if (( ${#chrome[@]} != 1 || ${#firefox[@]} != 1 || ${#sources[@]} != 1 )); then
-    echo "Expected exactly one Chrome, Firefox, and source ZIP for $version."
-    exit 1
+if [[ ! -f "${chrome[0]:-}" || -n "${chrome[1]:-}" ||
+    ! -f "${firefox[0]:-}" || -n "${firefox[1]:-}" ||
+    ! -f "${sources[0]:-}" || -n "${sources[1]:-}" ]]; then
+  echo "Expected exactly one Chrome, Firefox, and source ZIP for $version."
+  exit 1
 fi
 
 git tag "$tag"
