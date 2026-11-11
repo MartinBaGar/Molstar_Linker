@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  // import type { InitMolstarMessage } from "~/types/index.js";
+  import * as v from "valibot";
+  import { SettingsUpdatedSchema } from "~/core/schemas";
   import { ALL_EXTENSIONS } from "~/core/extensions";
   import { isSafeUrl, MAX_BYTES } from "~/utils/links.js";
   import type { InitMolstarMessage } from "~/core/schemas";
@@ -245,17 +246,15 @@
     };
   });
 
-  // Settings pushed from the options/popup page are forwarded to the sandbox.
-  // The runtime bus also carries messages from content scripts (which run in
-  // web pages), so only accept senders that are extension pages of ours.
-  browser.runtime.onMessage.addListener((message: any, sender: any) => {
-    if (message?.action !== "SETTINGS_UPDATED") return;
-    if (sender?.id !== browser.runtime.id) return;
-    if (!sender?.url?.startsWith(browser.runtime.getURL(""))) return;
+  browser.runtime.onMessage.addListener((message: unknown, sender) => {
+    const parsed = v.safeParse(SettingsUpdatedSchema, message);
+    if (!parsed.success) return;
+    if (sender.id !== browser.runtime.id) return;
+    if (!sender.url?.startsWith(browser.runtime.getURL(""))) return;
     if (!currentIframe?.contentWindow) return;
 
     currentIframe.contentWindow.postMessage(
-      { action: "APPLY_REPRESENTATION", settings: message.settings },
+      { action: "APPLY_REPRESENTATION", settings: parsed.output.settings },
       "*",
     );
   });

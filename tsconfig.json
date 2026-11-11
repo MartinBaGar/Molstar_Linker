@@ -1,10 +1,11 @@
 {
-    "extends": "./.wxt/tsconfig.json",
-    "compilerOptions": {
-        "useDefineForClassFields": true,
-        "allowJs": true,
-        "checkJs": true,
-        "isolatedModules": true
-    },
-    "include": ["src/**/*", ".wxt/**/*", "*.config.ts"]
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "useDefineForClassFields": true,
+    "allowJs": true,
+    "checkJs": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*", ".wxt/**/*", "*.config.ts"],
+  "exclude": [".wxt/eslint-auto-imports.mjs"]
 }
