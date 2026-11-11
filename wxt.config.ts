@@ -114,7 +114,6 @@ export default defineConfig({
         browser_specific_settings: {
           gecko: {
             id: "molstar-linker@me.fr",
-            // 154 = first Firefox with the `sandbox` manifest key.
             strict_min_version: "154.0",
             data_collection_permissions: { required: ["none"] },
           },

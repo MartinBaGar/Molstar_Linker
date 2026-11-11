@@ -3,176 +3,127 @@ authors = ["Martin Bari Garnier <martbari.g@gmail.com>"]
 channels = ["conda-forge"]
 name = "Molstar_Linker"
 platforms = ["linux-64"]
-version = "0.1.0"
 
 [dependencies]
 nodejs = ">=26.4.0,<26.5"
-prettier = ">=3.9.3,<4"
 pnpm = ">=11.10.0,<12"
 typescript-language-server = ">=6.0.1,<7"
 svelte-language-server = ">=0.18.4,<0.19"
 
-# ── Shared directory variables, available as $VAR in every task ──────────────
-[activation.env]
-SRC_DIR      = "src"
-DIST_DIR     = "dist"
-RELEASES_DIR = "releases"
-DOCS_DIR     = "docs"
-
-# ── Tasks ─────────────────────────────────────────────────────────────────────
-
-# 0. INSTALL
-[tasks.install]
-description = "Install npm dependencies"
-cmd         = "pnpm ci"
-
-# 1. DAILY DEV
-[tasks.save]
-description = "Stage all changes, commit with a message, and push to main"
-cmd         = 'git add . && git commit -m "{{ msg }}" && git push origin main'
+# ── Install and checks ─────────────────────────────────────────
 
 [tasks.setup]
-description = "Install pixi env + npm dependencies in one command"
-cmd         = "pnpm install --frozen-lockfile"
-inputs      = ["pnpm-lock.yaml"]
-outputs     = ["node_modules/.pnpm/lock.yaml"]
+description = "Install JavaScript dependencies from the lockfile"
+cmd = "pnpm install --frozen-lockfile"
 
 [tasks.typecheck]
-description = "Type-check the project without emitting output"
-cmd         = "pnpm check"
+description = "Check TypeScript and Svelte"
+cmd = "pnpm check"
 
 [tasks.test]
-description = "Run vitests"
-cmd         = "pnpm test"
+description = "Run unit tests"
+cmd = "pnpm test"
 
-[tasks.bump]
-description = "Bump the extension version in package.json"
-args        = ["version"]
-cmd         = """
-echo "Bumping version to {{ version }}..." &&
-pnpm version {{ version }} --no-git-tag-version --allow-same-version &&
-echo "✅ Version bumped to {{ version }} in package.json"
-"""
+# ── Development ────────────────────────────────────────────────
 
-# 4. BUILD
-[tasks.build-chrome]
-description = "Build the Chrome extension with Vite into dist/chrome/"
-cmd         = "pnpm run build-chrome"
+[tasks.dev-chrome]
+description = "Run WXT for Chrome"
+cmd = "pnpm run dev-chrome"
 
-[tasks.build-firefox]
-description = "Build the Firefox extension with Vite into dist/firefox/"
-cmd         = "pnpm run build-firefox"
+[tasks.dev-firefox]
+description = "Run WXT for Firefox"
+cmd = "pnpm run dev-firefox"
 
-[tasks.build]
-description = "Build both Chrome and Firefox extensions"
-depends-on  = ["build-chrome", "build-firefox"]
-
-# 5. ZIP — pixi run zip 1.2.3
-[tasks.zip]
-description = "Build (if needed) then zip both extensions and the source code for Mozilla review"
-args        = ["version"]
-depends-on  = ["build"]
-cmd         = """
-echo "Zipping extensions v{{ version }}..." &&
-mkdir -p $RELEASES_DIR &&
-(cd $DIST_DIR/chrome && zip -r ../../$RELEASES_DIR/molstar_linker_chrome-v{{ version }}.zip . -x "*.DS_Store" > /dev/null) &&
-(cd $DIST_DIR/firefox && zip -r ../../$RELEASES_DIR/molstar_linker_firefox-v{{ version }}.zip . -x "*.DS_Store" > /dev/null) &&
-echo "Zipping source code for Mozilla review..." &&
-zip -r $RELEASES_DIR/molstar_linker_source-v{{ version }}.zip \
-    $SRC_DIR public *.html *.config.ts package.json pnpm-lock.yaml \
-    pixi.toml pixi.lock tsconfig.json README.md \
-    -x "*.DS_Store" > /dev/null &&
-echo "✅ Packages and source code ready in $RELEASES_DIR/"
-"""
-
-# 6. RELEASE — pixi run publish 1.2.3
-#    Sequential steps with ordering constraints mean a bash script is cleaner
-#    than trying to wire all of this through depends-on alone.
-[tasks.publish]
-description = "Full release pipeline: typecheck → bump → build → zip → commit → tag → push → GitHub release"
-args        = ["version"]
-cmd         = """
-bash -c '
-set -e
-
-echo "==> [1/5] Type-checking..."
-pixi run typecheck
-
-echo "==> [2/5] Bumping version..."
-pixi run bump {{ version }}
-
-echo "==> [3/5] Building and zipping..."
-pixi run zip {{ version }}
-
-echo "==> [4/5] Committing, tagging, and pushing..."
-git add package.json package-lock.json
-git commit -m "chore: bump version to v{{ version }}" \
-    || echo "Nothing to commit — version already at {{ version }}."
-git tag v{{ version }}
-git push origin main
-git push origin main --tags
-
-echo "==> [5/5] Creating GitHub release..."
-if command -v gh &>/dev/null; then
-    gh release create v{{ version }} \
-        $RELEASES_DIR/molstar_linker_chrome-v{{ version }}.zip \
-        $RELEASES_DIR/molstar_linker_firefox-v{{ version }}.zip \
-        --title "Release v{{ version }}" \
-        --generate-notes
-    echo "🚀 Release v{{ version }} published!"
-else
-    echo "⚠️  gh CLI not found. Upload the .zips from $RELEASES_DIR/ manually."
-fi
+[tasks.dev-firefox-android]
+description = "Load the running Firefox dev build on a connected Android device"
+cmd = """
+bash -euo pipefail -c '
+device="$(adb devices | awk "NR > 1 && \\$2 == \\"device\\" {print \\$1; exit}")"
+test -n "$device" || { echo "No authorized Android device found."; exit 1; }
+test -f .output/firefox-mv3-dev/manifest.json || {
+    echo "Start the Firefox dev build first."; exit 1;
+}
+adb reverse tcp:3000 tcp:3000
+pnpm exec web-ext run \
+    --source-dir .output/firefox-mv3-dev \
+    --target firefox-android \
+    --android-device "$device"
 '
 """
 
-# 7. CLEANUP
+# ── Build and release ──────────────────────────────────────────
+
+[tasks.build]
+description = "Build the Chrome and Firefox extensions"
+cmd = "pnpm run build"
+
+[tasks.zip]
+description = "Create Chrome, Firefox, and Firefox-source ZIPs"
+cmd = "pnpm run zip"
+
+[tasks.bump]
+description = "Set the version in package.json without committing or tagging"
+args = ["version"]
+cmd = "pnpm version {{ version }} --no-git-tag-version"
+
+[tasks.publish]
+description = "Check, package, tag, push, and create a GitHub release"
+cmd = """
+bash -euo pipefail -c '
+test -z "$(git status --porcelain)" || {
+    echo "Commit or discard your changes before publishing."
+    exit 1
+}
+command -v gh >/dev/null || {
+    echo "Install and authenticate the GitHub CLI first."
+    exit 1
+}
+gh auth status >/dev/null
+
+version="$(node -p "require(\\"./package.json\\").version")"
+tag="v$version"
+if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+    echo "Tag $tag already exists."
+    exit 1
+fi
+
+pnpm check
+pnpm test
+pnpm run zip
+
+shopt -s nullglob
+chrome=(.output/*-"$version"-chrome.zip)
+firefox=(.output/*-"$version"-firefox.zip)
+sources=(.output/*-"$version"-sources.zip)
+
+if (( ${#chrome[@]} != 1 || ${#firefox[@]} != 1 || ${#sources[@]} != 1 )); then
+    echo "Expected exactly one Chrome, Firefox, and source ZIP for $version."
+    exit 1
+fi
+
+git tag "$tag"
+git push origin HEAD
+git push origin "$tag"
+
+gh release create "$tag" \
+    "${chrome[0]}" "${firefox[0]}" "${sources[0]}" \
+    --title "Release $tag" \
+    --generate-notes
+
+echo "GitHub release $tag created."
+'
+"""
+
 [tasks.clean]
-description = "Remove the dist/ and releases/ directories"
-cmd         = "rm -rf $DIST_DIR $RELEASES_DIR && echo '✅ Cleaned dist/ and releases/'"
+description = "Remove WXT build output"
+cmd = "rm -rf .output"
 
-# 8. DEV SERVER (extension)
-[tasks.dev-chrome]
-description = "Start WXT in watch mode for Chrome (launches isolated browser with HMR)"
-cmd         = "pnpm run dev-chrome"
+# ── Documentation ──────────────────────────────────────────────
 
-[tasks.dev-firefox]
-description = "Start WXT in watch mode for Firefox (launches isolated browser with HMR)"
-cmd         = "pnpm run dev-firefox"
-
-[tasks.dev]
-description = "Start WXT in watch mode for Chrome and Firefox"
-cmd = """
-npx concurrently -k \
-  "pnpm run dev-chrome" \
-  "pnpm run dev-firefox" \
-"""
-
-[tasks.dev-firefox-all]
-description = "Run and auto-reload the extension on Firefox for Android via HMR"
-cmd = """
-adb reverse tcp:3000 tcp:3000 &&
-npx concurrently -k \
-  "WXT_NO_LAUNCH=true pnpm run dev-firefox" \
-  "npx wait-on file:.output/firefox-mv2-dev/manifest.json && npx web-ext run --source-dir .output/firefox-mv2-dev --target=firefox-android --android-device=$(adb devices | awk 'NR==2 {print $1}')"
-"""
-
-[tasks.dev-chromium-all]
-description = "Simultaneous Desktop & Android live testing"
-cmd = """
-adb reverse tcp:3000 tcp:3000 &&
-npx concurrently \"pnpm run dev-chrome\" \"npx nodemon --watch .output/chrome-mv3-dev -e js,json,html,css --delay 2 --exec 'adb push .output/molstar-linker-chromium-dev /sdcard/Download/'\"
-"""
-
-# 9. DOCS SITE (Org)
 [tasks.serve]
-description = "Serve the docs on http://localhost:3000"
-cmd         = "pnpm dlx serve docs -l 3000"
-
-[tasks.serve-live]
-description = "Serve the docs with live reload on http://localhost:3000"
-cmd         = "pnpm dlx browser-sync start --server docs --files 'docs/**/*' --no-notify"
+description = "Serve the documentation locally"
+cmd = "pnpm dlx serve docs -l 3000"
 
 [tasks.build-site]
-description = "Build the Org static site for production"
-cmd         = "emacs -Q --batch -l build.el"
+description = "Build the Org documentation site"
+cmd = "emacs -Q --batch -l build.el"
