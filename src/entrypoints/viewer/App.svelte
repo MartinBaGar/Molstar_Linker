@@ -9,6 +9,12 @@
   // ---------------------------------------------------------------------------
   // 1. Svelte State
   // ---------------------------------------------------------------------------
+  let pendingSession: { url: string; format: string } | null = null;
+
+  function isNextcloudAccountFile(rawUrl: string): boolean {
+    return new URL(rawUrl).pathname.startsWith("/remote.php/dav/files/");
+  }
+
   let isLoading = true;
   let loadingMessage = "Loading structure...";
   let errorMessage: string | null = null;
@@ -99,6 +105,7 @@
   async function bootWorkspace(
     rawUrl: string,
     safeFormat: string,
+    useSession = false,
   ): Promise<void> {
     isLoading = true;
     loadingMessage = "Downloading structure securely…";
@@ -118,7 +125,8 @@
       resetInactivityTimer();
       const response = await fetch(rawUrl, {
         signal: controller.signal,
-        credentials: "omit",
+        credentials: useSession ? "include" : "omit",
+        redirect: useSession ? "error" : "follow",
       });
 
       // A safe URL may redirect somewhere unsafe (localhost, LAN…).
@@ -236,6 +244,9 @@
       isLoading = false;
     } else if (!ALL_EXTENSIONS.has(format)) {
       promptForFormat(rawUrl);
+    } else if (isNextcloudAccountFile(rawUrl)) {
+      pendingSession = { url: rawUrl, format };
+      isLoading = false;
     } else {
       bootWorkspace(rawUrl, format);
     }
@@ -301,6 +312,36 @@
       }}
     >
       Launch Workspace
+    </button>
+  </div>
+{:else if pendingSession}
+  <div class="format-selector">
+    <h3>Open account file?</h3>
+    <p>
+      This file is on {new URL(pendingSession.url).hostname}. Use your browser
+      session to download it?
+    </p>
+
+    <button
+      on:click={() => {
+        const file = pendingSession;
+        if (!file) return;
+        pendingSession = null;
+        bootWorkspace(file.url, file.format, true);
+      }}
+    >
+      Use my browser session
+    </button>
+
+    <button
+      on:click={() => {
+        const file = pendingSession;
+        if (!file) return;
+        pendingSession = null;
+        bootWorkspace(file.url, file.format);
+      }}
+    >
+      Try without session
     </button>
   </div>
 {:else if isLoading}

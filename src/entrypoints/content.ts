@@ -144,6 +144,14 @@ const NextcloudAdapter: SiteAdapter = {
     return ALL_EXTENSIONS.has(ext) ? ext : null;
   },
   resolveUrl: (element, _parsed) => {
+    const share = /^\/s\/([A-Za-z0-9]+)\/?$/.exec(window.location.pathname);
+
+    if (share) {
+      const token = share[1];
+      if (!token) return null;
+      return `${window.location.origin}/public.php/dav/files/${encodeURIComponent(token)}`;
+    }
+
     // NOTE: this selector ends with '-', which looks truncated. If the Nextcloud
     // badge never appears, inspect the DOM for the real class name.
     const nameEl = element.querySelector(".files-list__row-name-");
